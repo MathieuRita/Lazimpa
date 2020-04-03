@@ -106,6 +106,7 @@ def dump(game, n_features, device, gs_mode):
     print(f'Mean accuracy wrt powerlaw distribution is {powerlaw_acc}')
     print(json.dumps({'powerlaw': powerlaw_acc, 'unif': unif_acc}))
 
+    return acc, messages
 
 def main(params):
     opts = get_params(params)
@@ -171,7 +172,17 @@ def main(params):
         if opts.checkpoint_dir:
             trainer.save_checkpoint(name=f'{opts.name}_vocab{opts.vocab_size}_rs{opts.random_seed}_lr{opts.lr}_shid{opts.sender_hidden}_rhid{opts.receiver_hidden}_sentr{opts.sender_entropy_coeff}_reg{opts.length_cost}_max_len{opts.max_len}')
 
-        dump(trainer.game, opts.n_features, device, False)
+        messages,acc=dump(trainer.game, opts.n_features, device, False)
+
+        # ADDITION TO SAVE MESSAGES
+        all_messages=[]
+        for x in messages:
+            x = x.cpu().numpy()
+            all_messages.append(x)
+        all_messages = np.asarray(all_messages)
+
+        np.save('messages_'+str((epoch))+'.npy', all_messages)
+
     core.close()
 
 

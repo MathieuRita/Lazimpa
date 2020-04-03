@@ -168,11 +168,11 @@ def main(params):
                            validation_data=test_loader, callbacks=[EarlyStopperAccuracy(opts.early_stopping_thr)])
 
     for epoch in range(int(opts.n_epochs/5)):
-        trainer.train(n_epochs=5)
+        trainer.train(n_epochs=1)
         if opts.checkpoint_dir:
             trainer.save_checkpoint(name=f'{opts.name}_vocab{opts.vocab_size}_rs{opts.random_seed}_lr{opts.lr}_shid{opts.sender_hidden}_rhid{opts.receiver_hidden}_sentr{opts.sender_entropy_coeff}_reg{opts.length_cost}_max_len{opts.max_len}')
 
-        messages,acc=dump(trainer.game, opts.n_features, device, False)
+        acc,messages=dump(trainer.game, opts.n_features, device, False)
 
         # ADDITION TO SAVE MESSAGES
         all_messages=[]

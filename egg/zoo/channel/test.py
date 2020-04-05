@@ -114,7 +114,7 @@ def position_test(game, n_features, device, gs_mode,pos_min=0,pos_max=1):
     dataset = [[torch.eye(n_features).to(device), None]]
 
     sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
-        core.dump_sender_receiver_test(game,
+        dump_sender_receiver_test(game,
                                        dataset,
                                        gs=gs_mode,
                                        device=device,

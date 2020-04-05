@@ -12,6 +12,7 @@ import egg.core as core
 from egg.core import EarlyStopperAccuracy
 from egg.zoo.channel.features import OneHotLoader, UniformLoader
 from egg.zoo.channel.archs import Sender, Receiver
+from egg.core.util import dump_sender_receiver_test
 
 
 def get_params(params):

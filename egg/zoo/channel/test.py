@@ -207,15 +207,17 @@ def main(params):
                            validation_data=test_loader, callbacks=[EarlyStopperAccuracy(opts.early_stopping_thr)])
 
     # Test position
-    pos_min=3
-    pos_max=30
 
-    acc,messages=position_test(trainer.game,
-                               opts.n_features,
-                               device,
-                               False,
-                               pos_min=pos_min,
-                               pos_max=pos_max)
+    for pos_min in [25,20,15,10]:
+        for pos_max in [20,15,10]:
+            print("pos_min:{}, pos_max:{}".join(pos_min,pos_max))
+            if pos_min<pos_max:
+                acc,messages=position_test(trainer.game,
+                                           opts.n_features,
+                                           device,
+                                           False,
+                                           pos_min=pos_min,
+                                           pos_max=pos_max)
 
     core.close()
 

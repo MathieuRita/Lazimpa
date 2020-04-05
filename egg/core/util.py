@@ -275,6 +275,9 @@ def dump_sender_receiver_test(game: torch.nn.Module,
 
             message = game.sender(sender_input)
 
+            print(message)
+            print(message.shape)
+
             # ETUDE DES POSITIONS
             if pos_min>-1:
                 if pos_max>-1:

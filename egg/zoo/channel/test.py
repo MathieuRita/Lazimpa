@@ -158,7 +158,8 @@ def main(params):
                                              opts.receiver_hidden, cell=opts.receiver_cell,
                                              num_layers=opts.receiver_num_layers)
 
-    receiver.load_state_dict(torch.load("weights_net.pth"))
+    sender.load_state_dict(torch.load("sender_weights.pth"))
+    receiver.load_state_dict(torch.load("receiver_weights.pth"))
 
     game = core.SenderReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,
                                            receiver_entropy_coeff=opts.receiver_entropy_coeff,

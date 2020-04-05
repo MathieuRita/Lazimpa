@@ -174,7 +174,7 @@ def main(params):
             trainer.save_checkpoint(name=f'{opts.name}_vocab{opts.vocab_size}_rs{opts.random_seed}_lr{opts.lr}_shid{opts.sender_hidden}_rhid{opts.receiver_hidden}_sentr{opts.sender_entropy_coeff}_reg{opts.length_cost}_max_len{opts.max_len}')
 
         acc,messages=dump(trainer.game, opts.n_features, device, False)
-        torch.save(receiver.state_dict(), "sender_weights"+str(epoch)+".pth")
+        torch.save(sender.state_dict(), "sender_weights"+str(epoch)+".pth")
         torch.save(receiver.state_dict(), "receiver_weights"+str(epoch)+".pth")
 
         # ADDITION TO SAVE MESSAGES

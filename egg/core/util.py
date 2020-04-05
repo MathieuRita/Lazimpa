@@ -281,7 +281,7 @@ def dump_sender_receiver_test(game: torch.nn.Module,
             if pos_min>-1 and pos_max>-1:
                 for j in range(message[0].size()[0]):
                     for k in range(pos_min,pos_max):
-                        message[0][j,k]=np.random.randint(30)
+                        message[0][j,k]=np.random.randint(20)
 
             print(message[0])
 

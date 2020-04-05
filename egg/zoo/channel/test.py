@@ -210,7 +210,7 @@ def main(params):
 
     for pos_min in [25,20,15,10]:
         for pos_max in [20,15,10]:
-            print("pos_min:{}, pos_max:{}".join(pos_min,pos_max))
+            print("pos_min:"+str(pos_min)+", pos_max:"+str(pos_min))
             if pos_min<pos_max:
                 acc,messages=position_test(trainer.game,
                                            opts.n_features,

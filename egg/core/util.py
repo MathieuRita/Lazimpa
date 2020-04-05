@@ -245,9 +245,11 @@ def dump_sender_receiver(game: torch.nn.Module,
     return sender_inputs, messages, receiver_inputs, receiver_outputs, labels
 
 def dump_sender_receiver_test(game: torch.nn.Module,
-                         dataset: 'torch.utils.data.DataLoader',
-                         gs: bool, variable_length: bool,
-                         device: Optional[torch.device] = None):
+                              dataset: 'torch.utils.data.DataLoader',
+                              gs: bool, variable_length: bool,
+                              device: Optional[torch.device] = None,
+                              pos_min=0,
+                              pos_max=10):
     """
     A tool to dump the interaction between Sender and Receiver
     :param game: A Game instance

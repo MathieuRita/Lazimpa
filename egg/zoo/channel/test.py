@@ -211,7 +211,7 @@ def main(params):
     for pos_max in [25,20,15,10]:
         for pos_min in [20,15,10]:
             if pos_min<pos_max:
-                print("pos_min:"+str(pos_min)+", pos_max:"+str(pos_min))
+                print("pos_min:"+str(pos_min)+", pos_max:"+str(pos_max))
                 acc,messages=position_test(trainer.game,
                                            opts.n_features,
                                            device,

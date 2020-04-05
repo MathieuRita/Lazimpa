@@ -168,6 +168,7 @@ def main(params):
                            validation_data=test_loader, callbacks=[EarlyStopperAccuracy(opts.early_stopping_thr)])
 
     print(receiver)
+    torch.save(receiver.state_dict(), "weights_net")
 
     for epoch in range(int(opts.n_epochs/5)):
         trainer.train(n_epochs=5)

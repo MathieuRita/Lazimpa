@@ -276,11 +276,10 @@ def dump_sender_receiver_test(game: torch.nn.Module,
             message = game.sender(sender_input)
 
             print(message[0])
-            print(message.size())
 
             # ETUDE DES POSITIONS
             if pos_min>-1 and pos_max>-1:
-                for j in range(message[i].shape[0]):
+                for j in range(message[i].size()[0]):
                     for k in range(pos_min,pos_max):
                         message[0][j,k]=np.random.randint(30)
 

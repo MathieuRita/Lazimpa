@@ -280,7 +280,7 @@ def dump_sender_receiver_test(game: torch.nn.Module,
                 if pos_max>-1:
                     for i in range(3):
                         for j in range(message[i].shape[0]):
-                                for k in range(pos_m,pos_M):
+                                for k in range(pos_min,pos_max):
                                     message[i][j,k]=np.random.randint(30)
 
             # Under GS, the only output is a message; under Reinforce, two additional tensors are returned.

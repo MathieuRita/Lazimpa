@@ -108,6 +108,41 @@ def dump(game, n_features, device, gs_mode):
 
     return acc, messages
 
+def position_test(game, n_features, device, gs_mode,pos_min=0,pos_max=1):
+    # tiny "dataset"
+    dataset = [[torch.eye(n_features).to(device), None]]
+
+    sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
+        core.dump_sender_receiver_test(game,
+                                       dataset,
+                                       gs=gs_mode,
+                                       device=device,
+                                       variable_length=True,
+                                       pos_min=pos_min,
+                                       pos_max=pos_max)
+
+    unif_acc = 0.
+    powerlaw_acc = 0.
+    powerlaw_probs = 1 / np.arange(1, n_features+1, dtype=np.float32)
+    powerlaw_probs /= powerlaw_probs.sum()
+
+    for sender_input, message, receiver_output in zip(sender_inputs, messages, receiver_outputs):
+        input_symbol = sender_input.argmax()
+        output_symbol = receiver_output.argmax()
+        acc = (input_symbol == output_symbol).float().item()
+
+        unif_acc += acc
+        powerlaw_acc += powerlaw_probs[input_symbol] * acc
+        print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
+
+    unif_acc /= n_features
+
+    print(f'Mean accuracy wrt uniform distribution is {unif_acc}')
+    print(f'Mean accuracy wrt powerlaw distribution is {powerlaw_acc}')
+    print(json.dumps({'powerlaw': powerlaw_acc, 'unif': unif_acc}))
+
+    return acc, messages
+
 def main(params):
     opts = get_params(params)
     print(opts, flush=True)
@@ -170,7 +205,16 @@ def main(params):
     trainer = core.Trainer(game=game, optimizer=optimizer, train_data=train_loader,
                            validation_data=test_loader, callbacks=[EarlyStopperAccuracy(opts.early_stopping_thr)])
 
-    acc,messages=dump(trainer.game, opts.n_features, device, False)
+    # Test position
+    pos_min=3
+    pos_max=30
+
+    acc,messages=position_test(trainer.game,
+                               opts.n_features,
+                               device,
+                               False,
+                               pos_min=pos_min,
+                               pos_max=pos_max)
 
     core.close()
 

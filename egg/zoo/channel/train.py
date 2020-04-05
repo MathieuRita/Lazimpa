@@ -167,6 +167,8 @@ def main(params):
     trainer = core.Trainer(game=game, optimizer=optimizer, train_data=train_loader,
                            validation_data=test_loader, callbacks=[EarlyStopperAccuracy(opts.early_stopping_thr)])
 
+    print(receiver)
+
     for epoch in range(int(opts.n_epochs/5)):
         trainer.train(n_epochs=5)
         if opts.checkpoint_dir:

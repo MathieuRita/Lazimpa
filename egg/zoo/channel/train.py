@@ -167,9 +167,6 @@ def main(params):
     trainer = core.Trainer(game=game, optimizer=optimizer, train_data=train_loader,
                            validation_data=test_loader, callbacks=[EarlyStopperAccuracy(opts.early_stopping_thr)])
 
-    print(receiver)
-    torch.save(receiver.state_dict(), "weights_net.pth")
-    receiver.load_state_dict(torch.load("weights_net.pth"))
 
     for epoch in range(int(opts.n_epochs/5)):
         trainer.train(n_epochs=5)
@@ -177,6 +174,7 @@ def main(params):
             trainer.save_checkpoint(name=f'{opts.name}_vocab{opts.vocab_size}_rs{opts.random_seed}_lr{opts.lr}_shid{opts.sender_hidden}_rhid{opts.receiver_hidden}_sentr{opts.sender_entropy_coeff}_reg{opts.length_cost}_max_len{opts.max_len}')
 
         acc,messages=dump(trainer.game, opts.n_features, device, False)
+        torch.save(receiver.state_dict(), "weights_net"+str(epoch)+".pth")
 
         # ADDITION TO SAVE MESSAGES
         all_messages=[]

@@ -119,6 +119,11 @@ def main(params):
         probs = np.ones(opts.n_features)
     elif opts.probs == 'powerlaw':
         probs = 1 / np.arange(1, opts.n_features+1, dtype=np.float32)
+    if opts.probs == "creneau":
+        ones = np.ones(int(opts.n_features/2))
+        tens = 10*np.ones(opts.n_features-int(opts.n_features/2))
+
+        probs = np.concatenate((ones,tens),axis=0)
     else:
         probs = np.array([float(x) for x in opts.probs.split(',')], dtype=np.float32)
     probs /= probs.sum()

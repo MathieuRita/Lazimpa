@@ -13,6 +13,7 @@ from egg.core import EarlyStopperAccuracy
 from egg.zoo.channel.features import OneHotLoader, UniformLoader
 from egg.zoo.channel.archs import Sender, Receiver
 from egg.core.util import dump_sender_receiver_test
+from egg.core.util import dump_impose_message
 
 
 def get_params(params):
@@ -206,8 +207,8 @@ def main(params):
     trainer = core.Trainer(game=game, optimizer=optimizer, train_data=train_loader,
                            validation_data=test_loader, callbacks=[EarlyStopperAccuracy(opts.early_stopping_thr)])
 
+    """
     # Test position
-
     for pos_max in [0,4,8,12,16,20,24,28,30]:
         for pos_min in [4,8,12,16,20,24,28,30]:
             if pos_min==pos_max-4:
@@ -218,6 +219,28 @@ def main(params):
                                            False,
                                            pos_min=pos_min,
                                            pos_max=pos_max)
+    """
+
+    # Test impose message
+
+    dataset = [[torch.eye(n_features).to(device), None]]
+
+    sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
+        dump_impose_message(trainer.game,
+                            dataset,
+                            gs=gs_mode,
+                            device=device,
+                            variable_length=True)
+
+    for sender_input, message, receiver_output in zip(sender_inputs, messages, receiver_outputs):
+        input_symbol = sender_input.argmax()
+        output_symbol = receiver_output.argmax()
+        acc = (input_symbol == output_symbol).float().item()
+
+        unif_acc += acc
+    unif_acc /= opts.n_features
+
+    print(f'Mean accuracy wrt uniform distribution is {unif_acc}')
 
     core.close()
 

@@ -125,9 +125,9 @@ def main(params):
         probs = np.concatenate((ones,tens),axis=0)
     if opts.probs == "escalier":
         ones = np.ones(int(opts.n_features/4))
-        tens = 10*np.ones(opts.n_features-int(opts.n_features/4))
-        huns = 100*np.ones(opts.n_features-int(opts.n_features/4))
-        thous = 1000*np.ones(opts.n_features-int(opts.n_features/4))
+        tens = 10*np.ones(int(opts.n_features/4))
+        huns = 100*np.ones(int(opts.n_features/4))
+        thous = 1000*np.ones(opts.n_features-3*int(opts.n_features/4))
         probs = np.concatenate((ones,tens,huns,thous),axis=0)
     else:
         probs = np.array([float(x) for x in opts.probs.split(',')], dtype=np.float32)

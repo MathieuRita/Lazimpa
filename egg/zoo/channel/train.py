@@ -96,6 +96,12 @@ def dump(game, n_features, device, gs_mode):
         output_symbol = receiver_output.argmax()
         acc = (input_symbol == output_symbol).float().item()
 
+        # Acc by class
+        acc1 = (input_symbol[:25] == output_symbol[:25]).float().item()
+        acc2 = (input_symbol[25:50] == output_symbol[25:50]).float().item()
+        acc3 = (input_symbol[50:75] == output_symbol[50:75]).float().item()
+        acc4 = (input_symbol[75:100] == output_symbol[75:100]).float().item()
+
         unif_acc += acc
         powerlaw_acc += powerlaw_probs[input_symbol] * acc
         print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)

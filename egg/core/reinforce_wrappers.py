@@ -579,6 +579,8 @@ class TransformerSenderReinforce(nn.Module):
         logits = torch.stack(logits).permute(1, 0)
         entropy = torch.stack(entropy).permute(1, 0)
 
+        print(sequence)
+
         if self.force_eos:
             zeros = torch.zeros((sequence.size(0), 1)).to(sequence.device)
 
@@ -587,5 +589,3 @@ class TransformerSenderReinforce(nn.Module):
             entropy = torch.cat([entropy, zeros], dim=1)
 
         return sequence, logits, entropy
-
-

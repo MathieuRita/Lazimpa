@@ -41,9 +41,9 @@ class TransformerEncoder(nn.Module):
     """Implements a Transformer Encoder. The masking is done based on the positions of the <eos>
     token (with id 0).
     Two regimes are implemented:
-    * 'causal' (left-to-right): the symbols are masked such that every symbol's embedding only can depend on the 
+    * 'causal' (left-to-right): the symbols are masked such that every symbol's embedding only can depend on the
         symbols to the left of it. The embedding of the <eos> symbol is taken as the representative.
-    *  'non-causal': a special symbol <sos> is pre-pended to the input sequence, all symbols before <eos> are un-masked. 
+    *  'non-causal': a special symbol <sos> is pre-pended to the input sequence, all symbols before <eos> are un-masked.
     """
     def __init__(self,
                  vocab_size: int,
@@ -111,6 +111,8 @@ class TransformerEncoder(nn.Module):
             for i, l in enumerate(lengths.clamp(max=self.max_len-1).cpu()):
                 last_embeddings.append(transformed[i, l, :])
             transformed = torch.stack(last_embeddings)
+            print("transformed")
+            print(transformed)
 
         return transformed
 
@@ -287,7 +289,7 @@ class TransformerDecoderLayer(nn.Module):
         self.self_attn_layer_norm = torch.nn.LayerNorm(self.embed_dim)
 
         # NB: we pass encoder state as a single vector at the moment (form the user-defined module)
-        # hence this attention layer is somewhat degenerate/redundant. Nonetherless, we'll have it 
+        # hence this attention layer is somewhat degenerate/redundant. Nonetherless, we'll have it
         # for (a) proper compatibility (b) in case we'll decide to pass multipel states
         self.encoder_attn = torch.nn.MultiheadAttention(
             embed_dim=self.embed_dim,
@@ -309,7 +311,7 @@ class TransformerDecoderLayer(nn.Module):
         nn.init.xavier_uniform_(self.fc2.weight)
         nn.init.constant_(self.fc2.bias, 0.)
 
-    def forward(self, 
+    def forward(self,
                 x,
                 encoder_out,
                 key_mask=None,

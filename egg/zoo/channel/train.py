@@ -117,13 +117,18 @@ def main(params):
 
     if opts.probs == 'uniform':
         probs = np.ones(opts.n_features)
-    elif opts.probs == 'powerlaw':
+    if opts.probs == 'powerlaw':
         probs = 1 / np.arange(1, opts.n_features+1, dtype=np.float32)
     if opts.probs == "creneau":
         ones = np.ones(int(opts.n_features/2))
         tens = 10*np.ones(opts.n_features-int(opts.n_features/2))
-
         probs = np.concatenate((ones,tens),axis=0)
+    if opts.probs == "escalier":
+        ones = np.ones(int(opts.n_features/4))
+        tens = 10*np.ones(opts.n_features-int(opts.n_features/4))
+        huns = 100*np.ones(opts.n_features-int(opts.n_features/4))
+        thous = 1000*np.ones(opts.n_features-int(opts.n_features/4))
+        probs = np.concatenate((ones,tens,huns,thous),axis=0)
     else:
         probs = np.array([float(x) for x in opts.probs.split(',')], dtype=np.float32)
     probs /= probs.sum()

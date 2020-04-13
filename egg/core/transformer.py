@@ -111,8 +111,6 @@ class TransformerEncoder(nn.Module):
             for i, l in enumerate(lengths.clamp(max=self.max_len-1).cpu()):
                 last_embeddings.append(transformed[i, l, :])
             transformed = torch.stack(last_embeddings)
-            print("transformed")
-            print(transformed)
 
         return transformed
 

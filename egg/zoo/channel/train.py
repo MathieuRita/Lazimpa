@@ -97,10 +97,10 @@ def dump(game, n_features, device, gs_mode):
         acc = (input_symbol == output_symbol).float().item()
 
         # Acc by class
-        acc1 = (input_symbol[:25] == output_symbol[:25]).float().item()
-        acc2 = (input_symbol[25:50] == output_symbol[25:50]).float().item()
-        acc3 = (input_symbol[50:75] == output_symbol[50:75]).float().item()
-        acc4 = (input_symbol[75:100] == output_symbol[75:100]).float().item()
+        #acc1 = (input_symbol[:25] == output_symbol[:25]).float().item()
+        #acc2 = (input_symbol[25:50] == output_symbol[25:50]).float().item()
+        #acc3 = (input_symbol[50:75] == output_symbol[50:75]).float().item()
+        #acc4 = (input_symbol[75:100] == output_symbol[75:100]).float().item()
 
         unif_acc += acc
         powerlaw_acc += powerlaw_probs[input_symbol] * acc
@@ -123,13 +123,13 @@ def main(params):
 
     if opts.probs == 'uniform':
         probs = np.ones(opts.n_features)
-    if opts.probs == 'powerlaw':
+    elif opts.probs == 'powerlaw':
         probs = 1 / np.arange(1, opts.n_features+1, dtype=np.float32)
-    if opts.probs == "creneau":
+    elif opts.probs == "creneau":
         ones = np.ones(int(opts.n_features/2))
         tens = 10*np.ones(opts.n_features-int(opts.n_features/2))
         probs = np.concatenate((ones,tens),axis=0)
-    if opts.probs == "escalier":
+    elif opts.probs == "escalier":
         ones = np.ones(int(opts.n_features/4))
         tens = 10*np.ones(int(opts.n_features/4))
         huns = 100*np.ones(int(opts.n_features/4))

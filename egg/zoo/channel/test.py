@@ -223,12 +223,12 @@ def main(params):
 
     # Test impose message
 
-    dataset = [[torch.eye(n_features).to(device), None]]
+    dataset = [[torch.eye(opts.n_features).to(device), None]]
 
     sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
         dump_impose_message(trainer.game,
                             dataset,
-                            gs=gs_mode,
+                            gs=False,
                             device=device,
                             variable_length=True)
 

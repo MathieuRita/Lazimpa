@@ -12,6 +12,8 @@ import egg.core as core
 from egg.core import EarlyStopperAccuracy
 from egg.zoo.channel.features import OneHotLoader, UniformLoader
 from egg.zoo.channel.archs import Sender, Receiver
+from egg.core.util import dump_sender_receiver_test
+from egg.core.util import dump_impose_message
 
 
 def get_params(params):
@@ -78,46 +80,6 @@ def loss(sender_input, _message, _receiver_input, receiver_output, _labels):
     loss = F.cross_entropy(receiver_output, sender_input.argmax(dim=1), reduction="none")
     return loss, {'acc': acc}
 
-
-def dump(game, n_features, device, gs_mode):
-    # tiny "dataset"
-    dataset = [[torch.eye(n_features).to(device), None]]
-
-    sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
-        core.dump_sender_receiver(game, dataset, gs=gs_mode, device=device, variable_length=True)
-
-    unif_acc = 0.
-    powerlaw_acc = 0.
-    powerlaw_probs = 1 / np.arange(1, n_features+1, dtype=np.float32)
-    powerlaw_probs /= powerlaw_probs.sum()
-
-    acc_vec=np.zeros(n_features)
-
-    for sender_input, message, receiver_output in zip(sender_inputs, messages, receiver_outputs):
-        input_symbol = sender_input.argmax()
-        output_symbol = receiver_output.argmax()
-        acc = (input_symbol == output_symbol).float().item()
-
-        acc_vec[int(input_symbol)]=acc
-
-        # Acc by class
-        #acc1 = (input_symbol[:25] == output_symbol[:25]).float().item()
-        #acc2 = (input_symbol[25:50] == output_symbol[25:50]).float().item()
-        #acc3 = (input_symbol[50:75] == output_symbol[50:75]).float().item()
-        #acc4 = (input_symbol[75:100] == output_symbol[75:100]).float().item()
-
-        unif_acc += acc
-        powerlaw_acc += powerlaw_probs[input_symbol] * acc
-        #print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
-
-    unif_acc /= n_features
-
-    print(f'Mean accuracy wrt uniform distribution is {unif_acc}')
-    print(f'Mean accuracy wrt powerlaw distribution is {powerlaw_acc}')
-    print(json.dumps({'powerlaw': powerlaw_acc, 'unif': unif_acc}))
-
-    return acc_vec, messages
-
 def main(params):
     opts = get_params(params)
     print(opts, flush=True)
@@ -129,16 +91,6 @@ def main(params):
         probs = np.ones(opts.n_features)
     elif opts.probs == 'powerlaw':
         probs = 1 / np.arange(1, opts.n_features+1, dtype=np.float32)
-    elif opts.probs == "creneau":
-        ones = np.ones(int(opts.n_features/2))
-        tens = 10*np.ones(opts.n_features-int(opts.n_features/2))
-        probs = np.concatenate((ones,tens),axis=0)
-    elif opts.probs == "escalier":
-        ones = np.ones(int(opts.n_features/4))
-        tens = 10*np.ones(int(opts.n_features/4))
-        huns = 100*np.ones(int(opts.n_features/4))
-        thous = 1000*np.ones(opts.n_features-3*int(opts.n_features/4))
-        probs = np.concatenate((ones,tens,huns,thous),axis=0)
     else:
         probs = np.array([float(x) for x in opts.probs.split(',')], dtype=np.float32)
     probs /= probs.sum()
@@ -178,6 +130,9 @@ def main(params):
                                              opts.receiver_hidden, cell=opts.receiver_cell,
                                              num_layers=opts.receiver_num_layers)
 
+    sender.load_state_dict(torch.load("sender_weights.pth"))
+    receiver.load_state_dict(torch.load("receiver_weights.pth"))
+
     game = core.SenderReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,
                                            receiver_entropy_coeff=opts.receiver_entropy_coeff,
                                            length_cost=opts.length_cost)
@@ -188,26 +143,36 @@ def main(params):
                            validation_data=test_loader, callbacks=[EarlyStopperAccuracy(opts.early_stopping_thr)])
 
 
-    for epoch in range(int(opts.n_epochs)):
-        trainer.train(n_epochs=5)
-        if opts.checkpoint_dir:
-            trainer.save_checkpoint(name=f'{opts.name}_vocab{opts.vocab_size}_rs{opts.random_seed}_lr{opts.lr}_shid{opts.sender_hidden}_rhid{opts.receiver_hidden}_sentr{opts.sender_entropy_coeff}_reg{opts.length_cost}_max_len{opts.max_len}')
 
-        acc_vec,messages=dump(trainer.game, opts.n_features, device, False)
+    # Test impose message
 
-        # ADDITION TO SAVE MESSAGES
-        all_messages=[]
-        for x in messages:
-            x = x.cpu().numpy()
-            all_messages.append(x)
-        all_messages = np.asarray(all_messages)
+    dataset = [[torch.eye(opts.n_features).to(device), None]]
 
+    sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
+        dump_impose_message(trainer.game,
+                            dataset,
+                            gs=False,
+                            device=device,
+                            variable_length=True)
 
-        torch.save(sender.state_dict(), "sender/sender_weights"+str(epoch)+".pth")
-        torch.save(receiver.state_dict(), "receiver/receiver_weights"+str(epoch)+".pth")
-        np.save('messages/messages_'+str((epoch))+'.npy', all_messages)
-        np.save('accuracy/accuracy_'+str((epoch))+'.npy', acc_vec)
-        print(acc_vec)
+    powerlaw_probs = 1 / np.arange(1, opts.n_features+1, dtype=np.float32)
+    powerlaw_probs /= powerlaw_probs.sum()
+
+    unif_acc=0
+    powerlaw_acc=0.
+
+    for sender_input, message, receiver_output in zip(sender_inputs, messages, receiver_outputs):
+        input_symbol = sender_input.argmax()
+        output_symbol = receiver_output.argmax()
+        acc = (input_symbol == output_symbol).float().item()
+        print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
+
+        unif_acc += acc
+        powerlaw_acc += powerlaw_probs[input_symbol] * acc
+
+    unif_acc /= opts.n_features
+
+    print(f'Mean accuracy wrt uniform distribution is {unif_acc}')
 
     core.close()
 

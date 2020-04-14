@@ -202,7 +202,7 @@ def main(params):
             all_messages.append(x)
         all_messages = np.asarray(all_messages)
 
-        if epoch%50==0:
+        if epoch%100==0:
             torch.save(sender.state_dict(), "sender/sender_weights"+str(epoch)+".pth")
             torch.save(receiver.state_dict(), "receiver/receiver_weights"+str(epoch)+".pth")
 

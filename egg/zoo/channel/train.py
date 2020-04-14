@@ -183,9 +183,6 @@ def main(params):
     trainer = core.Trainer(game=game, optimizer=optimizer, train_data=train_loader,
                            validation_data=test_loader, callbacks=[EarlyStopperAccuracy(opts.early_stopping_thr)])
 
-    ! mkdir sender
-    ! mkdir receiver
-    ! mkdir messages
 
     for epoch in range(int(opts.n_epochs)):
         trainer.train(n_epochs=5)

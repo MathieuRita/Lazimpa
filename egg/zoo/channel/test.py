@@ -232,12 +232,21 @@ def main(params):
                             device=device,
                             variable_length=True)
 
+    powerlaw_probs = 1 / np.arange(1, opts.n_features+1, dtype=np.float32)
+    powerlaw_probs /= powerlaw_probs.sum()
+
+    unif_acc=0
+    powerlaw_acc=0.
+
     for sender_input, message, receiver_output in zip(sender_inputs, messages, receiver_outputs):
         input_symbol = sender_input.argmax()
         output_symbol = receiver_output.argmax()
         acc = (input_symbol == output_symbol).float().item()
+        print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
 
         unif_acc += acc
+        powerlaw_acc += powerlaw_probs[input_symbol] * acc
+
     unif_acc /= opts.n_features
 
     print(f'Mean accuracy wrt uniform distribution is {unif_acc}')

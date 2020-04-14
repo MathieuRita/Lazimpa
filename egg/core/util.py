@@ -356,9 +356,45 @@ def dump_impose_message(game: torch.nn.Module,
 
             message = game.sender(sender_input)
 
-            # ETUDE DES POSITIONS
-            print(message.shape)
-            print(message)
+            # Test vocab
+            conv=np.random.choice(10,size=10,replace=False)
+            not_found=True
+            k=0
+            while not_found:
+              if conv[k]==0:
+                conv=np.concatenate((conv[:k],conv[k+1:]),axis=0)
+                not_found=False
+              k+=1
+
+            # Test replacement with reference message
+            mes=message[0][77]
+            N=1 # N-gram
+            np.random.seed(43)
+            for j in range(30):
+              for i in range(30):
+                message[0][j,i]=mes[i]
+              for i in range(N-1,30):
+                if i==j:
+                  for k in range(N):
+                    message[0][j,i-k]=np.random.randint(1,10)
+
+            # Test changer le milieu
+            for j in range(200):
+              longueur=0
+              not_found=True
+              while not_found:
+                longueur+=1
+                if message[0][j,longueur-1]==0 or longueur==30:
+                  not_found=False
+
+              for i in range(3,longueur-5):
+                  message[0][j,i]=1
+
+
+            for i in range(message[0].size()[0]):
+              for j in range(message[0].size()[1]):
+                if message[0][i,j]!=0:
+                  message[0][i,j]=int(conv[int(message[0][i,j]-1)])
 
             # Under GS, the only output is a message; under Reinforce, two additional tensors are returned.
             # We don't need them.

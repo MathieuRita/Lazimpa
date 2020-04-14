@@ -138,7 +138,7 @@ def main(params):
         tens = 10*np.ones(int(opts.n_features/4))
         huns = 100*np.ones(int(opts.n_features/4))
         thous = 1000*np.ones(opts.n_features-3*int(opts.n_features/4))
-        probs = np.concatenate((ones,tens,huns,thous),axis=0)
+        probs = np.concatenate((thous,huns,tens,ones),axis=0)
     else:
         probs = np.array([float(x) for x in opts.probs.split(',')], dtype=np.float32)
     probs /= probs.sum()
@@ -205,8 +205,9 @@ def main(params):
 
         torch.save(sender.state_dict(), "sender/sender_weights"+str(epoch)+".pth")
         torch.save(receiver.state_dict(), "receiver/receiver_weights"+str(epoch)+".pth")
-        np.save('messages/messages_'+str((epoch))+'.npy', all_messages)
-        np.save('accuracy/accuracy_'+str((epoch))+'.npy', acc_vec)
+        if epoch%50==0:
+            np.save('messages/messages_'+str((epoch))+'.npy', all_messages)
+            np.save('accuracy/accuracy_'+str((epoch))+'.npy', acc_vec)
         print(acc_vec)
 
     core.close()

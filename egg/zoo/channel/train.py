@@ -91,10 +91,14 @@ def dump(game, n_features, device, gs_mode):
     powerlaw_probs = 1 / np.arange(1, n_features+1, dtype=np.float32)
     powerlaw_probs /= powerlaw_probs.sum()
 
+    acc_vec=np.zeros(n_features)
+
     for sender_input, message, receiver_output in zip(sender_inputs, messages, receiver_outputs):
         input_symbol = sender_input.argmax()
         output_symbol = receiver_output.argmax()
         acc = (input_symbol == output_symbol).float().item()
+
+        acc_vec[int(input_symbol)]=acc
 
         # Acc by class
         #acc1 = (input_symbol[:25] == output_symbol[:25]).float().item()
@@ -104,7 +108,7 @@ def dump(game, n_features, device, gs_mode):
 
         unif_acc += acc
         powerlaw_acc += powerlaw_probs[input_symbol] * acc
-        print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
+        #print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
 
     unif_acc /= n_features
 
@@ -112,7 +116,7 @@ def dump(game, n_features, device, gs_mode):
     print(f'Mean accuracy wrt powerlaw distribution is {powerlaw_acc}')
     print(json.dumps({'powerlaw': powerlaw_acc, 'unif': unif_acc}))
 
-    return acc, messages
+    return acc_vec, messages
 
 def main(params):
     opts = get_params(params)
@@ -189,7 +193,7 @@ def main(params):
         if opts.checkpoint_dir:
             trainer.save_checkpoint(name=f'{opts.name}_vocab{opts.vocab_size}_rs{opts.random_seed}_lr{opts.lr}_shid{opts.sender_hidden}_rhid{opts.receiver_hidden}_sentr{opts.sender_entropy_coeff}_reg{opts.length_cost}_max_len{opts.max_len}')
 
-        acc,messages=dump(trainer.game, opts.n_features, device, False)
+        acc_vec,messages=dump(trainer.game, opts.n_features, device, False)
 
         # ADDITION TO SAVE MESSAGES
         all_messages=[]
@@ -198,9 +202,12 @@ def main(params):
             all_messages.append(x)
         all_messages = np.asarray(all_messages)
 
-        torch.save(sender.state_dict(), "sender/sender_weights"+str(epoch)+".pth")
-        torch.save(receiver.state_dict(), "receiver/receiver_weights"+str(epoch)+".pth")
+        if epoch%10==0:
+            torch.save(sender.state_dict(), "sender/sender_weights"+str(epoch)+".pth")
+            torch.save(receiver.state_dict(), "receiver/receiver_weights"+str(epoch)+".pth")
         np.save('messages/messages_'+str((epoch))+'.npy', all_messages)
+        np.save('accuracy/accuracy_'+str((epoch))+'.npy', acc_vec)
+        print(acc_vec)
 
     core.close()
 

@@ -225,9 +225,9 @@ class RnnSenderReinforce(nn.Module):
 
             if self.training:
                 x = distr.sample()
+                print(x)
             else:
                 x = step_logits.argmax(dim=1)
-                print(x)
             logits.append(distr.log_prob(x))
 
             input = self.embedding(x)

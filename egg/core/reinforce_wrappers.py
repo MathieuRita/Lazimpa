@@ -220,6 +220,7 @@ class RnnSenderReinforce(nn.Module):
                 input = h_t
 
             step_logits = F.log_softmax(self.hidden_to_output(h_t), dim=1)
+            print(step_logits)
             distr = Categorical(logits=step_logits)
             entropy.append(distr.entropy())
 

@@ -14,6 +14,7 @@ from egg.zoo.channel.features import OneHotLoader, UniformLoader
 from egg.zoo.channel.archs import Sender, Receiver
 from egg.core.util import dump_sender_receiver_test
 from egg.core.util import dump_impose_message
+from egg.core.util import dump_test_position
 
 
 def get_params(params):
@@ -144,35 +145,57 @@ def main(params):
 
 
 
-    # Test impose message
+    # Debut test position
 
+    position_sieve=np.zeros(opts.n_features,opts.max_len)
+
+    for position in range(opts.max_len):
+
+        dataset = [[torch.eye(opts.n_features).to(device), None]]
+
+        sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
+            dump_test_position(trainer.game,
+                                dataset,
+                                position=position,
+                                voc_size=opts.vocab_size,
+                                gs=False,
+                                device=device,
+                                variable_length=True)
+
+        acc_pos=[]
+
+        for sender_input, message, receiver_output in zip(sender_inputs, messages, receiver_outputs):
+            input_symbol = sender_input.argmax()
+            output_symbol = receiver_output.argmax()
+            acc = (input_symbol == output_symbol).float().item()
+            acc_pos.append(acc)
+
+        acc_pos=np.array(acc_pos)
+
+        position_sieve[:,position]=acc_pos
+
+    # Put -1 for position after message_length
     dataset = [[torch.eye(opts.n_features).to(device), None]]
 
     sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
-        dump_impose_message(trainer.game,
+        dump_sender_receiver(trainer.game,
                             dataset,
                             gs=False,
                             device=device,
                             variable_length=True)
 
-    powerlaw_probs = 1 / np.arange(1, opts.n_features+1, dtype=np.float32)
-    powerlaw_probs /= powerlaw_probs.sum()
+    ids_0=np.where(messages=0)
 
-    unif_acc=0
-    powerlaw_acc=0.
+    for i in range(ids_0.shape[0]):
+        # Message i
+        id_0=ids_0[1,i]
 
-    for sender_input, message, receiver_output in zip(sender_inputs, messages, receiver_outputs):
-        input_symbol = sender_input.argmax()
-        output_symbol = receiver_output.argmax()
-        acc = (input_symbol == output_symbol).float().item()
-        print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
+        for j in range(id_0,opts.max_len):
 
-        unif_acc += acc
-        powerlaw_acc += powerlaw_probs[input_symbol] * acc
+            position_sieve[i,j]=-1
 
-    unif_acc /= opts.n_features
 
-    print(f'Mean accuracy wrt uniform distribution is {unif_acc}')
+    np.save(position_sieve,"position_sieve.npy")
 
     core.close()
 

@@ -225,7 +225,6 @@ class RnnSenderReinforce(nn.Module):
 
             if self.training:
                 x = distr.sample()
-                print(x)
             else:
                 x = step_logits.argmax(dim=1)
             logits.append(distr.log_prob(x))

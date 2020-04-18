@@ -68,6 +68,10 @@ def get_params(params):
     parser.add_argument('--early_stopping_thr', type=float, default=0.9999,
                         help="Early stopping threshold on accuracy (default: 0.9999)")
 
+    # AJOUT
+    parser.add_argument('--dir_save', type=str, default="expe_1",
+                        help="Directory in which we will save the information")
+
     args = core.init(parser, params)
 
     return args
@@ -189,7 +193,7 @@ def main(params):
 
 
     for epoch in range(int(opts.n_epochs)):
-        trainer.train(n_epochs=5)
+        trainer.train(n_epochs=1)
         if opts.checkpoint_dir:
             trainer.save_checkpoint(name=f'{opts.name}_vocab{opts.vocab_size}_rs{opts.random_seed}_lr{opts.lr}_shid{opts.sender_hidden}_rhid{opts.receiver_hidden}_sentr{opts.sender_entropy_coeff}_reg{opts.length_cost}_max_len{opts.max_len}')
 
@@ -203,11 +207,11 @@ def main(params):
         all_messages = np.asarray(all_messages)
 
         if epoch%100==0:
-            torch.save(sender.state_dict(), "sender/sender_weights"+str(epoch)+".pth")
-            torch.save(receiver.state_dict(), "receiver/receiver_weights"+str(epoch)+".pth")
+            torch.save(sender.state_dict(), opts.dir_save+"sender/sender_weights"+str(epoch)+".pth")
+            torch.save(receiver.state_dict(), opts.dir_save+"receiver/receiver_weights"+str(epoch)+".pth")
 
-        np.save('messages/messages_'+str((epoch))+'.npy', all_messages)
-        np.save('accuracy/accuracy_'+str((epoch))+'.npy', acc_vec)
+        np.save(opts.dir_save+'/messages/messages_'+str((epoch))+'.npy', all_messages)
+        np.save(opts.dir_save+'accuracy/accuracy_'+str((epoch))+'.npy', acc_vec)
         print(acc_vec)
 
     core.close()

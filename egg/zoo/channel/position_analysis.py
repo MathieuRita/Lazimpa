@@ -75,6 +75,8 @@ def get_params(params):
                         help="Weights of the receiver agent")
     parser.add_argument('--sender_weights',type=str ,default="sender_weights.pth",
                         help="Weights of the sender agent")
+    parser.add_argument('--save_dir',type=str ,default="analysis/",
+                        help="Directory to save the results of the analysis")
 
     args = core.init(parser, params)
 
@@ -124,8 +126,6 @@ def main(params):
     else:
         probs = np.array([float(x) for x in opts.probs.split(',')], dtype=np.float32)
     probs /= probs.sum()
-
-    print('the probs are: ', probs, flush=True)
 
     train_loader = OneHotLoader(n_features=opts.n_features, batch_size=opts.batch_size,
                                 batches_per_epoch=opts.batches_per_epoch, probs=probs)

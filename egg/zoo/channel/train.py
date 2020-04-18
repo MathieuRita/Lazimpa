@@ -116,8 +116,8 @@ def dump(game, n_features, device, gs_mode):
 
     unif_acc /= n_features
 
-    print(f'Mean accuracy wrt uniform distribution is {unif_acc}')
-    print(f'Mean accuracy wrt powerlaw distribution is {powerlaw_acc}')
+    #print(f'Mean accuracy wrt uniform distribution is {unif_acc}')
+    #print(f'Mean accuracy wrt powerlaw distribution is {powerlaw_acc}')
     print(json.dumps({'powerlaw': powerlaw_acc, 'unif': unif_acc}))
 
     return acc_vec, messages
@@ -206,7 +206,7 @@ def main(params):
             all_messages.append(x)
         all_messages = np.asarray(all_messages)
 
-        if epoch%1000==0:
+        if epoch%100==0:
             torch.save(sender.state_dict(), opts.dir_save+"/sender/sender_weights"+str(epoch)+".pth")
             torch.save(receiver.state_dict(), opts.dir_save+"/receiver/receiver_weights"+str(epoch)+".pth")
 

@@ -70,6 +70,11 @@ def get_params(params):
                         help="Name for your checkpoint (default: model)")
     parser.add_argument('--early_stopping_thr', type=float, default=0.9999,
                         help="Early stopping threshold on accuracy (default: 0.9999)")
+                        
+    parser.add_argument('--receiver_weights',type=str ,default="receiver_weights.pth",
+                        help="Weights of the receiver agent")
+    parser.add_argument('--sender_weights',type=str ,default="sender_weights.pth",
+                        help="Weights of the sender agent")
 
     args = core.init(parser, params)
 
@@ -131,8 +136,8 @@ def main(params):
                                              opts.receiver_hidden, cell=opts.receiver_cell,
                                              num_layers=opts.receiver_num_layers)
 
-    sender.load_state_dict(torch.load("sender_weights.pth"))
-    receiver.load_state_dict(torch.load("receiver_weights.pth"))
+    sender.load_state_dict(torch.load(opts.sender_weights))
+    receiver.load_state_dict(torch.load(opts.receiver_weights))
 
     game = core.SenderReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,
                                            receiver_entropy_coeff=opts.receiver_entropy_coeff,

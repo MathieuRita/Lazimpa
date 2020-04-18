@@ -70,6 +70,11 @@ def get_params(params):
     parser.add_argument('--early_stopping_thr', type=float, default=0.9999,
                         help="Early stopping threshold on accuracy (default: 0.9999)")
 
+    parser.add_argument('--receiver_weights',type=str ,default="receiver_weights.pth",
+                        help="Weights of the receiver agent")
+    parser.add_argument('--sender_weights',type=str ,default="sender_weights.pth",
+                        help="Weights of the sender agent")
+
     args = core.init(parser, params)
 
     return args
@@ -195,8 +200,8 @@ def main(params):
                                              opts.receiver_hidden, cell=opts.receiver_cell,
                                              num_layers=opts.receiver_num_layers)
 
-    sender.load_state_dict(torch.load("sender_weights.pth"))
-    receiver.load_state_dict(torch.load("receiver_weights.pth"))
+    sender.load_state_dict(torch.load(opts.sender_weights))
+    receiver.load_state_dict(torch.load(opts.receiver_weights))
 
     game = core.SenderReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,
                                            receiver_entropy_coeff=opts.receiver_entropy_coeff,
@@ -207,49 +212,9 @@ def main(params):
     trainer = core.Trainer(game=game, optimizer=optimizer, train_data=train_loader,
                            validation_data=test_loader, callbacks=[EarlyStopperAccuracy(opts.early_stopping_thr)])
 
-    """
-    # Test position
-    for pos_max in [0,4,8,12,16,20,24,28,30]:
-        for pos_min in [4,8,12,16,20,24,28,30]:
-            if pos_min==pos_max-4:
-                print("pos_min:"+str(pos_min)+", pos_max:"+str(pos_max))
-                acc,messages=position_test(trainer.game,
-                                           opts.n_features,
-                                           device,
-                                           False,
-                                           pos_min=pos_min,
-                                           pos_max=pos_max)
-    """
-
     # Test impose message
 
-    dataset = [[torch.eye(opts.n_features).to(device), None]]
-
-    sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
-        dump_impose_message(trainer.game,
-                            dataset,
-                            gs=False,
-                            device=device,
-                            variable_length=True)
-
-    powerlaw_probs = 1 / np.arange(1, opts.n_features+1, dtype=np.float32)
-    powerlaw_probs /= powerlaw_probs.sum()
-
-    unif_acc=0
-    powerlaw_acc=0.
-
-    for sender_input, message, receiver_output in zip(sender_inputs, messages, receiver_outputs):
-        input_symbol = sender_input.argmax()
-        output_symbol = receiver_output.argmax()
-        acc = (input_symbol == output_symbol).float().item()
-        print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
-
-        unif_acc += acc
-        powerlaw_acc += powerlaw_probs[input_symbol] * acc
-
-    unif_acc /= opts.n_features
-
-    print(f'Mean accuracy wrt uniform distribution is {unif_acc}')
+    _,_=dump(trainer.game, opts.n_features, device, False)
 
     core.close()
 

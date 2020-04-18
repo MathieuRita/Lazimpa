@@ -206,12 +206,12 @@ def main(params):
             all_messages.append(x)
         all_messages = np.asarray(all_messages)
 
-        if epoch%100==0:
-            torch.save(sender.state_dict(), opts.dir_save+"sender/sender_weights"+str(epoch)+".pth")
-            torch.save(receiver.state_dict(), opts.dir_save+"receiver/receiver_weights"+str(epoch)+".pth")
+        if epoch%1000==0:
+            torch.save(sender.state_dict(), opts.dir_save+"/sender/sender_weights"+str(epoch)+".pth")
+            torch.save(receiver.state_dict(), opts.dir_save+"/receiver/receiver_weights"+str(epoch)+".pth")
 
         np.save(opts.dir_save+'/messages/messages_'+str((epoch))+'.npy', all_messages)
-        np.save(opts.dir_save+'accuracy/accuracy_'+str((epoch))+'.npy', acc_vec)
+        np.save(opts.dir_save+'/accuracy/accuracy_'+str((epoch))+'.npy', acc_vec)
         print(acc_vec)
 
     core.close()

@@ -70,7 +70,7 @@ def get_params(params):
                         help="Name for your checkpoint (default: model)")
     parser.add_argument('--early_stopping_thr', type=float, default=0.9999,
                         help="Early stopping threshold on accuracy (default: 0.9999)")
-                        
+
     parser.add_argument('--receiver_weights',type=str ,default="receiver_weights.pth",
                         help="Weights of the receiver agent")
     parser.add_argument('--sender_weights',type=str ,default="sender_weights.pth",
@@ -80,6 +80,30 @@ def get_params(params):
 
     return args
 
+def dump(game, n_features, device, gs_mode):
+    # tiny "dataset"
+    dataset = [[torch.eye(n_features).to(device), None]]
+
+    sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
+        core.dump_sender_receiver(game, dataset, gs=gs_mode, device=device, variable_length=True)
+
+    unif_acc = 0.
+    powerlaw_acc = 0.
+    powerlaw_probs = 1 / np.arange(1, n_features+1, dtype=np.float32)
+    powerlaw_probs /= powerlaw_probs.sum()
+
+    for sender_input, message, receiver_output in zip(sender_inputs, messages, receiver_outputs):
+        input_symbol = sender_input.argmax()
+        output_symbol = receiver_output.argmax()
+        acc = (input_symbol == output_symbol).float().item()
+
+        unif_acc += acc
+        powerlaw_acc += powerlaw_probs[input_symbol] * acc
+        #print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
+
+    unif_acc /= n_features
+
+    return acc, messages
 
 def loss(sender_input, _message, _receiver_input, receiver_output, _labels):
     acc = (receiver_output.argmax(dim=1) == sender_input.argmax(dim=1)).detach().float()
@@ -152,7 +176,7 @@ def main(params):
 
     # Debut test position
 
-    position_sieve=np.zeros(opts.n_features,opts.max_len)
+    position_sieve=np.zeros((opts.n_features,opts.max_len))
 
     for position in range(opts.max_len):
 
@@ -180,27 +204,25 @@ def main(params):
         position_sieve[:,position]=acc_pos
 
     # Put -1 for position after message_length
-    dataset = [[torch.eye(opts.n_features).to(device), None]]
+    _, messages = dump(trainer.game, opts.n_features, device, False)
 
-    sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
-        dump_sender_receiver(trainer.game,
-                            dataset,
-                            gs=False,
-                            device=device,
-                            variable_length=True)
+    # Convert messages to numpy array
+    messages_np=[]
+    for x in messages:
+        x = x.cpu().numpy()
+        messages_np.append(x)
 
-    ids_0=np.where(messages=0)
-
-    for i in range(ids_0.shape[0]):
+    for i in range(len(messages_np)):
         # Message i
-        id_0=ids_0[1,i]
+        message_i=messages_np[i]
+        id_0=np.where(message_i==0)[0]
 
-        for j in range(id_0,opts.max_len):
+        if id_0.shape[0]>0:
+          for j in range(id_0[0]+1,opts.max_len):
+              position_sieve[i,j]=-1
 
-            position_sieve[i,j]=-1
 
-
-    np.save(position_sieve,"position_sieve.npy")
+    np.save("position_sieve.npy",position_sieve)
 
     core.close()
 

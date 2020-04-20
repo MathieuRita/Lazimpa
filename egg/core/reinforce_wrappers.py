@@ -341,7 +341,7 @@ class SenderReceiverRnnReinforce(nn.Module):
     5.0
     """
     def __init__(self, sender, receiver, loss, sender_entropy_coeff, receiver_entropy_coeff,
-                 length_cost=0.0):
+                 length_cost=0.0,unigram_penalty=0.0):
         """
         :param sender: sender agent
         :param receiver: receiver agent
@@ -366,6 +366,7 @@ class SenderReceiverRnnReinforce(nn.Module):
         self.receiver_entropy_coeff = receiver_entropy_coeff
         self.loss = loss
         self.length_cost = length_cost
+        self.unigram_penalty = unigram_penalty
 
         self.mean_baseline = defaultdict(float)
         self.n_points = defaultdict(float)
@@ -403,6 +404,10 @@ class SenderReceiverRnnReinforce(nn.Module):
         optimized_loss = policy_length_loss + policy_loss - weighted_entropy
         # if the receiver is deterministic/differentiable, we apply the actual loss
         optimized_loss += loss.mean()
+
+        # Penalty redundancy
+        counts_unigram=((message[:,1:]-message[:,:-1])==0).sum(axis=1).sum(axis=0)
+        loss = loss - self.unigram_penalty*counts_unigram
 
         if self.training:
             self.update_baseline('loss', loss)

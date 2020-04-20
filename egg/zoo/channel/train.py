@@ -71,6 +71,8 @@ def get_params(params):
     # AJOUT
     parser.add_argument('--dir_save', type=str, default="expe_1",
                         help="Directory in which we will save the information")
+    parser.add_argument('--unigram_pen', type=float, default=0.0,
+                        help="Add a penalty for redundancy")
 
     args = core.init(parser, params)
 
@@ -188,7 +190,7 @@ def main(params):
 
     game = core.SenderReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,
                                            receiver_entropy_coeff=opts.receiver_entropy_coeff,
-                                           length_cost=opts.length_cost)
+                                           length_cost=opts.length_cost,unigram_penalty=opts.unigram_pen)
 
     optimizer = core.build_optimizer(game.parameters())
 

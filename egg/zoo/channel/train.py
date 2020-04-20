@@ -136,7 +136,7 @@ def main(params):
     elif opts.probs == "creneau":
         ones = np.ones(int(opts.n_features/2))
         tens = 10*np.ones(opts.n_features-int(opts.n_features/2))
-        probs = np.concatenate((ones,tens),axis=0)
+        probs = np.concatenate((tens,ones),axis=0)
     elif opts.probs == "escalier":
         ones = np.ones(int(opts.n_features/4))
         tens = 10*np.ones(int(opts.n_features/4))

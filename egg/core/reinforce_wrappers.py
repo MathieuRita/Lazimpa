@@ -402,12 +402,13 @@ class SenderReceiverRnnReinforce(nn.Module):
         policy_loss = ((loss.detach() - self.mean_baseline['loss']) * log_prob).mean()
 
         optimized_loss = policy_length_loss + policy_loss - weighted_entropy
-        # if the receiver is deterministic/differentiable, we apply the actual loss
-        optimized_loss += loss.mean()
 
         # Penalty redundancy
         counts_unigram=((message[:,1:]-message[:,:-1])==0).sum(axis=1).sum(axis=0)
-        loss = loss - self.unigram_penalty*counts_unigram
+        optimized_loss = optimized_loss - self.unigram_penalty*counts_unigram
+
+        # if the receiver is deterministic/differentiable, we apply the actual loss
+        optimized_loss += loss.mean()
 
         if self.training:
             self.update_baseline('loss', loss)

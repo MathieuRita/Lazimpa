@@ -520,7 +520,7 @@ def dump_test_position(game: torch.nn.Module,
             message = game.sender(sender_input)
 
             for i in range(message[0].size()[0]):
-                message[0][i,position]=np.random.randint(voc_size)
+                message[0][i,position]=np.random.randint(1,voc_size)
 
             # Under GS, the only output is a message; under Reinforce, two additional tensors are returned.
             # We don't need them.

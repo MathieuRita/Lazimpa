@@ -328,7 +328,7 @@ class RnnReceiverImpatient(nn.Module):
 
         agent_outputs=agent_output.unsqueeze(1)
         logitss=logits.unsqueeze(1)
-        entropy=entropies.unsqueeze(1)
+        entropies=entropy.unsqueeze(1)
 
         max_len=message.size(1)
 
@@ -540,15 +540,15 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
         message_lengths = find_lengths(message)
         receiver_output, log_prob_r, entropy_r = self.receiver(message, receiver_input, message_lengths)
 
-        losses=[]
-        rest=[]
+        losses=torch.zeros((receiver_output.size(0),1)).to(receiver_output.device)
 
         for i in range(receiver_output.size(1)):
-            loss, rest = self.loss(sender_input, message, receiver_input, receiver_output, labels)
-            losses.append(loss)
-            rests.append(rest)
-            print(loss)
-            print(rest)
+            loss, rest = self.loss(sender_input, message, receiver_input, receiver_output[:,i,:], labels)
+            losses=torch.cat((losses,loss.unsqueeze(1)),1)
+
+        loss=torch.mean(losses,1)
+        log_prob_r=log_prob_r[:,0]
+        entropy_r=entropy_r[:,0]
 
 
         # the entropy of the outputs of S before and including the eos symbol - as we don't care about what's after

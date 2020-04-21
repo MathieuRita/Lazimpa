@@ -543,7 +543,10 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
         losses=torch.zeros((receiver_output.size(0),1)).to(receiver_output.device)
 
         for i in range(receiver_output.size(1)):
-            loss, rest = self.loss(sender_input, message, receiver_input, receiver_output[:,i,:], labels)
+            if i==0:
+                loss, rest = self.loss(sender_input, message, receiver_input, receiver_output[:,i,:], labels)
+            else:
+                loss, rest0 = self.loss(sender_input, message, receiver_input, receiver_output[:,i,:], labels)
             losses=torch.cat((losses,loss.unsqueeze(1)),1)
 
         loss=torch.mean(losses,1)

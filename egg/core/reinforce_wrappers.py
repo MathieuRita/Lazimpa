@@ -334,7 +334,7 @@ class RnnReceiverImpatient(nn.Module):
 
         for i in range(1,max_len-1):
             m=message.clone()
-            m[:,i:max_len].mul_(0)
+            m[:,:i].mul_(0)
             encoded = self.encoder(m)
             agent_output = self.agent(encoded, input)
 

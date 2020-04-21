@@ -306,6 +306,30 @@ class RnnReceiverDeterministic(nn.Module):
 
         return agent_output, logits, entropy
 
+class RnnReceiverImpatient(nn.Module):
+
+    """
+    Impatient listener
+    """
+
+    def __init__(self, agent, vocab_size, embed_dim, hidden_size, cell='rnn', num_layers=1):
+        super(RnnReceiverDeterministic, self).__init__()
+        self.agent = agent
+        self.encoder = RnnEncoder(vocab_size, embed_dim, hidden_size, cell, num_layers)
+
+    def forward(self, message, input=None, lengths=None):
+
+        print(message.size())
+
+        encoded = self.encoder(message)
+        agent_output = self.agent(encoded, input)
+
+        logits = torch.zeros(agent_output.size(0)).to(agent_output.device)
+        entropy = logits
+
+        return agent_output, logits, entropy
+
+
 
 class SenderReceiverRnnReinforce(nn.Module):
     """
@@ -398,14 +422,14 @@ class SenderReceiverRnnReinforce(nn.Module):
 
         length_loss = message_lengths.float() * self.length_cost
 
+        # Penalty redundancy
+        counts_unigram=((message[:,1:]-message[:,:-1])==0).sum(axis=1).sum(axis=0)
+        unigram_loss = self.unigram_penalty*counts_unigram
+
         policy_length_loss = ((length_loss.float() - self.mean_baseline['length']) * effective_log_prob_s).mean()
         policy_loss = ((loss.detach() - self.mean_baseline['loss']) * log_prob).mean()
 
-        optimized_loss = policy_length_loss + policy_loss - weighted_entropy
-
-        # Penalty redundancy
-        counts_unigram=((message[:,1:]-message[:,:-1])==0).sum(axis=1).sum(axis=0)
-        optimized_loss = optimized_loss - self.unigram_penalty*counts_unigram
+        optimized_loss = policy_length_loss + policy_loss - weighted_entropy + unigram_loss
 
         # if the receiver is deterministic/differentiable, we apply the actual loss
         optimized_loss += loss.mean()

@@ -73,6 +73,8 @@ def get_params(params):
                         help="Directory in which we will save the information")
     parser.add_argument('--unigram_pen', type=float, default=0.0,
                         help="Add a penalty for redundancy")
+    parser.add_argument('--impatient', type=bool, default=False,
+                        help="Impatient listener")
 
     args = core.init(parser, params)
 

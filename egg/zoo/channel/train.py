@@ -185,12 +185,7 @@ def main(params):
 
         receiver = Receiver(n_features=opts.n_features, n_hidden=opts.receiver_hidden)
 
-        if opts.impatient:
-            receiver = RnnReceiverImpatient(receiver, opts.vocab_size, opts.receiver_embedding,
-                                                 opts.receiver_hidden, cell=opts.receiver_cell,
-                                                 num_layers=opts.receiver_num_layers)
-        else:
-            receiver = core.RnnReceiverDeterministic(receiver, opts.vocab_size, opts.receiver_embedding,
+        receiver = core.RnnReceiverDeterministic(receiver, opts.vocab_size, opts.receiver_embedding,
                                                  opts.receiver_hidden, cell=opts.receiver_cell,
                                                  num_layers=opts.receiver_num_layers)
 
@@ -199,9 +194,9 @@ def main(params):
                                            receiver_entropy_coeff=opts.receiver_entropy_coeff,
                                            length_cost=opts.length_cost,unigram_penalty=opts.unigram_pen)
     else:
-        game = SenderImpatientReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,
+        game = core.SenderReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,
                                            receiver_entropy_coeff=opts.receiver_entropy_coeff,
-                                           length_cost=opts.length_cost,unigram_penalty=opts.unigram_pen)
+                                           length_cost=opts.length_cost,unigram_penalty=opts.unigram_pen,impatient=otps.impatient)
 
     optimizer = core.build_optimizer(game.parameters())
 

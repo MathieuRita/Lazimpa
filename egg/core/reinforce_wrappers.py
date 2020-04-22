@@ -419,7 +419,7 @@ class SenderReceiverRnnReinforce(nn.Module):
         message_lengths = find_lengths(message)
 
         # AJOUT ##
-        rand_length=np.random.randint(1,message.size(1))
+        rand_length=np.random.randint(1,message.size(1),size=message.size(0))
 
         for i in range(message.size(0)):
             message[i,rand_length[i]:].mul_(0).add_(1)

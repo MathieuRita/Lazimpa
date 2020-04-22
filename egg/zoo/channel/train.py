@@ -123,6 +123,7 @@ def dump(game, n_features, device, gs_mode):
     return acc_vec, messages
 
 def main(params):
+    print(torch.cuda.is_available())
     opts = get_params(params)
     print(opts, flush=True)
     device = opts.device

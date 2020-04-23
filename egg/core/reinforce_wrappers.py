@@ -312,41 +312,91 @@ class RnnReceiverImpatient(nn.Module):
     Impatient listener
     """
 
-    def __init__(self, agent, vocab_size, embed_dim, hidden_size, cell='rnn', num_layers=1):
-        super(RnnReceiverImpatient, self).__init__()
+    def __init__(self, agent, vocab_size, embed_dim, hidden_size, max_len, num_layers=1, cell='rnn'):
+        """
+        :param agent: the agent to be wrapped
+        :param vocab_size: the communication vocabulary size
+        :param embed_dim: the size of the embedding used to embed the output symbols
+        :param hidden_size: the RNN cell's hidden state size
+        :param max_len: maximal length of the output messages
+        :param cell: type of the cell used (rnn, gru, lstm)
+        :param force_eos: if set to True, each message is extended by an EOS symbol. To ensure that no message goes
+        beyond `max_len`, Sender only generates `max_len - 1` symbols from an RNN cell and appends EOS.
+        """
+        super(RnnSenderReinforce, self).__init__()
         self.agent = agent
-        self.encoder = RnnEncoder(vocab_size, embed_dim, hidden_size, cell, num_layers)
 
-    def forward(self, message, input=None, lengths=None):
+        self.force_eos = force_eos
 
+        self.max_len = max_len
+        if force_eos:
+            self.max_len -= 1
 
-        encoded = self.encoder(message)
-        agent_output = self.agent(encoded, input)
+        self.hidden_to_output = nn.Linear(hidden_size, n_features)
+        self.embedding = nn.Embedding(vocab_size, embed_dim)
+        self.sos_embedding = nn.Parameter(torch.zeros(embed_dim))
+        self.embed_dim = embed_dim
+        self.vocab_size = vocab_size
+        self.num_layers = num_layers
+        self.cells = None
 
-        logits = torch.zeros(agent_output.size(0)).to(agent_output.device)
-        entropy = logits
+        cell = cell.lower()
+        cell_types = {'rnn': nn.RNNCell, 'gru': nn.GRUCell, 'lstm': nn.LSTMCell}
 
-        agent_outputs=agent_output.unsqueeze(1)
-        logitss=logits.unsqueeze(1)
-        entropies=entropy.unsqueeze(1)
+        if cell not in cell_types:
+            raise ValueError(f"Unknown RNN Cell: {cell}")
 
-        max_len=message.size(1)
+        cell_type = cell_types[cell]
+        self.cells = nn.ModuleList([
+            cell_type(input_size=embed_dim, hidden_size=hidden_size) if i == 0 else \
+            cell_type(input_size=hidden_size, hidden_size=hidden_size) for i in range(self.num_layers)])
 
-        for i in range(1,max_len-1):
-            m=message.clone()
-            m[:,:i].mul_(0)
-            encoded = self.encoder(m)
-            agent_output = self.agent(encoded, input)
+        self.reset_parameters()
 
-            logits = torch.zeros(agent_output.size(0)).to(agent_output.device)
-            entropy = logits
+    def reset_parameters(self):
+        nn.init.normal_(self.sos_embedding, 0.0, 0.01)
 
-            agent_outputs=torch.cat((agent_outputs,agent_output.unsqueeze(1)),1)
-            logitss=torch.cat((logitss,logits.unsqueeze(1)),1)
-            entropies=torch.cat((entropies,entropy.unsqueeze(1)),1)
+    def forward(self, message, input, message_lengths):
+        from_sym_to_onehot=torch.eye(self.vocab_size,self.vocab_size)
+        prev_hidden = [self.agent(from_sym_to_onehot[message[0]])]
+        prev_hidden.extend([torch.zeros_like(prev_hidden[0]) for _ in range(self.num_layers - 1)])
 
+        prev_c = [torch.zeros_like(prev_hidden[0]) for _ in range(self.num_layers)]  # only used for LSTM
 
-        return agent_outputs, logitss, entropies
+        input = torch.stack([self.sos_embedding] * from_sym_to_onehot[message[0]].size(0))
+
+        sequence = []
+        logits = []
+        entropy = []
+
+        for step in range(self.max_len):
+            input = torch.stack([self.sos_embedding] * from_sym_to_onehot[message[step]].size(0))
+            for i, layer in enumerate(self.cells):
+                if isinstance(layer, nn.LSTMCell):
+                    h_t, c_t = layer(input, (prev_hidden[i], prev_c[i]))
+                    prev_c[i] = c_t
+                else:
+                    h_t = layer(input, prev_hidden[i])
+                prev_hidden[i] = h_t
+                input = h_t
+
+            step_logits = F.log_softmax(self.hidden_to_output(h_t), dim=1)
+            distr = Categorical(logits=step_logits)
+            entropy.append(distr.entropy())
+
+            if self.training:
+                x = distr.sample()
+            else:
+                x = step_logits.argmax(dim=1)
+            logits.append(distr.log_prob(x))
+            sequence.append(x)
+
+        sequence = torch.stack(sequence).permute(1, 0)
+        logits = torch.stack(logits).permute(1, 0)
+        entropy = torch.stack(entropy).permute(1, 0)
+
+        return sequence, logits, entropy
+
 
 
 

@@ -196,7 +196,7 @@ def main(params):
     else:
         game = core.SenderReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,
                                            receiver_entropy_coeff=opts.receiver_entropy_coeff,
-                                           length_cost=opts.length_cost,unigram_penalty=opts.unigram_pen,impatient=otps.impatient)
+                                           length_cost=opts.length_cost,unigram_penalty=opts.unigram_pen,impatient=opts.impatient)
 
     optimizer = core.build_optimizer(game.parameters())
 

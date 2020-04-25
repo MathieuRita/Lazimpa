@@ -333,20 +333,23 @@ class RnnReceiverImpatient(nn.Module):
     torch.Size([16, 3])
     """
 
-    def __init__(self, agent, vocab_size, embed_dim, hidden_size,max_len, cell='rnn', num_layers=1):
+    def __init__(self, agent, vocab_size, embed_dim, hidden_size,max_len,n_features, cell='rnn', num_layers=1):
         super(RnnReceiverImpatient, self).__init__()
 
         self.max_len = max_len
-        self.hidden_to_output = [nn.Linear(hidden_size, n_features)]*self.max_len
+        self.hidden_to_output = nn.Linear(hidden_size, n_features)
         self.encoder = RnnEncoderImpatient(vocab_size, embed_dim, hidden_size, cell, num_layers)
 
     def forward(self, message, input=None, lengths=None):
         encoded = self.encoder(message)
-        print(encoded.size())
 
-        for step in range(self.max_len):
+        sequence = []
+        logits = []
+        entropy = []
+
+        for step in range(encoded.size(0)):
             h_t=encoded[step,:,:]
-            step_logits = F.log_softmax(self.hidden_to_output[step](h_t), dim=1)
+            step_logits = F.log_softmax(self.hidden_to_output(h_t), dim=1)
             distr = Categorical(logits=step_logits)
             entropy.append(distr.entropy())
 
@@ -385,7 +388,7 @@ class RnnReceiverImpatient2(nn.Module):
 
         self.max_len = max_len
 
-        self.hidden_to_output = [nn.Linear(hidden_size, n_features)]*self.max_len
+        self.hidden_to_output = [nn.Linear(hidden_size, n_features).to("cuda")]*self.max_len
         self.embedding = nn.Embedding(vocab_size, embed_dim)
         self.sos_embedding = nn.Parameter(torch.zeros(embed_dim))
         self.embed_dim = embed_dim
@@ -652,12 +655,14 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
     def forward(self, sender_input, labels, receiver_input=None):
         message, log_prob_s, entropy_s = self.sender(sender_input)
         message_lengths = find_lengths(message)
+
         # If impatient 1
-        receiver_output, log_prob_r, entropy_r = self.receiver(message, receiver_input, message_lengths, max_len=message.size(1))
+        receiver_output, log_prob_r, entropy_r = self.receiver(message, receiver_input, message_lengths)
         # If impatient 2
         #receiver_output, log_prob_r, entropy_r = self.receiver(message, receiver_input, message_lengths)
 
-        rand_length=np.random.randint(1,message.size(1))
+        # Randomly takes a position
+        rand_length=np.random.randint(0,message.size(1))
 
         # Loss by output
         loss, rest = self.loss(sender_input, message, receiver_input, receiver_output[:,rand_length,:], labels)

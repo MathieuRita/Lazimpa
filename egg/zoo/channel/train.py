@@ -184,7 +184,7 @@ def main(params):
         probs = np.concatenate((thous,huns,tens,ones),axis=0)
     else:
         probs = np.array([float(x) for x in opts.probs.split(',')], dtype=np.float32)
-        
+
     probs /= probs.sum()
 
     print('the probs are: ', probs, flush=True)
@@ -227,9 +227,14 @@ def main(params):
                                                  num_layers=opts.receiver_num_layers)
         else:
           receiver = Receiver(n_features=opts.receiver_hidden, n_hidden=opts.vocab_size)
+          # If impatient 1
           receiver = RnnReceiverImpatient(receiver, opts.vocab_size, opts.receiver_embedding,
-                                                 opts.receiver_hidden, cell=opts.receiver_cell,
-                                                 num_layers=opts.receiver_num_layers, max_len=opts.max_len, n_features=opts.n_features)
+                                            opts.receiver_hidden, cell=opts.receiver_cell,
+                                            num_layers=opts.receiver_num_layers, max_len=opts.max_len, n_features=opts.n_features)
+          # If impatient 2
+          #receiver = RnnReceiverImpatient2(receiver, opts.vocab_size, opts.receiver_embedding,
+        #                                         opts.receiver_hidden, cell=opts.receiver_cell,
+        #                                         num_layers=opts.receiver_num_layers, max_len=opts.max_len, n_features=opts.n_features)
 
     if not opts.impatient:
         game = core.SenderReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,

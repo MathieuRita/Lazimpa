@@ -13,7 +13,7 @@ import numpy as np
 
 
 from .transformer import TransformerEncoder, TransformerDecoder
-from .rnn import RnnEncoder
+from .rnn import RnnEncoder, RnnEncoderImpatient
 from .util import find_lengths
 
 
@@ -307,6 +307,63 @@ class RnnReceiverDeterministic(nn.Module):
         return agent_output, logits, entropy
 
 class RnnReceiverImpatient(nn.Module):
+    """
+    Reinforce Wrapper for a deterministic Receiver in variable-length message game. The wrapper logic feeds the message
+    into the cell and calls the wrapped agent with the hidden state that either corresponds to the end-of-sequence
+    term or to the end of the sequence. The wrapper extends it with zero-valued log-prob and entropy tensors so that
+    the agent becomes compatible with the SenderReceiverRnnReinforce game.
+
+    As the wrapped agent does not sample, it has to be trained via regular back-propagation. This requires that both the
+    the agent's output and  loss function and the wrapped agent are differentiable.
+
+    >>> class Agent(nn.Module):
+    ...     def __init__(self):
+    ...         super().__init__()
+    ...         self.fc = nn.Linear(5, 3)
+    ...     def forward(self, rnn_output, _input = None):
+    ...         return self.fc(rnn_output)
+    >>> agent = RnnReceiverDeterministic(Agent(), vocab_size=10, embed_dim=10, hidden_size=5)
+    >>> message = torch.zeros((16, 10)).long().random_(0, 10)  # batch of 16, 10 symbol length
+    >>> output, logits, entropy = agent(message)
+    >>> (logits == 0).all().item()
+    1
+    >>> (entropy == 0).all().item()
+    1
+    >>> output.size()
+    torch.Size([16, 3])
+    """
+
+    def __init__(self, agent, vocab_size, embed_dim, hidden_size,max_len, cell='rnn', num_layers=1):
+        super(RnnReceiverImpatient, self).__init__()
+
+        self.max_len = max_len
+        self.hidden_to_output = [nn.Linear(hidden_size, n_features)]*self.max_len
+        self.encoder = RnnEncoderImpatient(vocab_size, embed_dim, hidden_size, cell, num_layers)
+
+    def forward(self, message, input=None, lengths=None):
+        encoded = self.encoder(message)
+        print(encoded.size())
+
+        for step in range(self.max_len):
+            h_t=encoded[step,:,:]
+            step_logits = F.log_softmax(self.hidden_to_output[step](h_t), dim=1)
+            distr = Categorical(logits=step_logits)
+            entropy.append(distr.entropy())
+
+            if self.training:
+                x = distr.sample()
+            else:
+                x = step_logits.argmax(dim=1)
+            logits.append(distr.log_prob(x))
+            sequence.append(step_logits)
+
+        sequence = torch.stack(sequence).permute(1, 0, 2)
+        logits = torch.stack(logits).permute(1, 0)
+        entropy = torch.stack(entropy).permute(1, 0)
+
+        return sequence, logits, entropy
+
+class RnnReceiverImpatient2(nn.Module):
 
     """
     Impatient listener
@@ -328,7 +385,7 @@ class RnnReceiverImpatient(nn.Module):
 
         self.max_len = max_len
 
-        self.hidden_to_output = nn.Linear(hidden_size, n_features)
+        self.hidden_to_output = [nn.Linear(hidden_size, n_features)]*self.max_len
         self.embedding = nn.Embedding(vocab_size, embed_dim)
         self.sos_embedding = nn.Parameter(torch.zeros(embed_dim))
         self.embed_dim = embed_dim
@@ -353,8 +410,6 @@ class RnnReceiverImpatient(nn.Module):
         nn.init.normal_(self.sos_embedding, 0.0, 0.01)
 
     def forward(self, message, input, message_lengths=0):
-        for i in range(message.size(0)):
-            message[i,message_lengths[i]:].mul_(0)
         from_sym_to_onehot=torch.eye(self.vocab_size,self.vocab_size).to("cuda")
         prev_hidden = [self.agent(from_sym_to_onehot[message[:,0]],input)]
         prev_hidden.extend([torch.zeros_like(prev_hidden[0]) for _ in range(self.num_layers - 1)])
@@ -378,7 +433,7 @@ class RnnReceiverImpatient(nn.Module):
                 prev_hidden[i] = h_t
                 input = h_t
 
-            step_logits = F.log_softmax(self.hidden_to_output(h_t), dim=1)
+            step_logits = F.log_softmax(self.hidden_to_output[step](h_t), dim=1)
             distr = Categorical(logits=step_logits)
             entropy.append(distr.entropy())
 
@@ -597,7 +652,10 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
     def forward(self, sender_input, labels, receiver_input=None):
         message, log_prob_s, entropy_s = self.sender(sender_input)
         message_lengths = find_lengths(message)
-        receiver_output, log_prob_r, entropy_r = self.receiver(message, receiver_input, message_lengths)
+        # If impatient 1
+        receiver_output, log_prob_r, entropy_r = self.receiver(message, receiver_input, message_lengths, max_len=message.size(1))
+        # If impatient 2
+        #receiver_output, log_prob_r, entropy_r = self.receiver(message, receiver_input, message_lengths)
 
         rand_length=np.random.randint(1,message.size(1))
 

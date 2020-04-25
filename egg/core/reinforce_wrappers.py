@@ -312,7 +312,7 @@ class RnnReceiverImpatient(nn.Module):
     Impatient listener
     """
 
-    def __init__(self, agent, vocab_size, embed_dim, hidden_size, max_len, num_layers=1, cell='rnn'):
+    def __init__(self, agent, vocab_size, embed_dim, hidden_size, max_len, n_features, num_layers=1, cell='rnn'):
         """
         :param agent: the agent to be wrapped
         :param vocab_size: the communication vocabulary size
@@ -323,14 +323,10 @@ class RnnReceiverImpatient(nn.Module):
         :param force_eos: if set to True, each message is extended by an EOS symbol. To ensure that no message goes
         beyond `max_len`, Sender only generates `max_len - 1` symbols from an RNN cell and appends EOS.
         """
-        super(RnnSenderReinforce, self).__init__()
+        super(RnnReceiverImpatient, self).__init__()
         self.agent = agent
 
-        self.force_eos = force_eos
-
         self.max_len = max_len
-        if force_eos:
-            self.max_len -= 1
 
         self.hidden_to_output = nn.Linear(hidden_size, n_features)
         self.embedding = nn.Embedding(vocab_size, embed_dim)
@@ -356,9 +352,11 @@ class RnnReceiverImpatient(nn.Module):
     def reset_parameters(self):
         nn.init.normal_(self.sos_embedding, 0.0, 0.01)
 
-    def forward(self, message, input, message_lengths):
-        from_sym_to_onehot=torch.eye(self.vocab_size,self.vocab_size)
-        prev_hidden = [self.agent(from_sym_to_onehot[message[0]])]
+    def forward(self, message, input, message_lengths=0):
+        for i in range(message.size(0)):
+            message[i,message_lengths[i]:].mul_(0)
+        from_sym_to_onehot=torch.eye(self.vocab_size,self.vocab_size).to("cuda")
+        prev_hidden = [self.agent(from_sym_to_onehot[message[:,0]],input)]
         prev_hidden.extend([torch.zeros_like(prev_hidden[0]) for _ in range(self.num_layers - 1)])
 
         prev_c = [torch.zeros_like(prev_hidden[0]) for _ in range(self.num_layers)]  # only used for LSTM
@@ -370,7 +368,7 @@ class RnnReceiverImpatient(nn.Module):
         entropy = []
 
         for step in range(self.max_len):
-            input = torch.stack([self.sos_embedding] * from_sym_to_onehot[message[step]].size(0))
+            input = torch.stack([self.sos_embedding] * from_sym_to_onehot[message[:,step]].size(0))
             for i, layer in enumerate(self.cells):
                 if isinstance(layer, nn.LSTMCell):
                     h_t, c_t = layer(input, (prev_hidden[i], prev_c[i]))
@@ -389,14 +387,13 @@ class RnnReceiverImpatient(nn.Module):
             else:
                 x = step_logits.argmax(dim=1)
             logits.append(distr.log_prob(x))
-            sequence.append(x)
+            sequence.append(step_logits)
 
-        sequence = torch.stack(sequence).permute(1, 0)
+        sequence = torch.stack(sequence).permute(1, 0, 2)
         logits = torch.stack(logits).permute(1, 0)
         entropy = torch.stack(entropy).permute(1, 0)
 
         return sequence, logits, entropy
-
 
 
 
@@ -602,26 +599,17 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
         message_lengths = find_lengths(message)
         receiver_output, log_prob_r, entropy_r = self.receiver(message, receiver_input, message_lengths)
 
-        losses=torch.zeros((receiver_output.size(0),1)).to(receiver_output.device)
+        rand_length=np.random.randint(1,message.size(1))
 
-        for i in range(receiver_output.size(1)):
-            if i==0:
-                loss, rest = self.loss(sender_input, message, receiver_input, receiver_output[:,i,:], labels)
-            else:
-                loss, rest0 = self.loss(sender_input, message, receiver_input, receiver_output[:,i,:], labels)
-            losses=torch.cat((losses,loss.unsqueeze(1)),1)
-
-        loss=torch.mean(losses,1)
-        log_prob_r=log_prob_r[:,0]
-        entropy_r=entropy_r[:,0]
-
+        # Loss by output
+        loss, rest = self.loss(sender_input, message, receiver_input, receiver_output[:,rand_length,:], labels)
 
         # the entropy of the outputs of S before and including the eos symbol - as we don't care about what's after
-        effective_entropy_s = torch.zeros_like(entropy_r)
+        effective_entropy_s = torch.zeros_like(entropy_r[:,rand_length])
 
         # the log prob of the choices made by S before and including the eos symbol - again, we don't
         # care about the rest
-        effective_log_prob_s = torch.zeros_like(log_prob_r)
+        effective_log_prob_s = torch.zeros_like(log_prob_r[:,rand_length])
 
         for i in range(message.size(1)):
             not_eosed = (i < message_lengths).float()
@@ -632,18 +620,18 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
         weighted_entropy = effective_entropy_s.mean() * self.sender_entropy_coeff + \
                 entropy_r.mean() * self.receiver_entropy_coeff
 
-        log_prob = effective_log_prob_s + log_prob_r
+        log_prob = effective_log_prob_s + log_prob_r[:,rand_length]
 
         length_loss = message_lengths.float() * self.length_cost
 
         # Penalty redundancy
-        counts_unigram=((message[:,1:]-message[:,:-1])==0).sum(axis=1).sum(axis=0)
-        unigram_loss = self.unigram_penalty*counts_unigram
+        #counts_unigram=((message[:,1:]-message[:,:-1])==0).sum(axis=1).sum(axis=0)
+        #unigram_loss = self.unigram_penalty*counts_unigram
 
         policy_length_loss = ((length_loss.float() - self.mean_baseline['length']) * effective_log_prob_s).mean()
         policy_loss = ((loss.detach() - self.mean_baseline['loss']) * log_prob).mean()
 
-        optimized_loss = policy_length_loss + policy_loss - weighted_entropy + unigram_loss
+        optimized_loss = policy_length_loss + policy_loss - weighted_entropy
 
         # if the receiver is deterministic/differentiable, we apply the actual loss
         optimized_loss += loss.mean()

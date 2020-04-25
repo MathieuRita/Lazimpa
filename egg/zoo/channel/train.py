@@ -14,6 +14,7 @@ from egg.zoo.channel.features import OneHotLoader, UniformLoader
 from egg.zoo.channel.archs import Sender, Receiver
 from egg.core.reinforce_wrappers import RnnReceiverImpatient
 from egg.core.reinforce_wrappers import SenderImpatientReceiverRnnReinforce
+from egg.core.util import dump_sender_receiver_impatient
 
 
 def get_params(params):
@@ -122,6 +123,39 @@ def dump(game, n_features, device, gs_mode):
 
     return acc_vec, messages
 
+def dump_impatient(game, n_features, device, gs_mode):
+    # tiny "dataset"
+    dataset = [[torch.eye(n_features).to(device), None]]
+
+    sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
+        dump_sender_receiver_impatient(game, dataset, gs=gs_mode, device=device, variable_length=True)
+
+    unif_acc = 0.
+    powerlaw_acc = 0.
+    powerlaw_probs = 1 / np.arange(1, n_features+1, dtype=np.float32)
+    powerlaw_probs /= powerlaw_probs.sum()
+
+    acc_vec=np.zeros(n_features)
+
+    for sender_input, message, receiver_output in zip(sender_inputs, messages, receiver_outputs):
+        input_symbol = sender_input.argmax()
+        output_symbol = receiver_output.argmax()
+        acc = (input_symbol == output_symbol).float().item()
+
+        acc_vec[int(input_symbol)]=acc
+
+        unif_acc += acc
+        powerlaw_acc += powerlaw_probs[input_symbol] * acc
+        print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
+
+    unif_acc /= n_features
+
+    #print(f'Mean accuracy wrt uniform distribution is {unif_acc}')
+    #print(f'Mean accuracy wrt powerlaw distribution is {powerlaw_acc}')
+    print(json.dumps({'powerlaw': powerlaw_acc, 'unif': unif_acc}))
+
+    return acc_vec, messages
+
 def main(params):
     print(torch.cuda.is_available())
     opts = get_params(params)
@@ -150,6 +184,7 @@ def main(params):
         probs = np.concatenate((thous,huns,tens,ones),axis=0)
     else:
         probs = np.array([float(x) for x in opts.probs.split(',')], dtype=np.float32)
+        
     probs /= probs.sum()
 
     print('the probs are: ', probs, flush=True)
@@ -185,18 +220,25 @@ def main(params):
 
         receiver = Receiver(n_features=opts.n_features, n_hidden=opts.receiver_hidden)
 
-        receiver = core.RnnReceiverDeterministic(receiver, opts.vocab_size, opts.receiver_embedding,
+        if not opts.impatient:
+          receiver = Receiver(n_features=opts.n_features, n_hidden=opts.receiver_hidden)
+          receiver = core.RnnReceiverDeterministic(receiver, opts.vocab_size, opts.receiver_embedding,
                                                  opts.receiver_hidden, cell=opts.receiver_cell,
                                                  num_layers=opts.receiver_num_layers)
+        else:
+          receiver = Receiver(n_features=opts.receiver_hidden, n_hidden=opts.vocab_size)
+          receiver = RnnReceiverImpatient(receiver, opts.vocab_size, opts.receiver_embedding,
+                                                 opts.receiver_hidden, cell=opts.receiver_cell,
+                                                 num_layers=opts.receiver_num_layers, max_len=opts.max_len, n_features=opts.n_features)
 
     if not opts.impatient:
         game = core.SenderReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,
                                            receiver_entropy_coeff=opts.receiver_entropy_coeff,
                                            length_cost=opts.length_cost,unigram_penalty=opts.unigram_pen)
     else:
-        game = core.SenderReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,
+        game = SenderImpatientReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,
                                            receiver_entropy_coeff=opts.receiver_entropy_coeff,
-                                           length_cost=opts.length_cost,unigram_penalty=opts.unigram_pen,impatient=opts.impatient)
+                                           length_cost=opts.length_cost,unigram_penalty=opts.unigram_pen)
 
     optimizer = core.build_optimizer(game.parameters())
 
@@ -209,7 +251,10 @@ def main(params):
         if opts.checkpoint_dir:
             trainer.save_checkpoint(name=f'{opts.name}_vocab{opts.vocab_size}_rs{opts.random_seed}_lr{opts.lr}_shid{opts.sender_hidden}_rhid{opts.receiver_hidden}_sentr{opts.sender_entropy_coeff}_reg{opts.length_cost}_max_len{opts.max_len}')
 
-        acc_vec,messages=dump(trainer.game, opts.n_features, device, False)
+        if not opts.impatient:
+            acc_vec,messages=dump(trainer.game, opts.n_features, device, False)
+        else:
+            acc_vec,messages=dump_impatient(trainer.game, opts.n_features, device, False)
 
         # ADDITION TO SAVE MESSAGES
         all_messages=[]

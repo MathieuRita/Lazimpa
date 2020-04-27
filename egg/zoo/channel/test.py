@@ -81,6 +81,8 @@ def get_params(params):
                         help="Directory to save the results of the analysis")
     parser.add_argument('--impatient', type=bool, default=False,
                         help="Impatient listener")
+    parser.add_argument('--unigram_pen', type=float, default=0.0,
+                        help="Add a penalty for redundancy")
 
     args = core.init(parser, params)
 

@@ -77,6 +77,8 @@ def get_params(params):
                         help="Weights of the sender agent")
     parser.add_argument('--save_dir',type=str ,default="analysis/",
                         help="Directory to save the results of the analysis")
+    parser.add_argument('--impatient', type=bool, default=False,
+                        help="Impatient listener")
 
     args = core.init(parser, params)
 
@@ -155,17 +157,32 @@ def main(params):
                                                          opts.receiver_embedding, opts.receiver_num_heads, opts.receiver_hidden,
                                                          opts.receiver_num_layers, causal=opts.causal_receiver)
     else:
+
         receiver = Receiver(n_features=opts.n_features, n_hidden=opts.receiver_hidden)
-        receiver = core.RnnReceiverDeterministic(receiver, opts.vocab_size, opts.receiver_embedding,
-                                             opts.receiver_hidden, cell=opts.receiver_cell,
-                                             num_layers=opts.receiver_num_layers)
+
+        if not opts.impatient:
+          receiver = Receiver(n_features=opts.n_features, n_hidden=opts.receiver_hidden)
+          receiver = core.RnnReceiverDeterministic(receiver, opts.vocab_size, opts.receiver_embedding,
+                                                 opts.receiver_hidden, cell=opts.receiver_cell,
+                                                 num_layers=opts.receiver_num_layers)
+        else:
+          receiver = Receiver(n_features=opts.receiver_hidden, n_hidden=opts.vocab_size)
+          # If impatient 1
+          receiver = RnnReceiverImpatient(receiver, opts.vocab_size, opts.receiver_embedding,
+                                            opts.receiver_hidden, cell=opts.receiver_cell,
+                                            num_layers=opts.receiver_num_layers, max_len=opts.max_len, n_features=opts.n_features)
 
     sender.load_state_dict(torch.load(opts.sender_weights))
     receiver.load_state_dict(torch.load(opts.receiver_weights))
 
-    game = core.SenderReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,
+    if not opts.impatient:
+        game = core.SenderReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,
                                            receiver_entropy_coeff=opts.receiver_entropy_coeff,
-                                           length_cost=opts.length_cost)
+                                           length_cost=opts.length_cost,unigram_penalty=opts.unigram_pen)
+    else:
+        game = SenderImpatientReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,
+                                           receiver_entropy_coeff=opts.receiver_entropy_coeff,
+                                           length_cost=opts.length_cost,unigram_penalty=opts.unigram_pen)
 
     optimizer = core.build_optimizer(game.parameters())
 
@@ -183,7 +200,7 @@ def main(params):
         dataset = [[torch.eye(opts.n_features).to(device), None]]
 
         sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
-            dump_test_position(trainer.game,
+            dump_test_position_impatient(trainer.game,
                                 dataset,
                                 position=position,
                                 voc_size=opts.vocab_size,

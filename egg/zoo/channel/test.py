@@ -76,6 +76,8 @@ def get_params(params):
                         help="Weights of the sender agent")
     parser.add_argument('--save_dir',type=str ,default="analysis/",
                         help="Directory to save the results of the analysis")
+    parser.add_argument('--impatient', type=bool, default=False,
+                        help="Impatient listener")
 
     args = core.init(parser, params)
 
@@ -93,7 +95,8 @@ def dump(game, n_features, device, gs_mode):
     dataset = [[torch.eye(n_features).to(device), None]]
 
     sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
-        core.dump_sender_receiver(game, dataset, gs=gs_mode, device=device, variable_length=True)
+            core.dump_sender_receiver(game, dataset, gs=gs_mode, device=device, variable_length=True,impatient=opts.impatient)
+
 
     unif_acc = 0.
     powerlaw_acc = 0.
@@ -116,6 +119,39 @@ def dump(game, n_features, device, gs_mode):
     print(json.dumps({'powerlaw': powerlaw_acc, 'unif': unif_acc}))
 
     return acc, messages
+
+def dump_impatient(game, n_features, device, gs_mode):
+    # tiny "dataset"
+    dataset = [[torch.eye(n_features).to(device), None]]
+
+    sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
+        dump_sender_receiver_impatient(game, dataset, gs=gs_mode, device=device, variable_length=True)
+
+    unif_acc = 0.
+    powerlaw_acc = 0.
+    powerlaw_probs = 1 / np.arange(1, n_features+1, dtype=np.float32)
+    powerlaw_probs /= powerlaw_probs.sum()
+
+    acc_vec=np.zeros(n_features)
+
+    for sender_input, message, receiver_output in zip(sender_inputs, messages, receiver_outputs):
+        input_symbol = sender_input.argmax()
+        output_symbol = receiver_output.argmax()
+        acc = (input_symbol == output_symbol).float().item()
+
+        acc_vec[int(input_symbol)]=acc
+
+        unif_acc += acc
+        powerlaw_acc += powerlaw_probs[input_symbol] * acc
+        print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
+
+    unif_acc /= n_features
+
+    #print(f'Mean accuracy wrt uniform distribution is {unif_acc}')
+    #print(f'Mean accuracy wrt powerlaw distribution is {powerlaw_acc}')
+    print(json.dumps({'powerlaw': powerlaw_acc, 'unif': unif_acc}))
+
+    return acc_vec, messages
 
 def position_test(game, n_features, device, gs_mode,pos_min=0,pos_max=1):
     # tiny "dataset"
@@ -195,17 +231,36 @@ def main(params):
                                                          opts.receiver_embedding, opts.receiver_num_heads, opts.receiver_hidden,
                                                          opts.receiver_num_layers, causal=opts.causal_receiver)
     else:
+
         receiver = Receiver(n_features=opts.n_features, n_hidden=opts.receiver_hidden)
-        receiver = core.RnnReceiverDeterministic(receiver, opts.vocab_size, opts.receiver_embedding,
-                                             opts.receiver_hidden, cell=opts.receiver_cell,
-                                             num_layers=opts.receiver_num_layers)
+
+        if not opts.impatient:
+          receiver = Receiver(n_features=opts.n_features, n_hidden=opts.receiver_hidden)
+          receiver = core.RnnReceiverDeterministic(receiver, opts.vocab_size, opts.receiver_embedding,
+                                                 opts.receiver_hidden, cell=opts.receiver_cell,
+                                                 num_layers=opts.receiver_num_layers)
+        else:
+          receiver = Receiver(n_features=opts.receiver_hidden, n_hidden=opts.vocab_size)
+          # If impatient 1
+          receiver = RnnReceiverImpatient(receiver, opts.vocab_size, opts.receiver_embedding,
+                                            opts.receiver_hidden, cell=opts.receiver_cell,
+                                            num_layers=opts.receiver_num_layers, max_len=opts.max_len, n_features=opts.n_features)
+          # If impatient 2
+          #receiver = RnnReceiverImpatient2(receiver, opts.vocab_size, opts.receiver_embedding,
+        #                                         opts.receiver_hidden, cell=opts.receiver_cell,
+        #                                         num_layers=opts.receiver_num_layers, max_len=opts.max_len, n_features=opts.n_features)
 
     sender.load_state_dict(torch.load(opts.sender_weights))
     receiver.load_state_dict(torch.load(opts.receiver_weights))
 
-    game = core.SenderReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,
+    if not opts.impatient:
+        game = core.SenderReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,
                                            receiver_entropy_coeff=opts.receiver_entropy_coeff,
-                                           length_cost=opts.length_cost)
+                                           length_cost=opts.length_cost,unigram_penalty=opts.unigram_pen)
+    else:
+        game = SenderImpatientReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,
+                                           receiver_entropy_coeff=opts.receiver_entropy_coeff,
+                                           length_cost=opts.length_cost,unigram_penalty=opts.unigram_pen)
 
     optimizer = core.build_optimizer(game.parameters())
 
@@ -214,7 +269,10 @@ def main(params):
 
     # Test impose message
 
-    _,messages=dump(trainer.game, opts.n_features, device, False)
+    if not opts.impatient:
+        acc_vec,messages=dump(trainer.game, opts.n_features, device, False)
+    else:
+        acc_vec,messages=dump_impatient(trainer.game, opts.n_features, device, False)
 
     all_messages=[]
     for x in messages:

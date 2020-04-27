@@ -205,14 +205,24 @@ def main(params):
 
         dataset = [[torch.eye(opts.n_features).to(device), None]]
 
-        sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
-            dump_test_position_impatient(trainer.game,
-                                dataset,
-                                position=position,
-                                voc_size=opts.vocab_size,
-                                gs=False,
-                                device=device,
-                                variable_length=True)
+        if opts.impatient:
+            sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
+                dump_test_position_impatient(trainer.game,
+                                    dataset,
+                                    position=position,
+                                    voc_size=opts.vocab_size,
+                                    gs=False,
+                                    device=device,
+                                    variable_length=True)
+        else:
+            sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
+                dump_test_position(trainer.game,
+                                    dataset,
+                                    position=position,
+                                    voc_size=opts.vocab_size,
+                                    gs=False,
+                                    device=device,
+                                    variable_length=True)
 
         acc_pos=[]
 

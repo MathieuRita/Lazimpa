@@ -14,6 +14,9 @@ from egg.zoo.channel.features import OneHotLoader, UniformLoader
 from egg.zoo.channel.archs import Sender, Receiver
 from egg.core.util import dump_sender_receiver_test
 from egg.core.util import dump_impose_message
+from egg.core.reinforce_wrappers import RnnReceiverImpatient
+from egg.core.reinforce_wrappers import SenderImpatientReceiverRnnReinforce
+from egg.core.util import dump_sender_receiver_impatient
 
 
 def get_params(params):

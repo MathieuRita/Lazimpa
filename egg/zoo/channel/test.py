@@ -100,7 +100,7 @@ def dump(game, n_features, device, gs_mode):
     dataset = [[torch.eye(n_features).to(device), None]]
 
     sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
-            core.dump_sender_receiver(game, dataset, gs=gs_mode, device=device, variable_length=True,impatient=opts.impatient)
+            core.dump_sender_receiver(game, dataset, gs=gs_mode, device=device, variable_length=True)
 
 
     unif_acc = 0.

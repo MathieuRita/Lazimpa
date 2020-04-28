@@ -678,7 +678,7 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
         """
 
         #Loss
-        loss, rest, crible_acc = self.loss(sender_input, message, message_length, receiver_input, receiver_output, labels)
+        loss, rest, crible_acc = self.loss(sender_input, message, message_lengths, receiver_input, receiver_output, labels)
 
         # the entropy of the outputs of S before and including the eos symbol - as we don't care about what's after
         effective_entropy_s = torch.zeros_like(entropy_r.mean(1))

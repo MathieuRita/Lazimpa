@@ -613,7 +613,16 @@ def dump_sender_receiver_impatient(game: torch.nn.Module,
             # AJOUT
             preds=output[:,:,:].argmax(2)
             print(preds)
-            output=output[:,-1,:]
+
+            message_lengths = find_lengths(message)
+
+            outputs=[]
+
+            for i in range(output.size(0)):
+                outputs.append(output[i,message_lengths[i]-1,:])
+
+            output=torch.stack(outputs,0)
+
 
             sc=0.
             for i in range(preds.size(0)):

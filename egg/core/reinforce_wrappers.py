@@ -661,6 +661,8 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
         # If impatient 2
         #receiver_output, log_prob_r, entropy_r = self.receiver(message, receiver_input, message_lengths)
 
+        """ OLD VERSION
+
         # Randomly takes a position
         rand_length=np.random.randint(0,message.size(1))
 
@@ -673,6 +675,17 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
         # the log prob of the choices made by S before and including the eos symbol - again, we don't
         # care about the rest
         effective_log_prob_s = torch.zeros_like(log_prob_r[:,rand_length])
+        """
+
+        #Loss
+        loss, rest, crible_acc = self.loss(sender_input, message, message_length, receiver_input, receiver_output, labels)
+
+        # the entropy of the outputs of S before and including the eos symbol - as we don't care about what's after
+        effective_entropy_s = torch.zeros_like(entropy_r.mean(1))
+
+        # the log prob of the choices made by S before and including the eos symbol - again, we don't
+        # care about the rest
+        effective_log_prob_s = torch.zeros_like(log_prob_r.mean(1))
 
         for i in range(message.size(1)):
             not_eosed = (i < message_lengths).float()
@@ -683,7 +696,23 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
         weighted_entropy = effective_entropy_s.mean() * self.sender_entropy_coeff + \
                 entropy_r.mean() * self.receiver_entropy_coeff
 
-        log_prob = effective_log_prob_s + log_prob_r[:,rand_length]
+        log_prob = effective_log_prob_s + log_prob_r.mean(1)
+
+        # Length loss_impatient
+
+        #inds_min=find_lengths(message)
+        #one_pos=torch.where(crible_acc==1.)
+
+        #if one_pos[0].size(0)>0:
+        #  for i in range(message.size(0)):
+        #    inds_i=torch.where(one_pos[0]==i)[0]
+        #    if inds_i.size(0)>3:
+        #      inds_min[i]=one_pos[1][inds_i[0]]
+
+        if crible_acc.sum(0).sum(0)/(crible_acc.size(0)*crible_acc.size(1))>0.6:
+            self.length_cost=0.03
+        else:
+            self.length_cost=0.
 
         length_loss = message_lengths.float() * self.length_cost
 

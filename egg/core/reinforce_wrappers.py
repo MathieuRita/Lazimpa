@@ -709,8 +709,10 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
         #    if inds_i.size(0)>3:
         #      inds_min[i]=one_pos[1][inds_i[0]]
 
-        if crible_acc.sum(0).sum(0)/(crible_acc.size(0)*crible_acc.size(1))>0.9:
-            self.length_cost=0.1
+        if crible_acc.sum(0).sum(0)/(crible_acc.size(0)*crible_acc.size(1))>0.99:
+            self.length_cost+=0.01
+            if self.length_cost==0.15:
+                self.length_cost-=0.01
         else:
             self.length_cost=0.
 

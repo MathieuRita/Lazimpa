@@ -698,18 +698,14 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
 
         log_prob = effective_log_prob_s + log_prob_r.mean(1)
 
-        # Length loss_impatient
 
-        #inds_min=find_lengths(message)
-        #one_pos=torch.where(crible_acc==1.)
+        sc=0.
 
-        #if one_pos[0].size(0)>0:
-        #  for i in range(message.size(0)):
-        #    inds_i=torch.where(one_pos[0]==i)[0]
-        #    if inds_i.size(0)>3:
-        #      inds_min[i]=one_pos[1][inds_i[0]]
+        for i in range(message_lengths.size(0)):
+          sc+=crible_acc[i,message_lengths[i]-1]
+        sc/=message_lengths.size(0)
 
-        if crible_acc.sum(0).sum(0)/(crible_acc.size(0)*crible_acc.size(1))>0.99:
+        if sc>0.99:
             self.length_cost+=0.01
             if self.length_cost==0.15:
                 self.length_cost-=0.01

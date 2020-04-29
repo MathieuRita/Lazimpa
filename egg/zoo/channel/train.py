@@ -285,6 +285,10 @@ def main(params):
 
 
     for epoch in range(int(opts.n_epochs)):
+
+        if epoch%20==0:
+          trainer.optimizer.defaults["lr"]/=2
+
         trainer.train(n_epochs=1)
         if opts.checkpoint_dir:
             trainer.save_checkpoint(name=f'{opts.name}_vocab{opts.vocab_size}_rs{opts.random_seed}_lr{opts.lr}_shid{opts.sender_hidden}_rhid{opts.receiver_hidden}_sentr{opts.sender_entropy_coeff}_reg{opts.length_cost}_max_len{opts.max_len}')
@@ -301,7 +305,7 @@ def main(params):
             all_messages.append(x)
         all_messages = np.asarray(all_messages)
 
-        if epoch%100==0:
+        if epoch%50==0:
             torch.save(sender.state_dict(), opts.dir_save+"/sender/sender_weights"+str(epoch)+".pth")
             torch.save(receiver.state_dict(), opts.dir_save+"/receiver/receiver_weights"+str(epoch)+".pth")
 

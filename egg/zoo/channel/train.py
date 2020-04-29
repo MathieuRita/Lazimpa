@@ -78,6 +78,8 @@ def get_params(params):
                         help="Add a penalty for redundancy")
     parser.add_argument('--impatient', type=bool, default=False,
                         help="Impatient listener")
+    parser.add_argument('--print_message', type=bool, default=False,
+                        help='Print message ?')
 
     args = core.init(parser, params)
 
@@ -123,7 +125,7 @@ def loss_impatient(sender_input, _message, message_length, _receiver_input, rece
     return loss, {'acc': acc}, crible_acc
 
 
-def dump(game, n_features, device, gs_mode):
+def dump(game, n_features, device, gs_mode, print_message):
     # tiny "dataset"
     dataset = [[torch.eye(n_features).to(device), None]]
 
@@ -146,7 +148,8 @@ def dump(game, n_features, device, gs_mode):
 
         unif_acc += acc
         powerlaw_acc += powerlaw_probs[input_symbol] * acc
-        print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
+        if print_message:
+            print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
 
     unif_acc /= n_features
 
@@ -156,7 +159,7 @@ def dump(game, n_features, device, gs_mode):
 
     return acc_vec, messages
 
-def dump_impatient(game, n_features, device, gs_mode):
+def dump_impatient(game, n_features, device, gs_mode,opts.print_message):
     # tiny "dataset"
     dataset = [[torch.eye(n_features).to(device), None]]
 
@@ -179,7 +182,8 @@ def dump_impatient(game, n_features, device, gs_mode):
 
         unif_acc += acc
         powerlaw_acc += powerlaw_probs[input_symbol] * acc
-        print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
+        if print_message:
+            print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
 
     unif_acc /= n_features
 
@@ -294,9 +298,9 @@ def main(params):
             trainer.save_checkpoint(name=f'{opts.name}_vocab{opts.vocab_size}_rs{opts.random_seed}_lr{opts.lr}_shid{opts.sender_hidden}_rhid{opts.receiver_hidden}_sentr{opts.sender_entropy_coeff}_reg{opts.length_cost}_max_len{opts.max_len}')
 
         if not opts.impatient:
-            acc_vec,messages=dump(trainer.game, opts.n_features, device, False)
+            acc_vec,messages=dump(trainer.game, opts.n_features, device, False,opts.print_message)
         else:
-            acc_vec,messages=dump_impatient(trainer.game, opts.n_features, device, False)
+            acc_vec,messages=dump_impatient(trainer.game, opts.n_features, device, False,opts.print_message)
 
         # ADDITION TO SAVE MESSAGES
         all_messages=[]

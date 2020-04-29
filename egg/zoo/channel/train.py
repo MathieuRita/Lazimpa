@@ -125,7 +125,7 @@ def loss_impatient(sender_input, _message, message_length, _receiver_input, rece
     return loss, {'acc': acc}, crible_acc
 
 
-def dump(game, n_features, device, gs_mode, print_message):
+def dump(game, n_features, device, gs_mode, epoch):
     # tiny "dataset"
     dataset = [[torch.eye(n_features).to(device), None]]
 
@@ -148,7 +148,7 @@ def dump(game, n_features, device, gs_mode, print_message):
 
         unif_acc += acc
         powerlaw_acc += powerlaw_probs[input_symbol] * acc
-        if print_message:
+        if epoch%10==0 or epoch>100:
             print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
 
     unif_acc /= n_features
@@ -159,7 +159,7 @@ def dump(game, n_features, device, gs_mode, print_message):
 
     return acc_vec, messages
 
-def dump_impatient(game, n_features, device, gs_mode,print_message):
+def dump_impatient(game, n_features, device, gs_mode,epoch):
     # tiny "dataset"
     dataset = [[torch.eye(n_features).to(device), None]]
 
@@ -182,7 +182,7 @@ def dump_impatient(game, n_features, device, gs_mode,print_message):
 
         unif_acc += acc
         powerlaw_acc += powerlaw_probs[input_symbol] * acc
-        if print_message:
+        if epoch%10==0 or epoch>100:
             print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
 
     unif_acc /= n_features
@@ -290,7 +290,7 @@ def main(params):
 
     for epoch in range(int(opts.n_epochs)):
 
-        if epoch%20==0:
+        if epoch%50==0:
           trainer.optimizer.defaults["lr"]/=2
 
         trainer.train(n_epochs=1)
@@ -298,9 +298,9 @@ def main(params):
             trainer.save_checkpoint(name=f'{opts.name}_vocab{opts.vocab_size}_rs{opts.random_seed}_lr{opts.lr}_shid{opts.sender_hidden}_rhid{opts.receiver_hidden}_sentr{opts.sender_entropy_coeff}_reg{opts.length_cost}_max_len{opts.max_len}')
 
         if not opts.impatient:
-            acc_vec,messages=dump(trainer.game, opts.n_features, device, False,opts.print_message)
+            acc_vec,messages=dump(trainer.game, opts.n_features, device, False,epoch)
         else:
-            acc_vec,messages=dump_impatient(trainer.game, opts.n_features, device, False,opts.print_message)
+            acc_vec,messages=dump_impatient(trainer.game, opts.n_features, device, False,epoch)
 
         # ADDITION TO SAVE MESSAGES
         all_messages=[]

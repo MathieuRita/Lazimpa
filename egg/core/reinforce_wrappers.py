@@ -705,9 +705,9 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
           sc+=crible_acc[i,message_lengths[i]-1]
         sc/=message_lengths.size(0)
 
-        if sc>0.99:
+        if sc>0.995:
             self.length_cost+=0.01
-            if self.length_cost==0.15:
+            if self.length_cost==0.25:
                 self.length_cost-=0.01
         else:
             self.length_cost=0.

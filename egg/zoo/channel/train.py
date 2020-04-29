@@ -148,7 +148,7 @@ def dump(game, n_features, device, gs_mode, epoch):
 
         unif_acc += acc
         powerlaw_acc += powerlaw_probs[input_symbol] * acc
-        if epoch%10==0 or epoch>100:
+        if epoch%25==0 or epoch>300:
             print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
 
     unif_acc /= n_features
@@ -182,7 +182,7 @@ def dump_impatient(game, n_features, device, gs_mode,epoch):
 
         unif_acc += acc
         powerlaw_acc += powerlaw_probs[input_symbol] * acc
-        if epoch%10==0 or epoch>100:
+        if epoch%25==0 or epoch>300:
             print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
 
     unif_acc /= n_features
@@ -290,7 +290,9 @@ def main(params):
 
     for epoch in range(int(opts.n_epochs)):
 
-        if epoch%50==0:
+        print("Epoch: "+str(epoch))
+
+        if epoch%100==0:
           trainer.optimizer.defaults["lr"]/=2
 
         trainer.train(n_epochs=1)

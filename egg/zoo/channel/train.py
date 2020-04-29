@@ -159,7 +159,7 @@ def dump(game, n_features, device, gs_mode, print_message):
 
     return acc_vec, messages
 
-def dump_impatient(game, n_features, device, gs_mode,opts.print_message):
+def dump_impatient(game, n_features, device, gs_mode,print_message):
     # tiny "dataset"
     dataset = [[torch.eye(n_features).to(device), None]]
 

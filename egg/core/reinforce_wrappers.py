@@ -525,11 +525,11 @@ class SenderReceiverRnnReinforce(nn.Module):
         message_lengths = find_lengths(message)
 
         # AJOUT ##
-        if self.impatient:
-            rand_length=np.random.randint(1,message.size(1),size=message.size(0))
+        #if self.impatient:
+        #    rand_length=np.random.randint(1,message.size(1),size=message.size(0))
 
-            for i in range(message.size(0)):
-                message[i,rand_length[i]:].mul_(0).add_(1)
+        #    for i in range(message.size(0)):
+        #        message[i,rand_length[i]:].mul_(0).add_(1)
         ##########
 
 
@@ -709,8 +709,21 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
             self.length_cost+=0.01
             if self.length_cost==0.25:
                 self.length_cost-=0.01
+            print(self.length_cost)
+
+        if sc<0.98:# -*- coding: utf-8 -*-
+        :
+          self.length_cost=0.
+
+        """ ANCIENNE PEN
+        if sc>0.995:
+            print(sc)
+            self.length_cost+=0.01
+            if self.length_cost==0.25:
+                self.length_cost-=0.01
         else:
             self.length_cost=0.
+        """
 
         length_loss = message_lengths.float() * self.length_cost
 

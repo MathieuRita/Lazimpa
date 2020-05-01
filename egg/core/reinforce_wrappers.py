@@ -707,13 +707,12 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
 
         if sc>0.995:
             self.length_cost+=0.01
-            if self.length_cost==0.25:
+            if self.length_cost==0.3:
                 self.length_cost-=0.01
             print(self.length_cost)
 
-        if sc<0.98:# -*- coding: utf-8 -*-
-        :
-          self.length_cost=0.
+        if sc<0.98:
+            self.length_cost=0.
 
         """ ANCIENNE PEN
         if sc>0.995:

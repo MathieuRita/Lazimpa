@@ -570,6 +570,9 @@ class SenderReceiverRnnReinforce(nn.Module):
           if sc<0.98:
               self.length_cost=0.
 
+        else:
+            print("coucou")
+
         length_loss = message_lengths.float() * self.length_cost
 
         # Penalty redundancy

@@ -489,7 +489,7 @@ class SenderReceiverRnnReinforce(nn.Module):
     5.0
     """
     def __init__(self, sender, receiver, loss, sender_entropy_coeff, receiver_entropy_coeff,
-                 length_cost=0.0,unigram_penalty=0.0,impatient=False):
+                 length_cost=0.0,unigram_penalty=0.0,impatient=False,reg=False):
         """
         :param sender: sender agent
         :param receiver: receiver agent
@@ -519,6 +519,7 @@ class SenderReceiverRnnReinforce(nn.Module):
         self.mean_baseline = defaultdict(float)
         self.n_points = defaultdict(float)
         self.impatient=impatient
+        self.reg=reg
 
     def forward(self, sender_input, labels, receiver_input=None):
         message, log_prob_s, entropy_s = self.sender(sender_input)
@@ -555,6 +556,19 @@ class SenderReceiverRnnReinforce(nn.Module):
                 entropy_r.mean() * self.receiver_entropy_coeff
 
         log_prob = effective_log_prob_s + log_prob_r
+
+        if self.reg:
+
+          sc=rest["acc"].sum()/rest["acc"].size(0)
+
+          if sc>0.995:
+              self.length_cost+=0.01
+              if self.length_cost==0.3:
+                  self.length_cost-=0.01
+              print(self.length_cost)
+
+          if sc<0.98:
+              self.length_cost=0.
 
         length_loss = message_lengths.float() * self.length_cost
 
@@ -622,7 +636,7 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
     5.0
     """
     def __init__(self, sender, receiver, loss, sender_entropy_coeff, receiver_entropy_coeff,
-                 length_cost=0.0,unigram_penalty=0.0):
+                 length_cost=0.0,unigram_penalty=0.0,reg=False):
         """
         :param sender: sender agent
         :param receiver: receiver agent
@@ -648,6 +662,7 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
         self.loss = loss
         self.length_cost = length_cost
         self.unigram_penalty = unigram_penalty
+        self.reg=reg
 
         self.mean_baseline = defaultdict(float)
         self.n_points = defaultdict(float)
@@ -698,21 +713,22 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
 
         log_prob = effective_log_prob_s + log_prob_r.mean(1)
 
+        if self.reg:
+            print("coucou")
+            sc=0.
 
-        sc=0.
+            for i in range(message_lengths.size(0)):
+              sc+=crible_acc[i,message_lengths[i]-1]
+            sc/=message_lengths.size(0)
 
-        for i in range(message_lengths.size(0)):
-          sc+=crible_acc[i,message_lengths[i]-1]
-        sc/=message_lengths.size(0)
+            if sc>0.995:
+                self.length_cost+=0.01
+                if self.length_cost==0.3:
+                    self.length_cost-=0.01
+                print(self.length_cost)
 
-        if sc>0.995:
-            self.length_cost+=0.01
-            if self.length_cost==0.3:
-                self.length_cost-=0.01
-            print(self.length_cost)
-
-        if sc<0.98:
-            self.length_cost=0.
+            if sc<0.98:
+                self.length_cost=0.
 
         """ ANCIENNE PEN
         if sc>0.995:

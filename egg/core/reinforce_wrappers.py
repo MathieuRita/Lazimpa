@@ -561,17 +561,19 @@ class SenderReceiverRnnReinforce(nn.Module):
 
           sc=rest["acc"].sum()/rest["acc"].size(0)
 
-          if sc>0.995:
-              self.length_cost+=0.01
-              if self.length_cost==0.3:
-                  self.length_cost-=0.01
-              print(self.length_cost)
-
-          if sc<0.98:
+          if sc>0.99:
+              self.length_cost=(sc-0.99)*100 +0.01
+          else:
               self.length_cost=0.
+          #if sc>0.995:
+              #self.length_cost+=0.01
+              #if self.length_cost==0.3:
+            #      self.length_cost-=0.01
+              #print(self.length_cost)
 
-        else:
-            print("coucou")
+          #if sc<0.98:
+              #self.length_cost=0.
+
 
         length_loss = message_lengths.float() * self.length_cost
 
@@ -724,13 +726,18 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
               sc+=crible_acc[i,message_lengths[i]-1]
             sc/=message_lengths.size(0)
 
-            if sc>0.995:
-                self.length_cost+=0.01
-                if self.length_cost==0.3:
-                    self.length_cost-=0.01
-                print(self.length_cost)
+            #if sc>0.995:
+            #    self.length_cost+=0.01
+            #    if self.length_cost==0.3:
+            #        self.length_cost-=0.01
+            #    print(self.length_cost)
 
-            if sc<0.98:
+            #if sc<0.98:
+            #    self.length_cost=0.
+
+            if sc>0.98:
+                self.length_cost=(sc-0.98)*100 +0.01
+            else:
                 self.length_cost=0.
 
         """ ANCIENNE PEN

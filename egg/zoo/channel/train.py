@@ -138,15 +138,14 @@ def loss_impatient2(sender_input, _message, message_length, _receiver_input, rec
     len_mask=torch.stack(len_mask,dim=0)
     len_mask2=torch.stack(len_mask,dim=0)
 
-    coef=(1/message_length.to(float)).repeat(_message.size(1),1).transpose(1,0)
-    coef2=coef*torch.arange(_message.size(1),0,-1).repeat(_message.size(0),1).to("cuda")
+    #coef=(1/message_length.to(float)).repeat(_message.size(1),1).transpose(1,0)
+    #coef2=coef*torch.arange(_message.size(1),0,-1).repeat(_message.size(0),1).to("cuda")
 
     len_mask=torch.cumsum(len_mask,dim=1)
     len_mask=torch.ones(len_mask.size()).to("cuda").add_(-len_mask)
-    l
 
-    len_mask.mul_((coef2))
-    len_mask.mul_((1/len_mask.sum(1)).repeat((_message.size(1),1)).transpose(1,0))
+    #len_mask.mul_((coef2))
+    #len_mask.mul_((1/len_mask.sum(1)).repeat((_message.size(1),1)).transpose(1,0))
 
     crible_acc=torch.zeros(size=_message.size()).to("cuda")
     crible_loss=torch.zeros(size=_message.size()).to("cuda")
@@ -162,6 +161,9 @@ def loss_impatient2(sender_input, _message, message_length, _receiver_input, rec
     loss2=torch.cumsum(loss2,dim=1)
 
     loss.add_(loss2)
+
+    # Moyenne
+    loss.mul_(torch.ones(len_mask.size()).to("cuda")*crible_loss.size(1))
 
     acc = acc.sum(1)
     loss= loss.sum(1)

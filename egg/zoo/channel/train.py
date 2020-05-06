@@ -126,6 +126,47 @@ def loss_impatient(sender_input, _message, message_length, _receiver_input, rece
 
     return loss, {'acc': acc}, crible_acc
 
+def loss_impatient2(sender_input, _message, message_length, _receiver_input, receiver_output, _labels):
+
+    to_onehot=torch.eye(_message.size(1)).to("cuda")
+    to_onehot=torch.cat((to_onehot,torch.zeros((1,_message.size(1))).to("cuda")),0)
+    len_mask=[]
+    len_mask2=[]
+    for i in range(message_length.size(0)):
+      len_mask.append(to_onehot[message_length[i]])
+      len_mask2.append(to_onehot[message_length[i]-1])
+    len_mask=torch.stack(len_mask,dim=0)
+    len_mask2=torch.stack(len_mask,dim=0)
+
+    coef=(1/message_length.to(float)).repeat(_message.size(1),1).transpose(1,0)
+    coef2=coef*torch.arange(_message.size(1),0,-1).repeat(_message.size(0),1).to("cuda")
+
+    len_mask=torch.cumsum(len_mask,dim=1)
+    len_mask=torch.ones(len_mask.size()).to("cuda").add_(-len_mask)
+    l
+
+    len_mask.mul_((coef2))
+    len_mask.mul_((1/len_mask.sum(1)).repeat((_message.size(1),1)).transpose(1,0))
+
+    crible_acc=torch.zeros(size=_message.size()).to("cuda")
+    crible_loss=torch.zeros(size=_message.size()).to("cuda")
+
+    for i in range(receiver_output.size(1)):
+      crible_acc[:,i].add_((receiver_output[:,i,:].argmax(dim=1) == sender_input.argmax(dim=1)).detach().float())
+      crible_loss[:,i].add_(F.cross_entropy(receiver_output[:,i,:], sender_input.argmax(dim=1), reduction="none"))
+
+    acc=crible_acc*len_mask
+    loss=crible_loss*len_mask
+
+    loss2=crible_acc*len_mask2
+    loss2=torch.cumsum(loss2,dim=1)
+
+    loss.add_(loss2)
+
+    acc = acc.sum(1)
+    loss= loss.sum(1)
+
+    return loss, {'acc': acc}, crible_acc
 
 def dump(game, n_features, device, gs_mode, epoch):
     # tiny "dataset"

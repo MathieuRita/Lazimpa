@@ -17,6 +17,8 @@ from egg.core.reinforce_wrappers import RnnReceiverImpatient, RnnReceiverImpatie
 from egg.core.reinforce_wrappers import SenderImpatientReceiverRnnReinforce, CompositionalitySenderImpatientReceiverRnnReinforce
 from egg.core.util import dump_sender_receiver_impatient, dump_sender_receiver_impatient_compositionality
 
+from egg.core.trainers import CompoTrainer
+
 
 def get_params(params):
     parser = argparse.ArgumentParser()
@@ -85,9 +87,9 @@ def get_params(params):
                         help='Add regularization ?')
 
     # Compositionality
-    parser.add_argument('--n_attributes', type=int, default=2,
+    parser.add_argument('--n_attributes', type=int, default=3,
                         help='Number of attributes (default: 2)')
-    parser.add_argument('--n_values', type=int, default=2,
+    parser.add_argument('--n_values', type=int, default=3,
                         help='Number of values by attribute')
 
     args = core.init(parser, params)
@@ -292,7 +294,7 @@ def main(params):
     force_eos = opts.force_eos == 1
 
     # Distribution of the inputs
-    probs = np.ones(opts.n_features)
+    probs = np.ones(opts.n_values)
     probs /= probs.sum()
 
 
@@ -339,7 +341,7 @@ def main(params):
 
     optimizer = core.build_optimizer(game.parameters())
 
-    trainer = core.CompoTrainer(n_attributes=n_attributes,n_values=n_values,game=game, optimizer=optimizer, train_data=train_loader,
+    trainer = core.CompoTrainer(n_attributes=opts.n_attributes,n_values=opts.n_values,game=game, optimizer=optimizer, train_data=train_loader,
                            validation_data=test_loader, callbacks=[EarlyStopperAccuracy(opts.early_stopping_thr)])
 
 

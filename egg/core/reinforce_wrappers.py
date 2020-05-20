@@ -394,7 +394,7 @@ class RnnReceiverImpatientCompositionality(nn.Module):
     """
 
     def __init__(self, agent, vocab_size, embed_dim, hidden_size,max_len,n_attributes, n_values, cell='rnn', num_layers=1):
-        super(RnnReceiverImpatient, self).__init__()
+        super(RnnReceiverImpatientCompositionality, self).__init__()
 
         self.max_len = max_len
         self.hidden_to_output = n_attributes*[nn.Linear(hidden_size, n_values)]

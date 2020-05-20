@@ -245,9 +245,9 @@ def dump_impatient_compositionality(game, n_attributes, n_values, device, gs_mod
 
     dataset=[]
 
-    for i in range(len(comb)):
+    for i in range(len(combination)):
       new_input=torch.zeros(0)
-      for j in comb[i]:
+      for j in combination[i]:
         new_input=torch.cat((new_input,one_hots[j]))
       dataset.append(new_input)
 
@@ -260,12 +260,15 @@ def dump_impatient_compositionality(game, n_attributes, n_values, device, gs_mod
 
     unif_acc = 0.
 
+
     acc_vec=np.zeros(n_features)
 
     print(sender_inputs)
     print(receiver_outputs)
 
     for sender_input, message, receiver_output in zip(sender_inputs, messages, receiver_outputs):
+        print(sender_input)
+        print(receiver_output)
         input_symbol = sender_input.argmax()
         output_symbol = receiver_output.argmax()
         acc = (input_symbol == output_symbol).float().item()

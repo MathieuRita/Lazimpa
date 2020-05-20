@@ -399,6 +399,7 @@ class RnnReceiverImpatientCompositionality(nn.Module):
         self.max_len = max_len
         self.hidden_to_output = n_attributes*[nn.Linear(hidden_size, n_values)]
         self.encoder = RnnEncoderImpatient(vocab_size, embed_dim, hidden_size, cell, num_layers)
+        self.n_attributes=n_attributes
 
     def forward(self, message, input=None, lengths=None):
 
@@ -409,7 +410,7 @@ class RnnReceiverImpatientCompositionality(nn.Module):
         entropy_all_attributes=[]
 
 
-        for attribute in n_attributes:
+        for attribute in self.n_attributes:
 
             sequence = []
             logits = []
@@ -910,7 +911,7 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
         :param receiver_entropy_coeff: entropy regularization coeff for receiver
         :param length_cost: the penalty applied to Sender for each symbol produced
         """
-        super(SenderImpatientReceiverRnnReinforce, self).__init__()
+        super(CompositionalitySenderImpatientReceiverRnnReinforce, self).__init__()
         self.sender = sender
         self.receiver = receiver
         self.sender_entropy_coeff = sender_entropy_coeff

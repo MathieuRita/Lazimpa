@@ -11,7 +11,7 @@ import torch.utils.data
 import torch.nn.functional as F
 import egg.core as core
 from egg.core import EarlyStopperAccuracy
-from egg.zoo.channel.features import OneHotLoader, UniformLoader
+from egg.zoo.channel.features import OneHotLoader, UniformLoader, CompoTrainer
 from egg.zoo.channel.archs import Sender, Receiver
 from egg.core.reinforce_wrappers import RnnReceiverImpatient
 from egg.core.reinforce_wrappers import SenderImpatientReceiverRnnReinforce

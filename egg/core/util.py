@@ -794,18 +794,18 @@ def dump_sender_receiver_impatient_compositionality(game: torch.nn.Module,
             for i in range(len(output)):
                 preds_by_att.append(output[i][:,:,:].argmax(2))
 
+
             message_lengths = find_lengths(message)
 
+            output=[]
 
-            outputs_by_att=[]
-            outputs=[]
+            for j in range(preds_by_att[i].size(0)):
+              output_sing=[]
+              for attribute in range(len(preds_by_att)):
+                output_sing.append(int(preds_by_att[attribute][j,message_lengths[j]-1]))
+              output.append(output_sing)
 
-            for i in range(len(output)):
-                for j in range(output[i].size(0)):
-                    outputs.append(output[j,message_lengths[j]-1,:])
-
-                output=torch.stack(outputs,0)
-                outputs_by_att.append(output)
+            receiver_outputs=output
 
             if batch[1] is not None:
                 labels.extend(batch[1])
@@ -822,7 +822,7 @@ def dump_sender_receiver_impatient_compositionality(game: torch.nn.Module,
 
             if not variable_length:
                 messages.extend(message)
-                receiver_outputs.extend(output)
+                #receiver_outputs.extend(output)
             else:
                 # A trickier part is to handle EOS in the messages. It also might happen that not every message has EOS.
                 # We cut messages at EOS if it is present or return the entire message otherwise. Note, EOS id is always
@@ -837,10 +837,10 @@ def dump_sender_receiver_impatient_compositionality(game: torch.nn.Module,
                     else:
                         messages.append(message[i, :message_end + 1])
 
-                    if gs:
-                        receiver_outputs.append(output[i, message_end, ...])
-                    else:
-                        receiver_outputs.append(output[i, ...])
+                    #if gs:
+                    #    receiver_outputs.append(output[i, message_end, ...])
+                    #else:
+                        #receiver_outputs.append(output[i, ...])
 
     game.train(mode=train_state)
 

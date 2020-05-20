@@ -977,8 +977,10 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
                   sc+=crible_acc[i,message_lengths[i]-1]
 
         loss=torch.stack(losses).mean()
-        log_prob_r=torch.stack(log_prob_r_all_att,0).mean(0)
-        entropy_r=torch.stack(entropy_r_all_att,0).mean(0) 
+        #log_prob_r=torch.stack(log_prob_r_all_att,0).mean(0)
+        #entropy_r=torch.stack(entropy_r_all_att,0).mean(0)
+        log_prob_r=log_prob_r_all_att[-1]
+        entropy_r=entropy_r_all_att[-1]
 
         """
         effective_entropy_s=np.mean(effective_entropy_s_all_att)

@@ -260,33 +260,16 @@ def dump_impatient_compositionality(game, n_attributes, n_values, device, gs_mod
 
     unif_acc = 0.
 
+    for i in range(len(receiver_outputs)):
+      message=messages[i]
+      unif_acc+=np.sum(receiver_outputs[i]==list(combination[i]))
+      print(f'input: {",".join([str(x) for x in combination[i]])} -> message: {",".join([str(x.item()) for x in message])} -> output: {",".join([str(x) for x in receiver_outputs[i]])}', flush=True)
 
-    acc_vec=np.zeros(n_features)
+    unif_acc /= n_attributes*n_values
 
-    print(sender_inputs)
-    print(receiver_outputs)
-
-    for sender_input, message, receiver_output in zip(sender_inputs, messages, receiver_outputs):
-        print(sender_input)
-        print(receiver_output)
-        input_symbol = sender_input.argmax()
-        output_symbol = receiver_output.argmax()
-        acc = (input_symbol == output_symbol).float().item()
-
-        acc_vec[int(input_symbol)]=acc
-
-        unif_acc += acc
-        powerlaw_acc += powerlaw_probs[input_symbol] * acc
-
-        print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
-
-    unif_acc /= n_features
-
-    #print(f'Mean accuracy wrt uniform distribution is {unif_acc}')
-    #print(f'Mean accuracy wrt powerlaw distribution is {powerlaw_acc}')
     print(json.dumps({'unif': unif_acc}))
 
-    return acc_vec, messages
+    return unif_acc, messages
 
 def main(params):
     print(torch.cuda.is_available())

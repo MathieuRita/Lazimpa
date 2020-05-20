@@ -817,7 +817,7 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
             #    self.length_cost=0.
 
             #self.length_cost= sc**(45) / 10
-            self.length_cost= sc**(60) / 2
+            self.length_cost= sc**(200) / 2 # On stagne à 0.17
 
         """ ANCIENNE PEN
         if sc>0.995:

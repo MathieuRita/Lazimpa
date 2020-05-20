@@ -927,6 +927,7 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
         self.n_points = defaultdict(float)
 
     def forward(self, sender_input, labels, receiver_input=None):
+
         message, log_prob_s, entropy_s = self.sender(sender_input)
         message_lengths = find_lengths(message)
 
@@ -934,9 +935,9 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
         receiver_output_all_att, log_prob_r_all_att, entropy_r_all_att = self.receiver(message, receiver_input, message_lengths)
 
         #Loss
-        effective_entropy_s_all_att=[]
-        effective_log_prob_s_all_att=[]
-        log_prob_all_att=[]
+        #effective_entropy_s_all_att=[]
+        #effective_log_prob_s_all_att=[]
+        #log_prob_all_att=[]
 
         losses=[]
 
@@ -976,6 +977,8 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
                   sc+=crible_acc[i,message_lengths[i]-1]
 
         loss=torch.stack(losses).mean()
+        log_prob_r=torch.stack(log_prob_r_all_att,0).mean(0)
+        entropy_r=torch.stack(entropy_r_all_att,0).mean(0) 
 
         """
         effective_entropy_s=np.mean(effective_entropy_s_all_att)

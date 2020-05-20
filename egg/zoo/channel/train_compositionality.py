@@ -13,9 +13,9 @@ import egg.core as core
 from egg.core import EarlyStopperAccuracy
 from egg.zoo.channel.features import OneHotLoader, UniformLoader, CompoTrainer
 from egg.zoo.channel.archs import Sender, Receiver
-from egg.core.reinforce_wrappers import RnnReceiverImpatient
-from egg.core.reinforce_wrappers import SenderImpatientReceiverRnnReinforce
-from egg.core.util import dump_sender_receiver_impatient
+from egg.core.reinforce_wrappers import RnnReceiverImpatient, RnnReceiverImpatientCompositionality
+from egg.core.reinforce_wrappers import SenderImpatientReceiverRnnReinforce, CompositionalitySenderImpatientReceiverRnnReinforce
+from egg.core.util import dump_sender_receiver_impatient, dump_sender_receiver_impatient_compositionality
 
 
 def get_params(params):

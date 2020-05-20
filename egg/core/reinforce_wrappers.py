@@ -416,6 +416,8 @@ class RnnReceiverImpatientCompositionality(nn.Module):
             logits = []
             entropy = []
 
+            attribute=0.
+
             for step in range(encoded.size(0)):
 
                 h_t=encoded[step,:,:]

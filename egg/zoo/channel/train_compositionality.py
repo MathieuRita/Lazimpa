@@ -304,7 +304,7 @@ def main(params):
 
     ### SENDER ###
 
-    sender = Sender(n_features=opts.n_attributes*otps.n_values, n_hidden=opts.sender_hidden)
+    sender = Sender(n_features=opts.n_attributes*opts.n_values, n_hidden=opts.sender_hidden)
 
     sender = core.RnnSenderReinforce(sender,opts.vocab_size, opts.sender_embedding, opts.sender_hidden,
                                    cell=opts.sender_cell, max_len=opts.max_len, num_layers=opts.sender_num_layers,

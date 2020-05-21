@@ -416,8 +416,6 @@ class RnnReceiverImpatientCompositionality(nn.Module):
             logits = []
             entropy = []
 
-            attribute=0.
-
             for step in range(encoded.size(0)):
 
                 h_t=encoded[step,:,:]
@@ -978,7 +976,7 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
                 for i in range(message_lengths.size(0)):
                   sc+=crible_acc[i,message_lengths[i]-1]
 
-        loss=torch.stack(losses).mean()
+        loss=torch.stack(losses,0).mean(0)
         #log_prob_r=torch.stack(log_prob_r_all_att,0).mean(0)
         #entropy_r=torch.stack(entropy_r_all_att,0).mean(0)
         log_prob_r=log_prob_r_all_att[-1]

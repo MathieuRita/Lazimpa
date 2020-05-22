@@ -397,7 +397,9 @@ class RnnReceiverImpatientCompositionality(nn.Module):
         super(RnnReceiverImpatientCompositionality, self).__init__()
 
         self.max_len = max_len
-        self.hidden_to_output = n_attributes*[nn.Linear(hidden_size, n_values).to("cuda")]
+        self.n_attributes=n_attributes
+        self.n_values=n_values
+        self.hidden_to_output = nn.Linear(hidden_size, n_attributes*n_values)
         self.encoder = RnnEncoderImpatient(vocab_size, embed_dim, hidden_size, cell, num_layers)
         self.n_attributes=n_attributes
 
@@ -405,40 +407,29 @@ class RnnReceiverImpatientCompositionality(nn.Module):
 
         encoded = self.encoder(message)
 
-        sequence_all_attributes=[]
-        logits_all_attributes=[]
-        entropy_all_attributes=[]
+        sequence = []
+        logits = []
+        entropy = []
 
+        for step in range(encoded.size(0)):
 
-        for attribute in range(self.n_attributes):
+            h_t=encoded[step,:,:]
+            step_logits = F.log_softmax(self.hidden_to_output(h_t).reshape(h_t.size(0),n_attributes,n_values), dim=2)
+            #distr = Categorical(logits=step_logits)
+            entropy.append(-torch.exp(step_logits)*step_logits)
 
-            sequence = []
-            logits = []
-            entropy = []
+            #if self.training:
+            #    x = distr.sample()
+            #else:
+            #    x = step_logits.argmax(dim=2)
+            #logits.append(distr.log_prob(x))
+            sequence.append(step_logits)
 
-            for step in range(encoded.size(0)):
+        sequence = torch.stack(sequence).permute(1, 0, 2)
+        #logits = torch.stack(logits).permute(1, 0)
+        #entropy = torch.stack(entropy).permute(1, 0)
 
-                h_t=encoded[step,:,:]
-                step_logits = F.log_softmax(self.hidden_to_output[attribute](h_t), dim=1)
-                distr = Categorical(logits=step_logits)
-                entropy.append(distr.entropy())
-
-                if self.training:
-                    x = distr.sample()
-                else:
-                    x = step_logits.argmax(dim=1)
-                logits.append(distr.log_prob(x))
-                sequence.append(step_logits)
-
-            sequence = torch.stack(sequence).permute(1, 0, 2)
-            logits = torch.stack(logits).permute(1, 0)
-            entropy = torch.stack(entropy).permute(1, 0)
-
-            sequence_all_attributes.append(sequence)
-            logits_all_attributes.append(logits)
-            entropy_all_attributes.append(entropy)
-
-        return sequence_all_attributes, logits_all_attributes, entropy_all_attributes
+        return sequence, step_logits, entropy
 
 class RnnReceiverImpatient2(nn.Module):
 
@@ -934,59 +925,18 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
         # If impatient 1
         receiver_output_all_att, log_prob_r_all_att, entropy_r_all_att = self.receiver(message, receiver_input, message_lengths)
 
-        #Loss
-        #effective_entropy_s_all_att=[]
-        #effective_log_prob_s_all_att=[]
-        #log_prob_all_att=[]
-
-        losses=[]
-
         # reg
         sc=0.
 
-        for i in range(self.n_attributes):
-            loss, rest, crible_acc = self.loss(sender_input[:,i*self.n_values:(i+1)*self.n_values], message, message_lengths, receiver_input, receiver_output_all_att[i], labels)
-            """
-            # the entropy of the outputs of S before and including the eos symbol - as we don't care about what's after
-            effective_entropy_s = torch.zeros_like(entropy_r_all_att[i].mean(1))
+        loss, rest, crible_acc = self.loss(sender_input, message, message_lengths, receiver_input, receiver_output_all_att, labels)
 
-            # the log prob of the choices made by S before and including the eos symbol - again, we don't
-            # care about the rest
-            effective_log_prob_s = torch.zeros_like(log_prob_r_all_att[i].mean(1))
+        if self.reg:
+            for i in range(message_lengths.size(0)):
+              sc+=crible_acc[i,message_lengths[i]-1]
 
-            for i in range(message.size(1)):
-                not_eosed = (i < message_lengths).float()
-                effective_entropy_s += entropy_s[:, i] * not_eosed
-                effective_log_prob_s += log_prob_s[:, i] * not_eosed
-            effective_entropy_s = effective_entropy_s / message_lengths.float()
 
-            weighted_entropy = effective_entropy_s.mean() * self.sender_entropy_coeff + \
-                    entropy_r.mean() * self.receiver_entropy_coeff
-
-            log_prob = effective_log_prob_s + log_prob_r_all_att[i].mean(1)
-
-            effective_entropy_s_all_att.append(effective_entropy_s)
-            effective_log_prob_s_all_att.append(effective_log_prob_s)
-            log_prob_all_att.append(log_prob)
-            """
-
-            losses.append(loss)
-
-            if self.reg:
-                for i in range(message_lengths.size(0)):
-                  sc+=crible_acc[i,message_lengths[i]-1]
-
-        loss=torch.stack(losses,0).mean(0)
-        #log_prob_r=torch.stack(log_prob_r_all_att,0).mean(0)
-        #entropy_r=torch.stack(entropy_r_all_att,0).mean(0)
-        log_prob_r=log_prob_r_all_att[-1]
-        entropy_r=entropy_r_all_att[-1]
-
-        """
-        effective_entropy_s=np.mean(effective_entropy_s_all_att)
-        effective_log_prob_s=np.mean(effective_log_prob_s_all_att)
-        log_prob=np.mean(log_prob_all_att)
-        """
+        log_prob_r=log_prob_r_all_att.mean(2)
+        entropy_r=entropy_r_all_att.mean(2)
 
         # the entropy of the outputs of S before and including the eos symbol - as we don't care about what's after
         effective_entropy_s = torch.zeros_like(entropy_r.mean(1))

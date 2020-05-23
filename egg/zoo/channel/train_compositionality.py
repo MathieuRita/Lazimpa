@@ -162,7 +162,7 @@ def loss_impatient_compositionality(sender_input, _message, message_length, _rec
 
       crible_acc[:,i].add_((ro.argmax(dim=2)==si.argmax(2)).detach().float().sum(1)/n_attributes)
 
-      crible_loss[:,i].add_(F.cross_entropy(receiver_output[:,i,:], sender_input.argmax(dim=1), reduction="none"))
+      #crible_loss[:,i].add_(F.cross_entropy(receiver_output[:,i,:], sender_input.argmax(dim=1), reduction="none"))
       for j in range(ro.size(1)):
         crible_loss[:,i].add_(F.cross_entropy(ro[:,j,:], si[:,j,:].argmax(dim=1), reduction="none"))
 
@@ -265,6 +265,7 @@ def dump_impatient_compositionality(game, n_attributes, n_values, device, gs_mod
         dump_sender_receiver_impatient_compositionality(game, dataset, gs=gs_mode, device=device, variable_length=True)
 
     unif_acc = 0.
+    acc_vec=np.zeros(((n_values**n_attributes), n_attributes))
 
     for i in range(len(receiver_outputs)):
       message=messages[i]
@@ -272,13 +273,14 @@ def dump_impatient_compositionality(game, n_attributes, n_values, device, gs_mod
       for j in range(len(list(combination[i]))):
         if receiver_outputs[i][j]==list(combination[i])[j]:
           unif_acc+=1
+          acc_vec[i,j]=1
       print(f'input: {",".join([str(x) for x in combination[i]])} -> message: {",".join([str(x.item()) for x in message])} -> output: {",".join([str(x) for x in receiver_outputs[i]])}', flush=True)
 
-    unif_acc /= (n_values**n_attributes) * n_values
+    unif_acc /= (n_values**n_attributes) * n_attributes
 
     print(json.dumps({'unif': unif_acc}))
 
-    return unif_acc, messages
+    return acc_vec, messages
 
 def main(params):
     print(torch.cuda.is_available())

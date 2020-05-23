@@ -135,7 +135,7 @@ def loss_impatient(sender_input, _message, message_length, _receiver_input, rece
 
     return loss, {'acc': acc}, crible_acc
 
-def loss_impatient_compositionality(sender_input, _message, message_length, _receiver_input, receiver_output, _labels):
+def loss_impatient_compositionality(sender_input, _message, message_length, _receiver_input, receiver_output, _labels,n_attributes,n_values):
 
     to_onehot=torch.eye(_message.size(1)).to("cuda")
     to_onehot=torch.cat((to_onehot,torch.zeros((1,_message.size(1))).to("cuda")),0)
@@ -157,8 +157,14 @@ def loss_impatient_compositionality(sender_input, _message, message_length, _rec
     crible_loss=torch.zeros(size=_message.size()).to("cuda")
 
     for i in range(receiver_output.size(1)):
-      crible_acc[:,i].add_((receiver_output[:,i,:].argmax(dim=1) == sender_input).detach().float())
-      crible_loss[:,i].add_(F.cross_entropy(receiver_output[:,i,:], sender_input, reduction="none"))
+      ro=receiver_output[:,i,:].reshape(receiver_output.size(0),n_attributes,n_values)
+      si=sender_input.reshape(sender_input.size(0),n_attributes,n_values)
+
+      crible_acc[:,i].add_((ro.argmax(dim=2)==si.argmax(2)).detach().float().sum(1)/n_attributes)
+
+      crible_loss[:,i].add_(F.cross_entropy(receiver_output[:,i,:], sender_input.argmax(dim=1), reduction="none"))
+      for j in range(ro.size(1)):
+        crible_loss[:,i].add_(F.cross_entropy(ro[:,j,:], si[:,j,:].argmax(dim=1), reduction="none"))
 
     acc=crible_acc*len_mask
     loss=crible_loss*len_mask
@@ -262,10 +268,13 @@ def dump_impatient_compositionality(game, n_attributes, n_values, device, gs_mod
 
     for i in range(len(receiver_outputs)):
       message=messages[i]
-      unif_acc+=np.sum(receiver_outputs[i]==list(combination[i]))
+      correct=True
+      for j in range(len(list(combination[i]))):
+        if receiver_outputs[i][j]==list(combination[i])[j]:
+          unif_acc+=1
       print(f'input: {",".join([str(x) for x in combination[i]])} -> message: {",".join([str(x.item()) for x in message])} -> output: {",".join([str(x) for x in receiver_outputs[i]])}', flush=True)
 
-    unif_acc /= n_attributes*n_values
+    unif_acc /= (n_values**n_attributes) * n_values
 
     print(json.dumps({'unif': unif_acc}))
 

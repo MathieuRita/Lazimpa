@@ -791,8 +791,8 @@ def dump_sender_receiver_impatient_compositionality(game: torch.nn.Module,
 
             # AJOUT
             preds_by_att=[]
-            for i in range(len(output)):
-                preds_by_att.append(output[i][:,:,:].argmax(2))
+            for i in range(output.size(2)):
+                preds_by_att.append(output[:,:,i,:].argmax(2))
 
 
             message_lengths = find_lengths(message)

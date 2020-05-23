@@ -414,7 +414,7 @@ class RnnReceiverImpatientCompositionality(nn.Module):
         for step in range(encoded.size(0)):
 
             h_t=encoded[step,:,:]
-            step_logits = F.log_softmax(self.hidden_to_output(h_t).reshape(h_t.size(0),n_attributes,n_values), dim=2)
+            step_logits = F.log_softmax(self.hidden_to_output(h_t).reshape(h_t.size(0),self.n_attributes,self.n_values), dim=2)
             #distr = Categorical(logits=step_logits)
             entropy.append(-torch.exp(step_logits)*step_logits)
 
@@ -425,11 +425,12 @@ class RnnReceiverImpatientCompositionality(nn.Module):
             #logits.append(distr.log_prob(x))
             sequence.append(step_logits)
 
-        sequence = torch.stack(sequence).permute(1, 0, 2)
+        sequence = torch.stack(sequence).permute(1,0,2,3)
+        entropy = torch.stack(entropy).permute(1,0,2,3)
         #logits = torch.stack(logits).permute(1, 0)
         #entropy = torch.stack(entropy).permute(1, 0)
 
-        return sequence, step_logits, entropy
+        return sequence, sequence, entropy
 
 class RnnReceiverImpatient2(nn.Module):
 
@@ -928,7 +929,7 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
         # reg
         sc=0.
 
-        loss, rest, crible_acc = self.loss(sender_input, message, message_lengths, receiver_input, receiver_output_all_att, labels)
+        loss, rest, crible_acc = self.loss(sender_input, message, message_lengths, receiver_input, receiver_output_all_att, labels,self.n_attributes,self.n_values)
 
         if self.reg:
             for i in range(message_lengths.size(0)):
@@ -939,11 +940,11 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
         entropy_r=entropy_r_all_att.mean(2)
 
         # the entropy of the outputs of S before and including the eos symbol - as we don't care about what's after
-        effective_entropy_s = torch.zeros_like(entropy_r.mean(1))
+        effective_entropy_s = torch.zeros_like(entropy_r.mean(1).mean(1))
 
         # the log prob of the choices made by S before and including the eos symbol - again, we don't
         # care about the rest
-        effective_log_prob_s = torch.zeros_like(log_prob_r.mean(1))
+        effective_log_prob_s = torch.zeros_like(log_prob_r.mean(1).mean(1))
 
         for i in range(message.size(1)):
             not_eosed = (i < message_lengths).float()
@@ -954,7 +955,7 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
         weighted_entropy = effective_entropy_s.mean() * self.sender_entropy_coeff + \
                 entropy_r.mean() * self.receiver_entropy_coeff
 
-        log_prob = effective_log_prob_s + log_prob_r.mean(1)
+        log_prob = effective_log_prob_s + log_prob_r.mean(1).mean(1)
 
         if self.reg:
             sc/=message_lengths.size(0)

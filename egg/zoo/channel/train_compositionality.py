@@ -371,7 +371,7 @@ def main(params):
 
         np.save(opts.dir_save+'/messages/messages_'+str((epoch))+'.npy', all_messages)
         np.save(opts.dir_save+'/accuracy/accuracy_'+str((epoch))+'.npy', acc_vec)
-        print(acc_vec)
+        print(acc_vec.T)
 
     core.close()
 

@@ -807,7 +807,11 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
             #    self.length_cost=0.
 
             #self.length_cost= sc**(45) / 10
-            self.length_cost= sc**(200) / 2 # On stagne à 0.175
+            #self.length_cost= sc**(200) / 2 # On stagne à 0.175
+            if sc>0.999:
+            	self.length_cost+=0.01
+            else:
+            	self.length_cost=0.
 
         """ ANCIENNE PEN
         if sc>0.995:
@@ -959,9 +963,12 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
 
         if self.reg:
             sc/=message_lengths.size(0)
-            sc/=self.n_attributes
 
-            self.length_cost= sc**(60) / 2
+            if sc>0.98:
+            	self.length_cost+=0.1
+            else:
+            	self.length_cost=0.
+            #self.length_cost= sc**(60) / 2
 
         length_loss = message_lengths.float() * self.length_cost
 

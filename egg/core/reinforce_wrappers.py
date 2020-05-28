@@ -809,7 +809,7 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
             #self.length_cost= sc**(45) / 10
             #self.length_cost= sc**(200) / 2 # On stagne à 0.175
             if sc>0.999:
-            	self.length_cost+=0.01
+            	self.length_cost+=0.1
             else:
             	self.length_cost=0.
 

@@ -616,7 +616,7 @@ def dump_sender_receiver_impatient(game: torch.nn.Module,
             preds=output[:,:,:].argmax(2)
 
             if test_mode:
-                np.save(save_dir+"predictions.npy",preds)
+                np.save(save_dir+"predictions.npy",preds.cpu().numpy())
 
             message_lengths = find_lengths(message)
 

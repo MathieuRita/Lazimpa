@@ -125,12 +125,12 @@ def dump(game, n_features, device, gs_mode):
 
     return acc, messages
 
-def dump_impatient(game, n_features, device, gs_mode):
+def dump_impatient(game, n_features, device, gs_mode,save_dir):
     # tiny "dataset"
     dataset = [[torch.eye(n_features).to(device), None]]
 
     sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
-        dump_sender_receiver_impatient(game, dataset, gs=gs_mode, device=device, variable_length=True)
+        dump_sender_receiver_impatient(game, dataset, gs=gs_mode, device=device, variable_length=True, test_mode=True,save_dir=save_dir)
 
     unif_acc = 0.
     powerlaw_acc = 0.
@@ -277,7 +277,7 @@ def main(params):
     if not opts.impatient:
         acc_vec,messages=dump(trainer.game, opts.n_features, device, False)
     else:
-        acc_vec,messages=dump_impatient(trainer.game, opts.n_features, device, False)
+        acc_vec,messages=dump_impatient(trainer.game, opts.n_features, device, False,save_dir=opts.save_dir)
 
     all_messages=[]
     for x in messages:

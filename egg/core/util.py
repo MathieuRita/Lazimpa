@@ -576,7 +576,9 @@ def dump_sender_receiver_impatient(game: torch.nn.Module,
                          dataset: 'torch.utils.data.DataLoader',
                          gs: bool, variable_length: bool,
                          device: Optional[torch.device] = None,
-                         impatient = False):
+                         impatient = False,
+                         test_mode=False,
+                         save_dir=""):
     """
     A tool to dump the interaction between Sender and Receiver
     :param game: A Game instance
@@ -612,7 +614,9 @@ def dump_sender_receiver_impatient(game: torch.nn.Module,
 
             # AJOUT
             preds=output[:,:,:].argmax(2)
-            print(preds)
+
+            if test_mode:
+                np.save(save_dir+"predictions.npy",preds)
 
             message_lengths = find_lengths(message)
 

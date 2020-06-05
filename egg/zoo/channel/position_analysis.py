@@ -178,8 +178,8 @@ def main(params):
                                             opts.receiver_hidden, cell=opts.receiver_cell,
                                             num_layers=opts.receiver_num_layers, max_len=opts.max_len, n_features=opts.n_features)
 
-    sender.load_state_dict(torch.load(opts.sender_weights))
-    receiver.load_state_dict(torch.load(opts.receiver_weights))
+    sender.load_state_dict(torch.load(opts.sender_weights,map_location=torch.device('cpu')))
+    receiver.load_state_dict(torch.load(opts.receiver_weights,map_location=torch.device('cpu')))
 
     if not opts.impatient:
         game = core.SenderReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,

@@ -714,7 +714,18 @@ def dump_test_position_impatient(game: torch.nn.Module,
             output = game.receiver(message, receiver_input)
             if not gs: output = output[0]
 
-            output=output[:,-1,:]
+            ### AJOUT CHANGEMENT###
+            #output=output[:,-1,:]
+
+            message_lengths = find_lengths(message)
+
+            outputs=[]
+
+            for i in range(output.size(0)):
+                outputs.append(output[i,message_lengths[i]-1,:])
+
+            output=torch.stack(outputs,0)
+            ####
 
             if batch[1] is not None:
                 labels.extend(batch[1])

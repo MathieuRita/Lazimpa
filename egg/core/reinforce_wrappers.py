@@ -786,6 +786,7 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
         log_prob = effective_log_prob_s + log_prob_r.mean(1)
 
         if self.reg:
+            print("coucou")
             sc=0.
 
             for i in range(message_lengths.size(0)):

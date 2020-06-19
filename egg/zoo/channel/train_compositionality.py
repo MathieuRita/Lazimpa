@@ -139,14 +139,14 @@ def loss_compositionality(sender_input, _message, message_length, _receiver_inpu
 
     loss=0.
 
-    #ro=receiver_output.reshape(receiver_output.size(0),n_attributes,n_values)
-    #si=sender_input.reshape(sender_input.size(0),n_attributes,n_values)
+    sender_input=sender_input.reshape(sender_input.size(0),n_attributes,n_values)
+
     crible_acc=(receiver_output.argmax(dim=2)==sender_input.argmax(2)).detach().float().sum(1)/n_attributes
 
-    for j in range(ro.size(1)):
-      loss.add_(F.cross_entropy(receiver_output[:,j,:], sender_input[:,j,:].argmax(dim=1), reduction="none"))
+    for j in range(receiver_output.size(1)):
+      loss+=F.cross_entropy(receiver_output[:,j,:], sender_input[:,j,:].argmax(dim=1), reduction="none")
 
-    return loss, {'acc': crible_acc}, acc
+    return loss, {'acc': crible_acc.mean()}, crible_acc
 
 def loss_impatient_compositionality(sender_input, _message, message_length, _receiver_input, receiver_output, _labels,n_attributes,n_values):
 
@@ -275,7 +275,7 @@ def dump_compositionality(game, n_attributes, n_values, device, gs_mode,epoch):
     dataset=[[dataset,None]]
 
     sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
-        dump_sender_receiver_impatient_compositionality(game, dataset, gs=gs_mode, device=device, variable_length=True)
+        dump_sender_receiver_compositionality(game, dataset, gs=gs_mode, device=device, variable_length=True)
 
     unif_acc = 0.
     acc_vec=np.zeros(((n_values**n_attributes), n_attributes))

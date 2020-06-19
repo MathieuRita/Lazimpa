@@ -955,3 +955,203 @@ def dump_sender_receiver_impatient_compositionality(game: torch.nn.Module,
     game.train(mode=train_state)
 
     return sender_inputs, messages, receiver_inputs, receiver_outputs, labels
+
+def dump_test_position_compositionality(game: torch.nn.Module,
+                         dataset: 'torch.utils.data.DataLoader',
+                         position: int,
+                         voc_size: int,
+                         gs: bool, variable_length: bool,
+                         device: Optional[torch.device] = None,
+                         impatient = False):
+    """
+    A tool to dump the interaction between Sender and Receiver
+    :param game: A Game instance
+    :param dataset: Dataset of inputs to be used when analyzing the communication
+    :param gs: whether Gumbel-Softmax relaxation was used during training
+    :param variable_length: whether variable-length communication is used
+    :param device: device (e.g. 'cuda') to be used
+    :return:
+    """
+    train_state = game.training  # persist so we restore it back
+    game.eval()
+
+    device = device if device is not None else common_opts.device
+
+    sender_inputs, messages, receiver_inputs, receiver_outputs = [], [], [], []
+    labels = []
+
+    with torch.no_grad():
+        for batch in dataset:
+            # by agreement, each batch is (sender_input, labels) plus optional (receiver_input)
+            sender_input = move_to(batch[0], device)
+            receiver_input = None if len(batch) == 2 else move_to(batch[2], device)
+
+            message = game.sender(sender_input)
+
+            for i in range(message[0].size()[0]):
+                message[0][i,position]=np.random.randint(1,voc_size)
+
+            # Under GS, the only output is a message; under Reinforce, two additional tensors are returned.
+            # We don't need them.
+            if not gs: message = message[0]
+
+            output = game.receiver(message, receiver_input)
+
+            if not gs: output = output[0]
+
+            # AJOUT
+            preds_by_att=[]
+            for i in range(output.size(1)):
+                preds_by_att.append(output[:,i,:].argmax(1))
+
+
+            message_lengths = find_lengths(message)
+
+            output=[]
+
+            for j in range(preds_by_att[i].size(0)):
+              output_sing=[]
+              for attribute in range(len(preds_by_att)):
+                output_sing.append(int(preds_by_att[attribute][j]))
+              output.append(output_sing)
+
+            receiver_outputs=output
+
+            if batch[1] is not None:
+                labels.extend(batch[1])
+
+            if isinstance(sender_input, list) or isinstance(sender_input, tuple):
+                sender_inputs.extend(zip(*sender_input))
+            else:
+                sender_inputs.extend(sender_input)
+
+            if receiver_input is not None:
+                receiver_inputs.extend(receiver_input)
+
+            if gs: message = message.argmax(dim=-1)  # actual symbols instead of one-hot encoded
+
+            if not variable_length:
+                messages.extend(message)
+                #receiver_outputs.extend(output)
+            else:
+                # A trickier part is to handle EOS in the messages. It also might happen that not every message has EOS.
+                # We cut messages at EOS if it is present or return the entire message otherwise. Note, EOS id is always
+                # set to 0.
+
+                for i in range(message.size(0)):
+                    eos_positions = (message[i, :] == 0).nonzero()
+                    message_end = eos_positions[0].item() if eos_positions.size(0) > 0 else -1
+                    assert message_end == -1 or message[i, message_end] == 0
+                    if message_end < 0:
+                        messages.append(message[i, :])
+                    else:
+                        messages.append(message[i, :message_end + 1])
+
+                    #if gs:
+                    #    receiver_outputs.append(output[i, message_end, ...])
+                    #else:
+                        #receiver_outputs.append(output[i, ...])
+
+    game.train(mode=train_state)
+
+    return sender_inputs, messages, receiver_inputs, receiver_outputs, labels
+
+def dump_test_position_impatient_compositionality(game: torch.nn.Module,
+                         dataset: 'torch.utils.data.DataLoader',
+                         position: int,
+                         voc_size: int,
+                         gs: bool, variable_length: bool,
+                         device: Optional[torch.device] = None,
+                         impatient = False):
+    """
+    A tool to dump the interaction between Sender and Receiver
+    :param game: A Game instance
+    :param dataset: Dataset of inputs to be used when analyzing the communication
+    :param gs: whether Gumbel-Softmax relaxation was used during training
+    :param variable_length: whether variable-length communication is used
+    :param device: device (e.g. 'cuda') to be used
+    :return:
+    """
+    train_state = game.training  # persist so we restore it back
+    game.eval()
+
+    device = device if device is not None else common_opts.device
+
+    sender_inputs, messages, receiver_inputs, receiver_outputs = [], [], [], []
+    labels = []
+
+    with torch.no_grad():
+        for batch in dataset:
+            # by agreement, each batch is (sender_input, labels) plus optional (receiver_input)
+            sender_input = move_to(batch[0], device)
+            receiver_input = None if len(batch) == 2 else move_to(batch[2], device)
+
+            message = game.sender(sender_input)
+
+            for i in range(message[0].size()[0]):
+                message[0][i,position]=np.random.randint(1,voc_size)
+
+            # Under GS, the only output is a message; under Reinforce, two additional tensors are returned.
+            # We don't need them.
+            if not gs: message = message[0]
+
+            output = game.receiver(message, receiver_input)
+
+            if not gs: output = output[0]
+
+            # AJOUT
+            preds_by_att=[]
+            for i in range(output.size(2)):
+                preds_by_att.append(output[:,:,i,:].argmax(2))
+
+
+            message_lengths = find_lengths(message)
+
+            output=[]
+
+            for j in range(preds_by_att[i].size(0)):
+              output_sing=[]
+              for attribute in range(len(preds_by_att)):
+                output_sing.append(int(preds_by_att[attribute][j,message_lengths[j]-1]))
+              output.append(output_sing)
+
+            receiver_outputs=output
+
+            if batch[1] is not None:
+                labels.extend(batch[1])
+
+            if isinstance(sender_input, list) or isinstance(sender_input, tuple):
+                sender_inputs.extend(zip(*sender_input))
+            else:
+                sender_inputs.extend(sender_input)
+
+            if receiver_input is not None:
+                receiver_inputs.extend(receiver_input)
+
+            if gs: message = message.argmax(dim=-1)  # actual symbols instead of one-hot encoded
+
+            if not variable_length:
+                messages.extend(message)
+                #receiver_outputs.extend(output)
+            else:
+                # A trickier part is to handle EOS in the messages. It also might happen that not every message has EOS.
+                # We cut messages at EOS if it is present or return the entire message otherwise. Note, EOS id is always
+                # set to 0.
+
+                for i in range(message.size(0)):
+                    eos_positions = (message[i, :] == 0).nonzero()
+                    message_end = eos_positions[0].item() if eos_positions.size(0) > 0 else -1
+                    assert message_end == -1 or message[i, message_end] == 0
+                    if message_end < 0:
+                        messages.append(message[i, :])
+                    else:
+                        messages.append(message[i, :message_end + 1])
+
+                    #if gs:
+                    #    receiver_outputs.append(output[i, message_end, ...])
+                    #else:
+                        #receiver_outputs.append(output[i, ...])
+
+    game.train(mode=train_state)
+
+    return sender_inputs, messages, receiver_inputs, receiver_outputs, labels

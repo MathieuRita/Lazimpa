@@ -135,6 +135,18 @@ def loss_impatient(sender_input, _message, message_length, _receiver_input, rece
 
     return loss, {'acc': acc}, crible_acc
 
+def loss_compositionality(sender_input, _message, message_length, _receiver_input, receiver_output, _labels,n_attributes,n_values):
+    loss=0.
+
+    ro=receiver_output.reshape(receiver_output.size(0),n_attributes,n_values)
+    si=sender_input.reshape(sender_input.size(0),n_attributes,n_values)
+    crible_acc=(ro.argmax(dim=2)==si.argmax(2)).detach().float().sum(1)/n_attributes
+
+    for j in range(ro.size(1)):
+      loss.add_(F.cross_entropy(ro[:,j,:], si[:,j,:].argmax(dim=1), reduction="none"))
+
+    return loss, {'acc': crible_acc}, acc
+
 def loss_impatient_compositionality(sender_input, _message, message_length, _receiver_input, receiver_output, _labels,n_attributes,n_values):
 
     to_onehot=torch.eye(_message.size(1)).to("cuda")
@@ -239,6 +251,46 @@ def dump_impatient(game, n_features, device, gs_mode,epoch):
     #print(f'Mean accuracy wrt uniform distribution is {unif_acc}')
     #print(f'Mean accuracy wrt powerlaw distribution is {powerlaw_acc}')
     print(json.dumps({'powerlaw': powerlaw_acc, 'unif': unif_acc}))
+
+    return acc_vec, messages
+
+def dump_compositionality(game, n_attributes, n_values, device, gs_mode,epoch):
+    # tiny "dataset"
+    one_hots = torch.eye(n_values)
+
+    val=np.arange(n_values)
+    combination=list(itertools.product(val,repeat=n_attributes))
+
+    dataset=[]
+
+    for i in range(len(combination)):
+      new_input=torch.zeros(0)
+      for j in combination[i]:
+        new_input=torch.cat((new_input,one_hots[j]))
+      dataset.append(new_input)
+
+    dataset=torch.stack(dataset)
+
+    dataset=[[dataset,None]]
+
+    sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
+        dump_sender_receiver_impatient_compositionality(game, dataset, gs=gs_mode, device=device, variable_length=True)
+
+    unif_acc = 0.
+    acc_vec=np.zeros(((n_values**n_attributes), n_attributes))
+
+    for i in range(len(receiver_outputs)):
+      message=messages[i]
+      correct=True
+      for j in range(len(list(combination[i]))):
+        if receiver_outputs[i][j]==list(combination[i])[j]:
+          unif_acc+=1
+          acc_vec[i,j]=1
+      print(f'input: {",".join([str(x) for x in combination[i]])} -> message: {",".join([str(x.item()) for x in message])} -> output: {",".join([str(x) for x in receiver_outputs[i]])}', flush=True)
+
+    unif_acc /= (n_values**n_attributes) * n_attributes
+
+    print(json.dumps({'unif': unif_acc}))
 
     return acc_vec, messages
 

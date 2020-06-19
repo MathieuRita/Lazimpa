@@ -282,7 +282,7 @@ class RnnReceiverCompositionality(nn.Module):
     def forward(self, message, input=None, lengths=None):
         encoded = self.encoder(message)
         logits = F.log_softmax(self.hidden_to_output(encoded).reshape(encoded.size(0),self.n_attributes,self.n_values), dim=2)
-        entropy.append(-torch.exp(logits)*logits)
+        entropy=-torch.exp(logits)*logits
 
         return logits, logits, entropy
 

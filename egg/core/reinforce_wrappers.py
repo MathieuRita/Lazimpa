@@ -272,7 +272,7 @@ class RnnReceiverCompositionality(nn.Module):
     This output is assumed to be the tuple of (output, logprob, entropy).
     """
     def __init__(self, agent, vocab_size, embed_dim, hidden_size, cell='rnn', num_layers=1):
-        super(RnnReceiverReinforce, self).__init__()
+        super(RnnReceiverCompositionality, self).__init__()
         self.agent = agent
         self.n_attributes=n_attributes
         self.n_values=n_values
@@ -928,7 +928,7 @@ class CompositionalitySenderReceiverRnnReinforce(nn.Module):
         :param receiver_entropy_coeff: entropy regularization coeff for receiver
         :param length_cost: the penalty applied to Sender for each symbol produced
         """
-        super(CompositionalitySenderImpatientReceiverRnnReinforce, self).__init__()
+        super(CompositionalitySenderReceiverRnnReinforce, self).__init__()
         self.sender = sender
         self.receiver = receiver
         self.sender_entropy_coeff = sender_entropy_coeff

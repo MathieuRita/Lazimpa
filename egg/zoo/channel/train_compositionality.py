@@ -13,9 +13,9 @@ import egg.core as core
 from egg.core import EarlyStopperAccuracy
 from egg.zoo.channel.features import OneHotLoader, UniformLoader
 from egg.zoo.channel.archs import Sender, Receiver
-from egg.core.reinforce_wrappers import RnnReceiverImpatient, RnnReceiverImpatientCompositionality
-from egg.core.reinforce_wrappers import SenderImpatientReceiverRnnReinforce, CompositionalitySenderImpatientReceiverRnnReinforce
-from egg.core.util import dump_sender_receiver_impatient, dump_sender_receiver_impatient_compositionality
+from egg.core.reinforce_wrappers import RnnReceiverImpatient, RnnReceiverImpatientCompositionality, RnnReceiverCompositionality
+from egg.core.reinforce_wrappers import SenderImpatientReceiverRnnReinforce, CompositionalitySenderImpatientReceiverRnnReinforce, CompositionalitySenderReceiverRnnReinforce
+from egg.core.util import dump_sender_receiver_impatient, dump_sender_receiver_impatient_compositionality, dump_sender_receiver_compositionality
 
 from egg.core.trainers import CompoTrainer
 
@@ -368,7 +368,7 @@ def main(params):
 
     if not opts.impatient:
         receiver = Receiver(n_features=opts.n_features, n_hidden=opts.receiver_hidden)
-        receiver = core.RnnReceiverDeterministic(receiver, opts.vocab_size, opts.receiver_embedding,
+        receiver = RnnReceiverCompositionality(receiver, opts.vocab_size, opts.receiver_embedding,
                                                  opts.receiver_hidden, cell=opts.receiver_cell,
                                                  num_layers=opts.receiver_num_layers)
     else:
@@ -380,7 +380,7 @@ def main(params):
 
 
     if not opts.impatient:
-        game = core.SenderReceiverRnnReinforce(sender, receiver, loss, sender_entropy_coeff=opts.sender_entropy_coeff,
+        game = CompositionalitySenderReceiverRnnReinforce(sender, receiver, loss_compositionality, sender_entropy_coeff=opts.sender_entropy_coeff,
                                            receiver_entropy_coeff=opts.receiver_entropy_coeff,
                                            length_cost=opts.length_cost,unigram_penalty=opts.unigram_pen,reg=opts.reg)
     else:
@@ -406,7 +406,7 @@ def main(params):
             trainer.save_checkpoint(name=f'{opts.name}_vocab{opts.vocab_size}_rs{opts.random_seed}_lr{opts.lr}_shid{opts.sender_hidden}_rhid{opts.receiver_hidden}_sentr{opts.sender_entropy_coeff}_reg{opts.length_cost}_max_len{opts.max_len}')
 
         if not opts.impatient:
-            acc_vec,messages=dump(trainer.game, opts.n_features, device, False,epoch)
+            acc_vec,messages=dump_compositionality(trainer.game, opts.n_attributes, opts.n_values, device, False,epoch)
         else:
             acc_vec,messages=dump_impatient_compositionality(trainer.game, opts.n_attributes, opts.n_values, device, False,epoch)
 

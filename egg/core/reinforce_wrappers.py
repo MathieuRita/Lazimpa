@@ -271,7 +271,7 @@ class RnnReceiverCompositionality(nn.Module):
     input that reaches the maximal length of the sequence.
     This output is assumed to be the tuple of (output, logprob, entropy).
     """
-    def __init__(self, agent, vocab_size, embed_dim, hidden_size, cell='rnn', num_layers=1):
+    def __init__(self, agent, vocab_size, embed_dim, hidden_size,max_len,n_attributes, n_values, cell='rnn', num_layers=1):
         super(RnnReceiverCompositionality, self).__init__()
         self.agent = agent
         self.n_attributes=n_attributes

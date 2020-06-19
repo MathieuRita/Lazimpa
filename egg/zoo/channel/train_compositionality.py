@@ -369,8 +369,8 @@ def main(params):
     if not opts.impatient:
         receiver = Receiver(n_features=opts.n_features, n_hidden=opts.receiver_hidden)
         receiver = RnnReceiverCompositionality(receiver, opts.vocab_size, opts.receiver_embedding,
-                                                 opts.receiver_hidden, cell=opts.receiver_cell,
-                                                 num_layers=opts.receiver_num_layers)
+                                            opts.receiver_hidden, cell=opts.receiver_cell,
+                                            num_layers=opts.receiver_num_layers, max_len=opts.max_len, n_attributes=opts.n_attributes, n_values=opts.n_values)
     else:
         receiver = Receiver(n_features=opts.receiver_hidden, n_hidden=opts.vocab_size)
         # If impatient 1
@@ -380,8 +380,8 @@ def main(params):
 
 
     if not opts.impatient:
-        game = CompositionalitySenderReceiverRnnReinforce(sender, receiver, loss_compositionality, sender_entropy_coeff=opts.sender_entropy_coeff,
-                                           receiver_entropy_coeff=opts.receiver_entropy_coeff,
+        game = CompositionalitySenderReceiverRnnReinforce(sender, receiver, loss_impatient_compositionality, sender_entropy_coeff=opts.sender_entropy_coeff,
+                                           n_attributes=opts.n_attributes,n_values=opts.n_values,receiver_entropy_coeff=opts.receiver_entropy_coeff,
                                            length_cost=opts.length_cost,unigram_penalty=opts.unigram_pen,reg=opts.reg)
     else:
         game = CompositionalitySenderImpatientReceiverRnnReinforce(sender, receiver, loss_impatient_compositionality, sender_entropy_coeff=opts.sender_entropy_coeff,

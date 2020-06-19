@@ -136,7 +136,7 @@ def loss_impatient(sender_input, _message, message_length, _receiver_input, rece
     return loss, {'acc': acc}, crible_acc
 
 def loss_compositionality(sender_input, _message, message_length, _receiver_input, receiver_output, _labels,n_attributes,n_values):
-    
+
     loss=0.
 
     #ro=receiver_output.reshape(receiver_output.size(0),n_attributes,n_values)
@@ -381,7 +381,7 @@ def main(params):
 
 
     if not opts.impatient:
-        game = CompositionalitySenderReceiverRnnReinforce(sender, receiver, loss_impatient_compositionality, sender_entropy_coeff=opts.sender_entropy_coeff,
+        game = CompositionalitySenderReceiverRnnReinforce(sender, receiver, loss_compositionality, sender_entropy_coeff=opts.sender_entropy_coeff,
                                            n_attributes=opts.n_attributes,n_values=opts.n_values,receiver_entropy_coeff=opts.receiver_entropy_coeff,
                                            length_cost=opts.length_cost,unigram_penalty=opts.unigram_pen,reg=opts.reg)
     else:

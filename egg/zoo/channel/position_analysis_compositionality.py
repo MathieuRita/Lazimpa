@@ -9,15 +9,20 @@ import numpy as np
 import torch.utils.data
 import torch.nn.functional as F
 import egg.core as core
+import itertools
 from egg.core import EarlyStopperAccuracy
 from egg.zoo.channel.features import OneHotLoader, UniformLoader
 from egg.zoo.channel.archs import Sender, Receiver
 from egg.core.util import dump_sender_receiver_test
 from egg.core.util import dump_impose_message
-from egg.core.util import dump_test_position, dump_test_position_impatient, dump_test_position_compositionality, dump_test_position_impatient_compositionality
+from egg.core.util import dump_test_position, dump_test_position_impatient, dump_test_position_compositionality, dump_test_position_impatient_compositionality, dump_sender_receiver_compositionality, dump_sender_receiver_impatient_compositionality
 from egg.core.reinforce_wrappers import RnnReceiverImpatient
 from egg.core.reinforce_wrappers import SenderImpatientReceiverRnnReinforce
+from egg.core.reinforce_wrappers import RnnReceiverImpatient, RnnReceiverImpatientCompositionality, RnnReceiverCompositionality
+from egg.core.reinforce_wrappers import SenderImpatientReceiverRnnReinforce, CompositionalitySenderImpatientReceiverRnnReinforce, CompositionalitySenderReceiverRnnReinforce
 from egg.core.util import dump_sender_receiver_impatient
+
+from egg.core.trainers import CompoTrainer
 
 
 def get_params(params):
@@ -84,6 +89,14 @@ def get_params(params):
                         help="Impatient listener")
     parser.add_argument('--unigram_pen', type=float, default=0.0,
                         help="Add a penalty for redundancy")
+    parser.add_argument('--reg', type=bool, default=False,
+                        help='Add regularization ?')
+
+    # Compositionality
+    parser.add_argument('--n_attributes', type=int, default=3,
+                        help='Number of attributes (default: 2)')
+    parser.add_argument('--n_values', type=int, default=3,
+                        help='Number of values by attribute')
 
     args = core.init(parser, params)
 
@@ -114,10 +127,142 @@ def dump(game, n_features, device, gs_mode):
 
     return acc, messages
 
+def dump_compositionality(game, n_attributes, n_values, device, gs_mode,epoch):
+    # tiny "dataset"
+    one_hots = torch.eye(n_values)
+
+    val=np.arange(n_values)
+    combination=list(itertools.product(val,repeat=n_attributes))
+
+    dataset=[]
+
+    for i in range(len(combination)):
+      new_input=torch.zeros(0)
+      for j in combination[i]:
+        new_input=torch.cat((new_input,one_hots[j]))
+      dataset.append(new_input)
+
+    dataset=torch.stack(dataset)
+
+    dataset=[[dataset,None]]
+
+    sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
+        dump_sender_receiver_compositionality(game, dataset, gs=gs_mode, device=device, variable_length=True)
+
+    unif_acc = 0.
+    acc_vec=np.zeros(((n_values**n_attributes), n_attributes))
+
+    for i in range(len(receiver_outputs)):
+      message=messages[i]
+      correct=True
+      for j in range(len(list(combination[i]))):
+        if receiver_outputs[i][j]==list(combination[i])[j]:
+          unif_acc+=1
+          acc_vec[i,j]=1
+      #print(f'input: {",".join([str(x) for x in combination[i]])} -> message: {",".join([str(x.item()) for x in message])} -> output: {",".join([str(x) for x in receiver_outputs[i]])}', flush=True)
+
+    unif_acc /= (n_values**n_attributes) * n_attributes
+
+    print(json.dumps({'unif': unif_acc}))
+
+    return acc_vec, messages
+
+def dump_impatient_compositionality(game, n_attributes, n_values, device, gs_mode,epoch):
+    # tiny "dataset"
+    one_hots = torch.eye(n_values)
+
+    val=np.arange(n_values)
+    combination=list(itertools.product(val,repeat=n_attributes))
+
+    dataset=[]
+
+    for i in range(len(combination)):
+      new_input=torch.zeros(0)
+      for j in combination[i]:
+        new_input=torch.cat((new_input,one_hots[j]))
+      dataset.append(new_input)
+
+    dataset=torch.stack(dataset)
+
+    dataset=[[dataset,None]]
+
+    sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
+        dump_sender_receiver_impatient_compositionality(game, dataset, gs=gs_mode, device=device, variable_length=True)
+
+    unif_acc = 0.
+    acc_vec=np.zeros(((n_values**n_attributes), n_attributes))
+
+    for i in range(len(receiver_outputs)):
+      message=messages[i]
+      correct=True
+      for j in range(len(list(combination[i]))):
+        if receiver_outputs[i][j]==list(combination[i])[j]:
+          unif_acc+=1
+          acc_vec[i,j]=1
+      #print(f'input: {",".join([str(x) for x in combination[i]])} -> message: {",".join([str(x.item()) for x in message])} -> output: {",".join([str(x) for x in receiver_outputs[i]])}', flush=True)
+
+    unif_acc /= (n_values**n_attributes) * n_attributes
+
+    print(json.dumps({'unif': unif_acc}))
+
+    return acc_vec, messages
+
 def loss(sender_input, _message, _receiver_input, receiver_output, _labels):
     acc = (receiver_output.argmax(dim=1) == sender_input.argmax(dim=1)).detach().float()
     loss = F.cross_entropy(receiver_output, sender_input.argmax(dim=1), reduction="none")
     return loss, {'acc': acc}
+
+def loss_compositionality(sender_input, _message, message_length, _receiver_input, receiver_output, _labels,n_attributes,n_values):
+
+    loss=0.
+
+    sender_input=sender_input.reshape(sender_input.size(0),n_attributes,n_values)
+
+    crible_acc=(receiver_output.argmax(dim=2)==sender_input.argmax(2)).detach().float().mean(1)
+
+    for j in range(receiver_output.size(1)):
+      loss+=F.cross_entropy(receiver_output[:,j,:], sender_input[:,j,:].argmax(dim=1), reduction="none")
+
+    return loss, {'acc': crible_acc}, crible_acc
+
+def loss_impatient_compositionality(sender_input, _message, message_length, _receiver_input, receiver_output, _labels,n_attributes,n_values):
+
+    to_onehot=torch.eye(_message.size(1)).to("cuda")
+    to_onehot=torch.cat((to_onehot,torch.zeros((1,_message.size(1))).to("cuda")),0)
+    len_mask=[]
+    for i in range(message_length.size(0)):
+      len_mask.append(to_onehot[message_length[i]])
+    len_mask=torch.stack(len_mask,dim=0)
+
+    coef=(1/message_length.to(float)).repeat(_message.size(1),1).transpose(1,0)
+    coef2=coef*torch.arange(_message.size(1),0,-1).repeat(_message.size(0),1).to("cuda")
+
+    len_mask=torch.cumsum(len_mask,dim=1)
+    len_mask=torch.ones(len_mask.size()).to("cuda").add_(-len_mask)
+
+    len_mask.mul_((coef2))
+    len_mask.mul_((1/len_mask.sum(1)).repeat((_message.size(1),1)).transpose(1,0))
+
+    crible_acc=torch.zeros(size=_message.size()).to("cuda")
+    crible_loss=torch.zeros(size=_message.size()).to("cuda")
+
+    for i in range(receiver_output.size(1)):
+      ro=receiver_output[:,i,:].reshape(receiver_output.size(0),n_attributes,n_values)
+      si=sender_input.reshape(sender_input.size(0),n_attributes,n_values)
+
+      crible_acc[:,i].add_((ro.argmax(dim=2)==si.argmax(2)).detach().float().sum(1)/n_attributes)
+
+      #crible_loss[:,i].add_(F.cross_entropy(receiver_output[:,i,:], sender_input.argmax(dim=1), reduction="none"))
+      for j in range(ro.size(1)):
+        crible_loss[:,i].add_(F.cross_entropy(ro[:,j,:], si[:,j,:].argmax(dim=1), reduction="none"))
+
+    acc=crible_acc*len_mask
+    loss=crible_loss*len_mask
+
+    acc = acc.sum(1)
+    loss= loss.sum(1)
+
+    return loss, {'acc': acc}, crible_acc
 
 def main(params):
     opts = get_params(params)
@@ -187,14 +332,14 @@ def main(params):
 
     # Debut test position
 
-    position_sieve=np.zeros((opts.n_features,opts.max_len,opts.n_attributes))
+    position_sieve=np.zeros((opts.n_attributes**opts.n_values,opts.max_len,opts.n_attributes))
 
     for position in range(opts.max_len):
 
-        one_hots = torch.eye(n_values)
+        one_hots = torch.eye(opts.n_values)
 
-        val=np.arange(n_values)
-        combination=list(itertools.product(val,repeat=n_attributes))
+        val=np.arange(opts.n_values)
+        combination=list(itertools.product(val,repeat=opts.n_attributes))
 
         dataset=[]
 
@@ -233,7 +378,6 @@ def main(params):
           for j in range(len(list(combination[i]))):
             if receiver_outputs[i][j]==list(combination[i])[j]:
               position_sieve[i,position,j]=1
-              unif_acc+=1
 
 
     # Put -1 for position after message_length

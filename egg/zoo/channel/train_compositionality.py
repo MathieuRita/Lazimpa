@@ -146,7 +146,8 @@ def loss_compositionality(sender_input, _message, message_length, _receiver_inpu
     crible_acc=(receiver_output.argmax(dim=2)==sender_input.argmax(2)).detach().float().mean(1)
 
     for j in range(receiver_output.size(1)):
-      loss+=F.cross_entropy(receiver_output[:,j,:], sender_input[:,j,:].argmax(dim=1), reduction="none")
+      K=10*(1/(j+1)
+      loss+=K*F.cross_entropy(receiver_output[:,j,:], sender_input[:,j,:].argmax(dim=1), reduction="none")
 
     return loss, {'acc': crible_acc}, crible_acc
 
@@ -159,8 +160,13 @@ def loss_impatient_compositionality(sender_input, _message, message_length, _rec
       len_mask.append(to_onehot[message_length[i]])
     len_mask=torch.stack(len_mask,dim=0)
 
-    coef=(1/message_length.to(float)).repeat(_message.size(1),1).transpose(1,0)
-    coef2=coef*torch.arange(_message.size(1),0,-1).repeat(_message.size(0),1).to("cuda")
+    #coef=(1/message_length.to(float)).repeat(_message.size(1),1).transpose(1,0)
+    #coef2=coef*torch.arange(_message.size(1),0,-1).repeat(_message.size(0),1).to("cuda")
+
+    # NEW LOSS
+    Mlen=n_attributes*torch.ones(message_length.size()).to("cuda")
+    coef=(1/Mlen).repeat(_message.size(1),1).transpose(1,0)
+    coef2=coef
 
     len_mask=torch.cumsum(len_mask,dim=1)
     len_mask=torch.ones(len_mask.size()).to("cuda").add_(-len_mask)
@@ -179,7 +185,8 @@ def loss_impatient_compositionality(sender_input, _message, message_length, _rec
 
       #crible_loss[:,i].add_(F.cross_entropy(receiver_output[:,i,:], sender_input.argmax(dim=1), reduction="none"))
       for j in range(ro.size(1)):
-        crible_loss[:,i].add_(F.cross_entropy(ro[:,j,:], si[:,j,:].argmax(dim=1), reduction="none"))
+        K=10*(1/(j+1)
+        crible_loss[:,i].add_(K*F.cross_entropy(ro[:,j,:], si[:,j,:].argmax(dim=1), reduction="none"))
 
     acc=crible_acc*len_mask
     loss=crible_loss*len_mask
@@ -401,8 +408,10 @@ def main(params):
 
         print("Epoch: "+str(epoch))
 
-        if epoch%100==0:
-          trainer.optimizer.defaults["lr"]/=2
+        #if epoch%100==0:
+        #  trainer.optimizer.defaults["lr"]/=2
+
+
 
         trainer.train(n_epochs=1)
         if opts.checkpoint_dir:
@@ -412,6 +421,11 @@ def main(params):
             acc_vec,messages=dump_compositionality(trainer.game, opts.n_attributes, opts.n_values, device, False,epoch)
         else:
             acc_vec,messages=dump_impatient_compositionality(trainer.game, opts.n_attributes, opts.n_values, device, False,epoch)
+
+        if epoch%5==0:
+          if np.abs(new_acc-np.mean(curr_accs))<0.05:
+            trainer.optimizer.defaults["lr"]/=10
+        curr_accs[epoch%7]=new_acc
 
         # ADDITION TO SAVE MESSAGES
         all_messages=[]

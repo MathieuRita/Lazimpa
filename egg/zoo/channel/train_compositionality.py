@@ -133,8 +133,6 @@ def loss_impatient(sender_input, _message, message_length, _receiver_input, rece
     acc = acc.sum(1)
     loss= loss.sum(1)
 
-
-
     return loss, {'acc': acc}, crible_acc
 
 def loss_compositionality(sender_input, _message, message_length, _receiver_input, receiver_output, _labels,n_attributes,n_values):
@@ -146,8 +144,8 @@ def loss_compositionality(sender_input, _message, message_length, _receiver_inpu
     crible_acc=(receiver_output.argmax(dim=2)==sender_input.argmax(2)).detach().float().mean(1)
 
     for j in range(receiver_output.size(1)):
-      K=10*(1/(j+1)
-      loss+=K*F.cross_entropy(receiver_output[:,j,:], sender_input[:,j,:].argmax(dim=1), reduction="none")
+        K=10*(1/(j+1))
+        loss+=K*F.cross_entropy(receiver_output[:,j,:], sender_input[:,j,:].argmax(dim=1), reduction="none")
 
     return loss, {'acc': crible_acc}, crible_acc
 

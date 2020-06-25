@@ -401,7 +401,7 @@ def main(params):
     trainer = CompoTrainer(n_attributes=opts.n_attributes,n_values=opts.n_values,game=game, optimizer=optimizer, train_data=train_loader,
                            validation_data=test_loader, callbacks=[EarlyStopperAccuracy(opts.early_stopping_thr)])
 
-
+    curr_accs=[0]*7
     for epoch in range(int(opts.n_epochs)):
 
         print("Epoch: "+str(epoch))
@@ -420,8 +420,9 @@ def main(params):
         else:
             acc_vec,messages=dump_impatient_compositionality(trainer.game, opts.n_attributes, opts.n_values, device, False,epoch)
 
+        new_acc=np.mean(acc_vec)
         if epoch%5==0:
-          if np.abs(new_acc-np.mean(curr_accs))<0.05:
+          if np.abs(new_acc-np.mean(curr_accs))<0.005:
             trainer.optimizer.defaults["lr"]/=10
         curr_accs[epoch%7]=new_acc
 

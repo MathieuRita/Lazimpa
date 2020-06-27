@@ -91,6 +91,8 @@ def get_params(params):
                         help='Number of attributes (default: 2)')
     parser.add_argument('--n_values', type=int, default=3,
                         help='Number of values by attribute')
+    parser.add_argument('--att_weights', type=list, default=[1,1,1],
+                        help='Weights of each attribute')
 
     args = core.init(parser, params)
 
@@ -149,7 +151,7 @@ def loss_compositionality(sender_input, _message, message_length, _receiver_inpu
 
     return loss, {'acc': crible_acc}, crible_acc
 
-def loss_impatient_compositionality(sender_input, _message, message_length, _receiver_input, receiver_output, _labels,n_attributes,n_values):
+def loss_impatient_compositionality(sender_input, _message, message_length, _receiver_input, receiver_output, _labels,n_attributes,n_values,att_weights):
 
     to_onehot=torch.eye(_message.size(1)).to("cuda")
     to_onehot=torch.cat((to_onehot,torch.zeros((1,_message.size(1))).to("cuda")),0)
@@ -183,7 +185,7 @@ def loss_impatient_compositionality(sender_input, _message, message_length, _rec
 
       #crible_loss[:,i].add_(F.cross_entropy(receiver_output[:,i,:], sender_input.argmax(dim=1), reduction="none"))
       for j in range(ro.size(1)):
-        K=10*(1/(j+1))
+        K=att_weights[j]
         crible_loss[:,i].add_(K*F.cross_entropy(ro[:,j,:], si[:,j,:].argmax(dim=1), reduction="none"))
 
     acc=crible_acc*len_mask
@@ -393,7 +395,7 @@ def main(params):
                                            length_cost=opts.length_cost,unigram_penalty=opts.unigram_pen,reg=opts.reg)
     else:
         game = CompositionalitySenderImpatientReceiverRnnReinforce(sender, receiver, loss_impatient_compositionality, sender_entropy_coeff=opts.sender_entropy_coeff,
-                                           n_attributes=opts.n_attributes,n_values=opts.n_values,receiver_entropy_coeff=opts.receiver_entropy_coeff,
+                                           n_attributes=opts.n_attributes,n_values=opts.n_values,att_weights=opts.att_weights,receiver_entropy_coeff=opts.receiver_entropy_coeff,
                                            length_cost=opts.length_cost,unigram_penalty=opts.unigram_pen,reg=opts.reg)
 
     optimizer = core.build_optimizer(game.parameters())
@@ -402,13 +404,15 @@ def main(params):
                            validation_data=test_loader, callbacks=[EarlyStopperAccuracy(opts.early_stopping_thr)])
 
     curr_accs=[0]*7
+
+    game.att_weights=[1]+[0]*(game.n_attributes-1)
+
     for epoch in range(int(opts.n_epochs)):
 
         print("Epoch: "+str(epoch))
 
         #if epoch%100==0:
         #  trainer.optimizer.defaults["lr"]/=2
-
 
 
         trainer.train(n_epochs=1)
@@ -419,6 +423,11 @@ def main(params):
             acc_vec,messages=dump_compositionality(trainer.game, opts.n_attributes, opts.n_values, device, False,epoch)
         else:
             acc_vec,messages=dump_impatient_compositionality(trainer.game, opts.n_attributes, opts.n_values, device, False,epoch)
+
+        for i in range(1,opts.n_attributes):
+            if acc_vec.mean(1)>0.98:
+                game.att_weights[i]=1
+                print("Att "+str(i)+" done.")
 
         new_acc=np.mean(acc_vec)
         if epoch%5==0:

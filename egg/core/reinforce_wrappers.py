@@ -1057,7 +1057,7 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
     >>> aux_info['aux']
     5.0
     """
-    def __init__(self, sender, receiver, loss, sender_entropy_coeff, receiver_entropy_coeff,n_attributes,n_values,
+    def __init__(self, sender, receiver, loss, sender_entropy_coeff, receiver_entropy_coeff,n_attributes,n_values,att_weights,
                  length_cost=0.0,unigram_penalty=0.0,reg=False):
         """
         :param sender: sender agent
@@ -1087,6 +1087,7 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
         self.reg=reg
         self.n_attributes=n_attributes
         self.n_values=n_values
+        self.att_weights=att_weights
 
         self.mean_baseline = defaultdict(float)
         self.n_points = defaultdict(float)
@@ -1102,7 +1103,7 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
         # reg
         sc=0.
 
-        loss, rest, crible_acc = self.loss(sender_input, message, message_lengths, receiver_input, receiver_output_all_att, labels,self.n_attributes,self.n_values)
+        loss, rest, crible_acc = self.loss(sender_input, message, message_lengths, receiver_input, receiver_output_all_att, labels,self.n_attributes,self.n_values,self.att_weights)
 
         if self.reg:
             for i in range(message_lengths.size(0)):

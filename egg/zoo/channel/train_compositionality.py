@@ -425,10 +425,10 @@ def main(params):
             acc_vec,messages=dump_impatient_compositionality(trainer.game, opts.n_attributes, opts.n_values, device, False,epoch)
 
         print(acc_vec.shape)
-        print(acc_vec.mean(1))
+        print(acc_vec.mean(0))
 
         for i in range(1,opts.n_attributes):
-            if acc_vec.mean(1)[i]>0.98:
+            if acc_vec.mean(0)[i]>0.98:
                 game.att_weights[i]=1
                 print("Att "+str(i)+" done.")
 

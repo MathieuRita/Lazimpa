@@ -364,11 +364,12 @@ def main(params):
         probs=[]
         for i in range(opts.n_attributes):
             probs_by_att = np.ones(opts.n_values)
-            probs_by_att[0]=1+(0.5*i)
+            probs_by_att[0]=1+(1*i)
             probs_by_att /= probs_by_att.sum()
             probs.append(probs_by_att)
 
 
+    print(probs)
 
     train_loader = OneHotLoaderCompositionality(n_values=opts.n_values, n_attributes=opts.n_attributes, batch_size=opts.batch_size*opts.n_attributes,
                                                 batches_per_epoch=opts.batches_per_epoch, probs=probs)

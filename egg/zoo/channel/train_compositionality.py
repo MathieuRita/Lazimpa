@@ -183,7 +183,6 @@ def loss_impatient_compositionality(sender_input, _message, message_length, _rec
     for i in range(receiver_output.size(1)):
       ro=receiver_output[:,i,:].reshape(receiver_output.size(0),n_attributes,n_values)
       si=sender_input.reshape(sender_input.size(0),n_attributes,n_values)
-      si.add_(torch.rand(si.size()).to("cuda"))
 
       crible_acc[:,i].add_((ro.argmax(dim=2)==si.argmax(2)).detach().float().sum(1)/n_attributes)
 

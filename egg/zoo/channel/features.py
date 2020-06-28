@@ -148,7 +148,7 @@ class _OneHotIteratorCompositionality:
             rd=np.random.rand(self.batch_size)
             for j in range(self.batch_size):
                 if rd[j]>self.probs_attributes[i]:
-                    batch_data_att[i][j,:]=np.zeros(self.n_values)
+                    batch_data_att[i][j,:]=np.random.rand(self.n_values)
 
         batch_data=batch_data_att[0]
 

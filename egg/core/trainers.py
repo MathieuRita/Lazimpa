@@ -276,7 +276,7 @@ class CompoTrainer:
         with torch.no_grad():
             for batch in self.validation_data:
                 #batch2=[batch[0][:self.n_attributes*(batch[0].size(0)//self.n_attributes),:].flatten(0).reshape(int(batch[0].size(0)/self.n_attributes),self.n_values*self.n_attributes),torch.zeros(1)]
-                batch = move_to(batch2, self.device)
+                batch = move_to(batch, self.device)
                 optimized_loss, rest = self.game(*batch)
                 mean_loss += optimized_loss
                 mean_rest = _add_dicts(mean_rest, rest)

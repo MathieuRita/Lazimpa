@@ -94,7 +94,7 @@ def get_params(params):
                         help='Number of values by attribute')
     parser.add_argument('--att_weights', type=list, default=[1,1,1],
                         help='Weights of each attribute')
-    parser.add_argument('--probs_attributes', type=list, default=[1,1,1],
+    parser.add_argument('--probs_attributes', type=string, default="uniform",
                         help='Sampling prob for each att')
 
     args = core.init(parser, params)
@@ -370,6 +370,9 @@ def main(params):
             probs_by_att[0]=1+(1*i)
             probs_by_att /= probs_by_att.sum()
             probs.append(probs_by_att)
+
+    if opts.probs_attributes=="uniform":
+        probs_attributes=[1]*opts.n_attributes
 
     if opts.probs_attributes=="echelon":
         probs_attributes=[]

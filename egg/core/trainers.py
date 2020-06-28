@@ -293,7 +293,6 @@ class CompoTrainer:
         self.game.train()
         for batch in self.train_data:
             self.optimizer.zero_grad()
-            #batch2=[batch[0].flatten(0).reshape(int(batch[0].size(0)/self.n_attributes),self.n_values*self.n_attributes),torch.zeros(1)]
             batch = move_to(batch, self.device)
             optimized_loss, rest = self.game(*batch)
             mean_rest = _add_dicts(mean_rest, rest)

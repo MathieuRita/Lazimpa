@@ -94,6 +94,8 @@ def get_params(params):
                         help='Number of values by attribute')
     parser.add_argument('--att_weights', type=list, default=[1,1,1],
                         help='Weights of each attribute')
+    parser.add_argument('--probs_attributes', type=list, default=[1,1,1],
+                        help='Sampling prob for each att')
 
     args = core.init(parser, params)
 
@@ -374,7 +376,7 @@ def main(params):
         print(entropy(p))
 
     train_loader = OneHotLoaderCompositionality(n_values=opts.n_values, n_attributes=opts.n_attributes, batch_size=opts.batch_size*opts.n_attributes,
-                                                batches_per_epoch=opts.batches_per_epoch, probs=probs)
+                                                batches_per_epoch=opts.batches_per_epoch, probs=probs, probs_attributes=opts.probs_attributes)
 
     # single batches with 1s on the diag
     test_loader = TestLoaderCompositionality(n_values=opts.n_values,n_attributes=opts.n_attributes)

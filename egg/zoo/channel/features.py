@@ -125,12 +125,12 @@ class _OneHotIteratorCompositionality:
     0.0
     """
 
-    def __init__(self, n_values, n_attributes, n_batches_per_epoch, batch_size, probs, seed=None):
+    def __init__(self, n_values, n_attributes, n_batches_per_epoch, batch_size, probs,probs_attributes , seed=None):
         self.n_batches_per_epoch = n_batches_per_epoch
         self.batch_size = batch_size
         self.n_values=n_values
         self.n_attributes=n_attributes
-
+        self.probs_attributes=probs_attributes
         self.probs = probs
         self.batches_generated = 0
         self.random_state = np.random.RandomState(seed)
@@ -145,6 +145,9 @@ class _OneHotIteratorCompositionality:
         batch_data_att=[]
         for i in range(self.n_attributes):
             batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size))
+            for j in range(self.batch_size):
+                if np.random.rand()<probs_attributes[i]:
+                    batch_data_att[i][j,:]=np.zeros(self.n_values)
 
         batch_data=batch_data_att[0]
 
@@ -171,12 +174,13 @@ class OneHotLoaderCompositionality(torch.utils.data.DataLoader):
     >>> all_equal.item()
     0
     """
-    def __init__(self, n_values, n_attributes, batches_per_epoch, batch_size, probs, seed=None):
+    def __init__(self, n_values, n_attributes, batches_per_epoch, batch_size, probs, probs_attributes, seed=None):
         self.seed = seed
         self.batches_per_epoch = batches_per_epoch
         self.n_values=n_values
         self.n_attributes=n_attributes
         self.batch_size = batch_size
+        self.probs_attributes=probs_attributes
         self.probs = probs
 
     def __iter__(self):
@@ -186,7 +190,7 @@ class OneHotLoaderCompositionality(torch.utils.data.DataLoader):
             seed = self.seed
 
         return _OneHotIteratorCompositionality(n_values=self.n_values, n_attributes=self.n_attributes, n_batches_per_epoch=self.batches_per_epoch,
-                               batch_size=self.batch_size, probs=self.probs, seed=seed)
+                               batch_size=self.batch_size, probs=self.probs, probs_attributes=self.probs_attributes, seed=seed)
 
 
 class TestLoaderCompositionality(torch.utils.data.DataLoader):

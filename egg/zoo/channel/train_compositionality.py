@@ -369,7 +369,7 @@ def main(params):
             probs_by_att /= probs_by_att.sum()
             probs.append(probs_by_att)
 
-    for p in range(probs):
+    for p in probs:
         print(p)
         print(entropy(p))
 

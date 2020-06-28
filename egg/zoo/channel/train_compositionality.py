@@ -189,7 +189,7 @@ def loss_impatient_compositionality(sender_input, _message, message_length, _rec
       #crible_loss[:,i].add_(F.cross_entropy(receiver_output[:,i,:], sender_input.argmax(dim=1), reduction="none"))
       for j in range(ro.size(1)):
         #K=att_weights[j]
-        print(si[:,j,:].argmax(dim=1))
+        si[:,j,:].add_(np.random.rand(si.size(0),si.size(2)))
         crible_loss[:,i].add_(F.cross_entropy(ro[:,j,:], si[:,j,:].argmax(dim=1), reduction="none"))
 
     acc=crible_acc*len_mask

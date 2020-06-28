@@ -382,9 +382,9 @@ def main(params):
 
     # Put -1 for position after message_length
     if not opts.impatient:
-        acc_vec,messages=dump_compositionality(trainer.game, opts.n_attributes, opts.n_values, device, False,epoch)
+        acc_vec,messages=dump_compositionality(trainer.game, opts.n_attributes, opts.n_values, device, False,0)
     else:
-        acc_vec,messages=dump_impatient_compositionality(trainer.game, opts.n_attributes, opts.n_values, device, False,epoch)
+        acc_vec,messages=dump_impatient_compositionality(trainer.game, opts.n_attributes, opts.n_values, device, False,0)
 
     # Convert messages to numpy array
     messages_np=[]

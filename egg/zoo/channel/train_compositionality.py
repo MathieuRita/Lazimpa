@@ -183,13 +183,13 @@ def loss_impatient_compositionality(sender_input, _message, message_length, _rec
     for i in range(receiver_output.size(1)):
       ro=receiver_output[:,i,:].reshape(receiver_output.size(0),n_attributes,n_values)
       si=sender_input.reshape(sender_input.size(0),n_attributes,n_values)
+      si.add_(torch.rand(si.size()).to("cuda"))
 
       crible_acc[:,i].add_((ro.argmax(dim=2)==si.argmax(2)).detach().float().sum(1)/n_attributes)
 
       #crible_loss[:,i].add_(F.cross_entropy(receiver_output[:,i,:], sender_input.argmax(dim=1), reduction="none"))
       for j in range(ro.size(1)):
         #K=att_weights[j]
-        si[:,j,:].add_(torch.rand(si[:,j,:].size()).to("cuda"))
         crible_loss[:,i].add_(F.cross_entropy(ro[:,j,:], si[:,j,:].argmax(dim=1), reduction="none"))
 
     acc=crible_acc*len_mask

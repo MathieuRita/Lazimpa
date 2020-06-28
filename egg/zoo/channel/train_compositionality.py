@@ -10,7 +10,7 @@ import itertools
 import torch.utils.data
 import torch.nn.functional as F
 import egg.core as core
-from scipy.stats import entropy
+#from scipy.stats import entropy
 from egg.core import EarlyStopperAccuracy
 from egg.zoo.channel.features import OneHotLoader, UniformLoader, OneHotLoaderCompositionality, TestLoaderCompositionality
 from egg.zoo.channel.archs import Sender, Receiver

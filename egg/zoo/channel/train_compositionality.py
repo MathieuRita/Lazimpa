@@ -377,7 +377,7 @@ def main(params):
     if opts.probs_attributes=="echelon":
         probs_attributes=[]
         for i in range(opts.n_attributes):
-            probs_attributes.append(1-(0.1)*i)
+            probs_attributes.append(1-(0.15)*i)
 
     print("Probability by attribute is:",probs_attributes)
 

@@ -94,7 +94,7 @@ def get_params(params):
                         help='Number of values by attribute')
     parser.add_argument('--att_weights', type=list, default=[1,1,1],
                         help='Weights of each attribute')
-    parser.add_argument('--probs_attributes', type=string, default="uniform",
+    parser.add_argument('--probs_attributes', type=str, default="uniform",
                         help='Sampling prob for each att')
 
     args = core.init(parser, params)

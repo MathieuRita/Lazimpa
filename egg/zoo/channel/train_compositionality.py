@@ -369,9 +369,9 @@ def main(params):
             probs_by_att /= probs_by_att.sum()
             probs.append(probs_by_att)
 
-    for i in range(probs):
-        print(probs[i])
-        print(entropy(probs[i]))
+    for p in range(probs):
+        print(p)
+        print(entropy(p))
 
     train_loader = OneHotLoaderCompositionality(n_values=opts.n_values, n_attributes=opts.n_attributes, batch_size=opts.batch_size*opts.n_attributes,
                                                 batches_per_epoch=opts.batches_per_epoch, probs=probs)

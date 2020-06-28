@@ -10,6 +10,7 @@ import itertools
 import torch.utils.data
 import torch.nn.functional as F
 import egg.core as core
+from scipy.stats import entropy
 from egg.core import EarlyStopperAccuracy
 from egg.zoo.channel.features import OneHotLoader, UniformLoader, OneHotLoaderCompositionality, TestLoaderCompositionality
 from egg.zoo.channel.archs import Sender, Receiver
@@ -368,8 +369,9 @@ def main(params):
             probs_by_att /= probs_by_att.sum()
             probs.append(probs_by_att)
 
-
-    print(probs)
+    for i in range(probs):
+        print(probs[i])
+        print(entropy(probs[i]))
 
     train_loader = OneHotLoaderCompositionality(n_values=opts.n_values, n_attributes=opts.n_attributes, batch_size=opts.batch_size*opts.n_attributes,
                                                 batches_per_epoch=opts.batches_per_epoch, probs=probs)

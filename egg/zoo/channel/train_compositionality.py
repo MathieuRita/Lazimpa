@@ -357,11 +357,11 @@ def main(params):
     probs /= probs.sum()
 
 
-    train_loader = OneHotLoader(n_features=opts.n_values, batch_size=opts.batch_size*opts.n_attributes,
-                                batches_per_epoch=opts.batches_per_epoch, probs=probs)
+    train_loader = OneHotLoaderCompositionality(n_values=opts.n_values, n_attributes=opts.n_attributes, batch_size=opts.batch_size*opts.n_attributes,
+                                                batches_per_epoch=opts.batches_per_epoch, probs=probs)
 
     # single batches with 1s on the diag
-    test_loader = UniformLoader(opts.n_values)
+    test_loader = TestLoaderCompositionality(n_values=opts.n_values,n_attributes=opts.n_attributes)
 
     ### SENDER ###
 
@@ -428,7 +428,7 @@ def main(params):
         print(acc_vec.mean(0))
 
         for i in range(1,opts.n_attributes):
-            if acc_vec.mean(0)[i]>0.98:
+            if acc_vec.mean(0)[i-1]>0.99:
                 game.att_weights[i]=1
                 print("Att "+str(i)+" done.")
 

@@ -379,6 +379,8 @@ def main(params):
         for i in range(opts.n_attributes):
             probs_attributes.append(1-(0.1)*i)
 
+    print("Probability by attribute is:",probs_attributes)
+
     train_loader = OneHotLoaderCompositionality(n_values=opts.n_values, n_attributes=opts.n_attributes, batch_size=opts.batch_size*opts.n_attributes,
                                                 batches_per_epoch=opts.batches_per_epoch, probs=probs, probs_attributes=probs_attributes)
 

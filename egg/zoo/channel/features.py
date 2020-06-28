@@ -144,7 +144,7 @@ class _OneHotIteratorCompositionality:
 
         batch_data_att=[]
         for i in range(self.n_attributes):
-            batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size))
+            batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
             rd=np.random.rand(self.batch_size)
             for j in range(self.batch_size):
                 if rd[j]>self.probs_attributes[i]:

@@ -1095,7 +1095,7 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
     def forward(self, sender_input, labels, receiver_input=None):
 
         #print(sender_input[:,11:-1])
-        message, log_prob_s, entropy_s = self.sender(sender_input)
+        message, log_prob_s, entropy_s = self.sender(torch.floor(sender_input))
         message_lengths = find_lengths(message)
 
         # If impatient 1

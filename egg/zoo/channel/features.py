@@ -155,6 +155,7 @@ class _OneHotIteratorCompositionality:
         for i in range(1,self.n_attributes):
             batch_data=np.concatenate((batch_data,batch_data_att[i]),axis=1)
 
+        print(batch_data[:,11:-1])
         self.batches_generated += 1
         return torch.from_numpy(batch_data).float(), torch.zeros(1)
 

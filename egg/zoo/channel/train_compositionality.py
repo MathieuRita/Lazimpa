@@ -371,12 +371,13 @@ def main(params):
             probs_by_att /= probs_by_att.sum()
             probs.append(probs_by_att)
 
-    for p in probs:
-        print(p)
-        print(entropy(p))
+    if opts.probs_attributes=="echelon":
+        probs_attributes=[]
+        for i range(opts.n_attributes):
+            probs_attributes.append(1-(0.1)*i)
 
     train_loader = OneHotLoaderCompositionality(n_values=opts.n_values, n_attributes=opts.n_attributes, batch_size=opts.batch_size*opts.n_attributes,
-                                                batches_per_epoch=opts.batches_per_epoch, probs=probs, probs_attributes=opts.probs_attributes)
+                                                batches_per_epoch=opts.batches_per_epoch, probs=probs, probs_attributes=probs_attributes)
 
     # single batches with 1s on the diag
     test_loader = TestLoaderCompositionality(n_values=opts.n_values,n_attributes=opts.n_attributes)

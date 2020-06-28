@@ -144,7 +144,7 @@ class _OneHotIteratorCompositionality:
 
         batch_data_att=[]
         for i in range(self.n_attributes):
-            batch_data_att.append(self.random_state.multinomial(1, self.probs, size=self.batch_size))
+            batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size))
 
         batch_data=batch_data_att[0]
 

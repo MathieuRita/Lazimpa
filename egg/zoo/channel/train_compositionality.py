@@ -353,8 +353,22 @@ def main(params):
     force_eos = opts.force_eos == 1
 
     # Distribution of the inputs
-    probs = np.ones(opts.n_values)
-    probs /= probs.sum()
+    if opts.probs=="uniform":
+        probs=[]
+        probs_by_att = np.ones(opts.n_values)
+        probs_by_att /= probs_by_att.sum()
+        for i in range(opts.n_attributes):
+            probs.append(probs_by_att)
+
+    if opts.probs=="entropy_test":
+        probs=[]
+        for i in range(opts.n_attributes):
+            probs_by_att=[]
+            probs_by_att.append((1+(0.5*i))/opts.n_values)
+            for j in range(1,opts.n_values):
+                probs_by_att.append((1-((1+(0.5*i))/opts.n_values))/(opts.n_values-1))
+            probs.append(probs_by_att)
+
 
 
     train_loader = OneHotLoaderCompositionality(n_values=opts.n_values, n_attributes=opts.n_attributes, batch_size=opts.batch_size*opts.n_attributes,
@@ -426,14 +440,9 @@ def main(params):
 
         print(acc_vec.mean(0))
 
-        #for i in range(1,opts.n_attributes):
-        #    if acc_vec.mean(0)[i-1]>0.99:
-        #        game.att_weights[i]=1
-        #        print("Att "+str(i)+" done.")
-
         new_acc=np.mean(acc_vec)
         if epoch%5==0:
-          if np.abs(new_acc-np.mean(curr_accs))<0.05:
+          if np.abs(new_acc-np.mean(curr_accs))<0.005:
             trainer.optimizer.defaults["lr"]/=10
         curr_accs[epoch%7]=new_acc
 

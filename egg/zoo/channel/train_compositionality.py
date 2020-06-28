@@ -363,10 +363,9 @@ def main(params):
     if opts.probs=="entropy_test":
         probs=[]
         for i in range(opts.n_attributes):
-            probs_by_att=[]
-            probs_by_att.append((1+(0.5*i))/opts.n_values)
-            for j in range(1,opts.n_values):
-                probs_by_att.append((1-((1+(0.5*i))/opts.n_values))/(opts.n_values-1))
+            probs_by_att = np.ones(opts.n_values)
+            probs_by_att[0]=1+(0.5*i)
+            probs_by_att /= probs_by_att.sum()
             probs.append(probs_by_att)
 
 

@@ -11,7 +11,7 @@ import torch.utils.data
 import torch.nn.functional as F
 import egg.core as core
 from egg.core import EarlyStopperAccuracy
-from egg.zoo.channel.features import OneHotLoader, UniformLoader
+from egg.zoo.channel.features import OneHotLoader, UniformLoader, OneHotLoaderCompositionality, TestLoaderCompositionality
 from egg.zoo.channel.archs import Sender, Receiver
 from egg.core.reinforce_wrappers import RnnReceiverImpatient, RnnReceiverImpatientCompositionality, RnnReceiverCompositionality
 from egg.core.reinforce_wrappers import SenderImpatientReceiverRnnReinforce, CompositionalitySenderImpatientReceiverRnnReinforce, CompositionalitySenderReceiverRnnReinforce
@@ -405,7 +405,7 @@ def main(params):
 
     curr_accs=[0]*7
 
-    game.att_weights=[1]+[0]*(game.n_attributes-1)
+    game.att_weights=[1]*(game.n_attributes)
 
     for epoch in range(int(opts.n_epochs)):
 
@@ -424,13 +424,12 @@ def main(params):
         else:
             acc_vec,messages=dump_impatient_compositionality(trainer.game, opts.n_attributes, opts.n_values, device, False,epoch)
 
-        print(acc_vec.shape)
         print(acc_vec.mean(0))
 
-        for i in range(1,opts.n_attributes):
-            if acc_vec.mean(0)[i-1]>0.99:
-                game.att_weights[i]=1
-                print("Att "+str(i)+" done.")
+        #for i in range(1,opts.n_attributes):
+        #    if acc_vec.mean(0)[i-1]>0.99:
+        #        game.att_weights[i]=1
+        #        print("Att "+str(i)+" done.")
 
         new_acc=np.mean(acc_vec)
         if epoch%5==0:

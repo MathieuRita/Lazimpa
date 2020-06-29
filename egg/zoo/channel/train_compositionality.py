@@ -167,14 +167,14 @@ def loss_impatient_compositionality(sender_input, _message, message_length, _rec
     #coef2=coef*torch.arange(_message.size(1),0,-1).repeat(_message.size(0),1).to("cuda")
     #coef2=coef
     # NEW LOSS
-    Mlen=n_attributes*torch.ones(message_length.size()).to("cuda")
-    coef=(1/Mlen).repeat(_message.size(1),1).transpose(1,0)
-    coef2=coef
+    #Mlen=n_attributes*torch.ones(message_length.size()).to("cuda")
+    #coef=(1/Mlen).repeat(_message.size(1),1).transpose(1,0)
+    #coef2=coef
 
     len_mask=torch.cumsum(len_mask,dim=1)
     len_mask=torch.ones(len_mask.size()).to("cuda").add_(-len_mask)
 
-    len_mask.mul_((coef2))
+    #len_mask.mul_((coef2))
     #len_mask.mul_((1/len_mask.sum(1)).repeat((_message.size(1),1)).transpose(1,0))
 
     crible_acc=torch.zeros(size=_message.size()).to("cuda")
@@ -194,7 +194,7 @@ def loss_impatient_compositionality(sender_input, _message, message_length, _rec
     acc=crible_acc*len_mask
     loss=crible_loss*len_mask
 
-    acc = acc.sum(1)
+    acc = acc.mean(1)
     loss= loss.sum(1)
 
     return loss, {'acc': acc}, crible_acc

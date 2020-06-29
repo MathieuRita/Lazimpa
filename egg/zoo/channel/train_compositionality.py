@@ -452,8 +452,7 @@ def main(params):
         print(acc_vec.mean(0))
 
         new_acc=np.mean(acc_vec)
-        if epoch%5==0::# -*- coding: utf-8 -*-
-
+        if epoch%10==0:
           if np.abs(new_acc-np.mean(curr_accs))<0.01:
             trainer.optimizer.defaults["lr"]/=2
           print(trainer.optimizer.defaults["lr"])

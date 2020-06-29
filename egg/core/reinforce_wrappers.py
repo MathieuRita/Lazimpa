@@ -282,7 +282,7 @@ class RnnReceiverCompositionality(nn.Module):
     def forward(self, message, input=None, lengths=None):
         encoded = self.encoder(message)
         logits = F.log_softmax(self.hidden_to_output(encoded).reshape(encoded.size(0),self.n_attributes,self.n_values), dim=2)
-        entropy=-torch.log(logits)*logits
+        entropy=-torch.exp(logits)*logits
 
         return logits, logits, entropy
 
@@ -436,7 +436,7 @@ class RnnReceiverImpatientCompositionality(nn.Module):
             h_t=encoded[step,:,:]
             step_logits = F.log_softmax(self.hidden_to_output(h_t).reshape(h_t.size(0),self.n_attributes,self.n_values), dim=2)
             #distr = Categorical(logits=step_logits)
-            entropy.append(-torch.log(step_logits)*step_logits)
+            entropy.append(-torch.exp(step_logits)*step_logits)
 
             #if self.training:
             #    x = distr.sample()

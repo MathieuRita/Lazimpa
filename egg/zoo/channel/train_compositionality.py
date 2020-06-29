@@ -160,7 +160,7 @@ def loss_impatient_compositionality(sender_input, _message, message_length, _rec
     to_onehot=torch.cat((to_onehot,torch.zeros((1,_message.size(1))).to("cuda")),0)
     len_mask=[]
     for i in range(message_length.size(0)):
-      len_mask.append(to_onehot[max(0,message_length[i]-1)])
+      len_mask.append(to_onehot[message_length[i]-1])
     len_mask=torch.stack(len_mask,dim=0)
 
     #coef=(1/message_length.to(float)).repeat(_message.size(1),1).transpose(1,0)
@@ -175,7 +175,7 @@ def loss_impatient_compositionality(sender_input, _message, message_length, _rec
     len_mask=torch.ones(len_mask.size()).to("cuda").add_(-len_mask)
 
     len_mask.mul_((coef2))
-    len_mask.mul_((1/len_mask.sum(1)).repeat((_message.size(1),1)).transpose(1,0))
+    #len_mask.mul_((1/len_mask.sum(1)).repeat((_message.size(1),1)).transpose(1,0))
 
     crible_acc=torch.zeros(size=_message.size()).to("cuda")
     crible_loss=torch.zeros(size=_message.size()).to("cuda")
@@ -189,7 +189,7 @@ def loss_impatient_compositionality(sender_input, _message, message_length, _rec
       #crible_loss[:,i].add_(F.cross_entropy(receiver_output[:,i,:], sender_input.argmax(dim=1), reduction="none"))
       for j in range(ro.size(1)):
         #K=att_weights[j]
-        crible_loss[:,i].add_(F.cross_entropy(ro[:,j,:], si[:,j,:].argmax(dim=1), reduction="none")+0.00000000001)
+        crible_loss[:,i].add_(F.cross_entropy(ro[:,j,:], si[:,j,:].argmax(dim=1), reduction="none"))
 
     acc=crible_acc*len_mask
     loss=crible_loss*len_mask

@@ -1135,11 +1135,11 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
         if self.reg:
             sc/=message_lengths.size(0)
 
-            if sc>0.98:
-            	self.length_cost+=0.1
-            elif sc>0.9 and sc<0.98:
+            if sc>0.95:
+            	self.length_cost=0.2
+            if sc>0.9 and sc<0.95:
             	self.length_cost=0.
-            else:
+            if sc<0.9:
                 self.length_cost=-0.1
             #self.length_cost= sc**(60) / 2
 

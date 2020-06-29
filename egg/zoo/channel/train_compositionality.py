@@ -453,8 +453,9 @@ def main(params):
 
         new_acc=np.mean(acc_vec)
         if epoch%5==0:
-          if np.abs(new_acc-np.mean(curr_accs))<0.005:
+          if np.abs(new_acc-np.mean(curr_accs))<0.01:
             trainer.optimizer.defaults["lr"]/=10
+            print(trainer.optimizer.defaults["lr"])
         curr_accs[epoch%7]=new_acc
 
         # ADDITION TO SAVE MESSAGES

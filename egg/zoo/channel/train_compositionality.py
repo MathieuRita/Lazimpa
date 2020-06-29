@@ -160,7 +160,7 @@ def loss_impatient_compositionality(sender_input, _message, message_length, _rec
     to_onehot=torch.cat((to_onehot,torch.zeros((1,_message.size(1))).to("cuda")),0)
     len_mask=[]
     for i in range(message_length.size(0)):
-      len_mask.append(to_onehot[message_length[i]-1])
+      len_mask.append(to_onehot[max(0,message_length[i]-1)])
     len_mask=torch.stack(len_mask,dim=0)
 
     #coef=(1/message_length.to(float)).repeat(_message.size(1),1).transpose(1,0)

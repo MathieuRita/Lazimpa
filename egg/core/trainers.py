@@ -10,7 +10,7 @@ from typing import List, Optional
 
 import torch
 from torch.utils.data import DataLoader
-from import torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from .util import get_opts, move_to
 from .callbacks import Callback, ConsoleLogger, Checkpoint, CheckpointSaver

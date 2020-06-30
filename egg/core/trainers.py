@@ -308,7 +308,7 @@ class CompoTrainer:
 
     def train(self, n_epochs):
 
-        scheduler = ReduceLROnPlateau(self.optimizer, 'min', patience=3)
+        scheduler = ReduceLROnPlateau(self.optimizer, 'min', patience=5)
 
         for callback in self.callbacks:
             callback.on_train_begin(self)

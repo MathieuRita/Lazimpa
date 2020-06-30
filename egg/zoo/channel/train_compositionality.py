@@ -442,7 +442,7 @@ def main(params):
         #  trainer.optimizer.defaults["lr"]/=2
 
 
-        trainer.train(n_epochs=50)
+        trainer.train(n_epochs=1)
         if opts.checkpoint_dir:
             trainer.save_checkpoint(name=f'{opts.name}_vocab{opts.vocab_size}_rs{opts.random_seed}_lr{opts.lr}_shid{opts.sender_hidden}_rhid{opts.receiver_hidden}_sentr{opts.sender_entropy_coeff}_reg{opts.length_cost}_max_len{opts.max_len}')
 
@@ -452,14 +452,18 @@ def main(params):
             acc_vec,messages=dump_impatient_compositionality(trainer.game, opts.n_attributes, opts.n_values, device, False,epoch)
 
         print(acc_vec.mean(0))
+        #print(trainer.optimizer.defaults["lr"])
+
+        #new_acc=np.mean(acc_vec)
+        #if epoch%10==0:
+        #  if np.abs(new_acc-np.mean(curr_accs))<0.01:
+        #    trainer.optimizer.defaults["lr"]/=2
+        #  print(trainer.optimizer.defaults["lr"])
+        #curr_accs[epoch%7]=new_acc
+
+        trainer.optimizer.defaults["lr"]=0.0000001+0.0001*np.cos(np.pi*(epoch/20))**2
         print(trainer.optimizer.defaults["lr"])
 
-        new_acc=np.mean(acc_vec)
-        if epoch%10==0:
-          if np.abs(new_acc-np.mean(curr_accs))<0.01:
-            trainer.optimizer.defaults["lr"]/=2
-          print(trainer.optimizer.defaults["lr"])
-        curr_accs[epoch%7]=new_acc
 
         # ADDITION TO SAVE MESSAGES
         all_messages=[]

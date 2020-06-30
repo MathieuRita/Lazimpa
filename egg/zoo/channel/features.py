@@ -145,15 +145,28 @@ class _OneHotIteratorCompositionality:
         batch_data_att=[]
         for i in range(self.n_attributes):
             batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
-            rd=np.random.rand(self.batch_size)
-            for j in range(self.batch_size):
-                if rd[j]>self.probs_attributes[i]:
-                    batch_data_att[i][j,:]=np.random.rand(self.n_values)
+            #rd=np.random.rand(self.batch_size)
+            #for j in range(self.batch_size):
+                #if rd[j]>self.probs_attributes[i]:
+                    #batch_data_att[i][j,:]=np.random.rand(self.n_values)
 
         batch_data=batch_data_att[0]
 
         for i in range(1,self.n_attributes):
             batch_data=np.concatenate((batch_data,batch_data_att[i]),axis=1)
+
+        rd=np.random.rand(self.batch_size)
+
+        for j in range(self.batch_size):
+            if rd[j]<0.25:
+                batch_data[j,self.n_values:]=np.random.rand(3*self.n_values)
+            if rd[j]>0.25 and rd[j]<0.5:
+                batch_data[j,2*self.n_values:]=np.random.rand(2*self.n_values)
+            if rd[j]>0.5 and rd[j]<0.75:
+                batch_data[j,3*self.n_values:]=np.random.rand(1*self.n_values)
+            #if rd[j]>0.75 and rd[j]<1.:
+            #    batch_data[j,self.n_values:]=np.random.rand(3*self.n_values)
+
 
         self.batches_generated += 1
         return torch.from_numpy(batch_data).float(), torch.zeros(1)

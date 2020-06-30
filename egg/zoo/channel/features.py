@@ -221,6 +221,7 @@ class TestLoaderCompositionality(torch.utils.data.DataLoader):
           new_input=torch.zeros(0)
           for j in combination[i]:
             new_input=torch.cat((new_input,one_hots[j]))
+          print(new_input)
           dataset.append(new_input)
 
         dataset=torch.stack(dataset)

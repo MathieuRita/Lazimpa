@@ -442,7 +442,7 @@ def main(params):
         #  trainer.optimizer.defaults["lr"]/=2
 
 
-        trainer.train(n_epochs=1)
+        trainer.train(n_epochs=50)
         if opts.checkpoint_dir:
             trainer.save_checkpoint(name=f'{opts.name}_vocab{opts.vocab_size}_rs{opts.random_seed}_lr{opts.lr}_shid{opts.sender_hidden}_rhid{opts.receiver_hidden}_sentr{opts.sender_entropy_coeff}_reg{opts.length_cost}_max_len{opts.max_len}')
 
@@ -461,7 +461,7 @@ def main(params):
         #  print(trainer.optimizer.defaults["lr"])
         #curr_accs[epoch%7]=new_acc
 
-        trainer.optimizer.defaults["lr"]=10**(3-(epoch/10))
+        #trainer.optimizer.defaults["lr"]=10**(3-(epoch/10))
         #0.001+((10**(-12)-10**(-3))/60)*epoch
         #trainer.optimizer.defaults["lr"]=0.00000000000001+0.001*np.cos(2*np.pi*(epoch/40))**2
         print(trainer.optimizer.defaults["lr"])

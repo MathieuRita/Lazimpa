@@ -10,7 +10,7 @@ from typing import List, Optional
 
 import torch
 from torch.utils.data import DataLoader
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 
 from .util import get_opts, move_to
 from .callbacks import Callback, ConsoleLogger, Checkpoint, CheckpointSaver
@@ -292,6 +292,7 @@ class CompoTrainer:
         n_batches = 0
         self.game.train()
         for batch in self.train_data:
+            print(self.optimizer.default["lr"])
             self.optimizer.zero_grad()
             batch = move_to(batch, self.device)
             optimized_loss, rest = self.game(*batch)
@@ -309,6 +310,7 @@ class CompoTrainer:
     def train(self, n_epochs):
 
         #scheduler = ReduceLROnPlateau(self.optimizer, 'min', patience=5, threshold=10**(-2))
+        scheduler = StepLR(self.optimizer, step_size=20, gamma=0.1)
 
         for callback in self.callbacks:
             callback.on_train_begin(self)
@@ -329,7 +331,7 @@ class CompoTrainer:
                 for callback in self.callbacks:
                     callback.on_test_begin()
                 validation_loss, rest = self.eval()
-                #scheduler.step(validation_loss)
+                scheduler.step()
                 print("Eval loss: "+str(validation_loss))
                 for callback in self.callbacks:
                     callback.on_test_end(validation_loss, rest)

@@ -168,13 +168,13 @@ class _OneHotIteratorCompositionality:
             #    batch_data[j,self.n_values:]=np.random.rand(3*self.n_values)
             if rd[j]<0.2:
                 batch_data[j,self.n_values:]=np.random.rand(3*self.n_values)
-            if rd[j]>0.2 and rd[j]<0.35:
+            if rd[j]>0.2 and rd[j]<0.3:
                 batch_data[j,:self.n_values]=np.random.rand(self.n_values)
                 batch_data[j,2*self.n_values:]=np.random.rand(2*self.n_values)
-            if rd[j]>0.35 and rd[j]<0.45:
+            if rd[j]>0.3 and rd[j]<0.375:
                 batch_data[j,:2*self.n_values]=np.random.rand(2*self.n_values)
                 batch_data[j,3*self.n_values:]=np.random.rand(self.n_values)
-            if rd[j]>0.45 and rd[j]<0.5:
+            if rd[j]>0.375 and rd[j]<0.425:
                 batch_data[j,:3*self.n_values]=np.random.rand(3*self.n_values)
 
 

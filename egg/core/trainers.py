@@ -314,10 +314,16 @@ class CompoTrainer:
             callback.on_train_begin(self)
 
         for epoch in range(self.start_epoch, n_epochs):
+
+            print("Epoch")
+            print(self.optimizer.defaults["lr"])
+
             for callback in self.callbacks:
                 callback.on_epoch_begin()
 
             train_loss, train_rest = self.train_epoch()
+
+            print("Train loss: "+str(train_loss))
 
             for callback in self.callbacks:
                 callback.on_epoch_end(train_loss, train_rest)
@@ -327,6 +333,7 @@ class CompoTrainer:
                     callback.on_test_begin()
                 validation_loss, rest = self.eval()
                 scheduler.step(validation_loss)
+                print("Eval loss: "+str(validation_loss))
                 for callback in self.callbacks:
                     callback.on_test_end(validation_loss, rest)
 

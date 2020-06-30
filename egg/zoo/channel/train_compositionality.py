@@ -379,7 +379,7 @@ def main(params):
         for i in range(opts.n_attributes):
             #probs_attributes.append(1.-(0.2)*i)
             #probs_attributes.append(0.7+0.3/(i+1))
-            probs_attributes=[1.,0.85,0.7,0.55]
+            probs_attributes=[1.,0.9,0.78,0.64]
 
     print("Probability by attribute is:",probs_attributes)
 

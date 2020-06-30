@@ -9,6 +9,7 @@ import numpy as np
 import itertools
 import torch.utils.data
 import torch.nn.functional as F
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 import egg.core as core
 #from scipy.stats import entropy
 from egg.core import EarlyStopperAccuracy
@@ -441,7 +442,7 @@ def main(params):
         #  trainer.optimizer.defaults["lr"]/=2
 
 
-        trainer.train(n_epochs=1)
+        trainer.train(n_epochs=20)
         if opts.checkpoint_dir:
             trainer.save_checkpoint(name=f'{opts.name}_vocab{opts.vocab_size}_rs{opts.random_seed}_lr{opts.lr}_shid{opts.sender_hidden}_rhid{opts.receiver_hidden}_sentr{opts.sender_entropy_coeff}_reg{opts.length_cost}_max_len{opts.max_len}')
 

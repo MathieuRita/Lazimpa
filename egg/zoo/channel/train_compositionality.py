@@ -452,6 +452,7 @@ def main(params):
             acc_vec,messages=dump_impatient_compositionality(trainer.game, opts.n_attributes, opts.n_values, device, False,epoch)
 
         print(acc_vec.mean(0))
+        print(trainer.optimizer.defaults["lr"])
 
         new_acc=np.mean(acc_vec)
         if epoch%10==0:

@@ -158,24 +158,24 @@ class _OneHotIteratorCompositionality:
         rd=np.random.rand(self.batch_size)
 
         for j in range(self.batch_size):
-            if rd[j]<0.13:
-                batch_data[j,self.n_values:]=np.random.rand(3*self.n_values)
-            if rd[j]>0.13 and rd[j]<0.26:
-                batch_data[j,2*self.n_values:]=np.random.rand(2*self.n_values)
-            if rd[j]>0.26 and rd[j]<0.4:
-                batch_data[j,3*self.n_values:]=np.random.rand(1*self.n_values)
+            #if rd[j]<0.13:
+            #    batch_data[j,self.n_values:]=np.random.rand(3*self.n_values)
+            #if rd[j]>0.13 and rd[j]<0.26:
+            #    batch_data[j,2*self.n_values:]=np.random.rand(2*self.n_values)
+            #if rd[j]>0.26 and rd[j]<0.4:
+            #    batch_data[j,3*self.n_values:]=np.random.rand(1*self.n_values)
             #if rd[j]>0.75 and rd[j]<1.:
             #    batch_data[j,self.n_values:]=np.random.rand(3*self.n_values)
-            #if rd[j]<0.25:
-            #    batch_data[j,self.n_values:]=np.random.rand(3*self.n_values)
-            #if rd[j]>0.25 and rd[j]<0.5:
-            #    batch_data[j,:self.n_values]=np.random.rand(self.n_values)
-            #    batch_data[j,2*self.n_values:]=np.random.rand(2*self.n_values)
-            #if rd[j]>0.5 and rd[j]<0.75:
-            #    batch_data[j,:2*self.n_values]=np.random.rand(2*self.n_values)
-            #    batch_data[j,3*self.n_values:]=np.random.rand(self.n_values)
-            #if rd[j]>0.75:
-            #    batch_data[j,:3*self.n_values]=np.random.rand(3*self.n_values)
+            if rd[j]<0.2:
+                batch_data[j,self.n_values:]=np.random.rand(3*self.n_values)
+            if rd[j]>0.2 and rd[j]<0.35:
+                batch_data[j,:self.n_values]=np.random.rand(self.n_values)
+                batch_data[j,2*self.n_values:]=np.random.rand(2*self.n_values)
+            if rd[j]>0.35 and rd[j]<0.45:
+                batch_data[j,:2*self.n_values]=np.random.rand(2*self.n_values)
+                batch_data[j,3*self.n_values:]=np.random.rand(self.n_values)
+            if rd[j]>0.45 and rd[j]<0.5:
+                batch_data[j,:3*self.n_values]=np.random.rand(3*self.n_values)
 
 
         self.batches_generated += 1

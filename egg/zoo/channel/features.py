@@ -160,9 +160,9 @@ class _OneHotIteratorCompositionality:
         for j in range(self.batch_size):
             if rd[j]<0.10:
                 batch_data[j,self.n_values:]=np.random.rand(3*self.n_values)
-            if rd[j]>0.10 and rd[j]<0.25:
+            if rd[j]>0.10 and rd[j]<0.2:
                 batch_data[j,2*self.n_values:]=np.random.rand(2*self.n_values)
-            if rd[j]>0.25 and rd[j]<0.5:
+            if rd[j]>0.2 and rd[j]<0.3:
                 batch_data[j,3*self.n_values:]=np.random.rand(1*self.n_values)
             #if rd[j]>0.75 and rd[j]<1.:
             #    batch_data[j,self.n_values:]=np.random.rand(3*self.n_values)
@@ -221,7 +221,7 @@ class TestLoaderCompositionality(torch.utils.data.DataLoader):
           new_input=torch.zeros(0)
           for j in combination[i]:
             new_input=torch.cat((new_input,one_hots[j]))
-          
+
           dataset.append(new_input)
 
         dataset=torch.stack(dataset)

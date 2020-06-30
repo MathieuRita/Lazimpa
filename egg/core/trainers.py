@@ -6,7 +6,6 @@
 import os
 import uuid
 import pathlib
-import json
 from typing import List, Optional
 
 import torch
@@ -317,14 +316,14 @@ class CompoTrainer:
 
         for epoch in range(self.start_epoch, n_epochs):
 
-            print(epoch)
+            print(epoch,flush=True)
 
             for callback in self.callbacks:
                 callback.on_epoch_begin()
 
             train_loss, train_rest = self.train_epoch()
 
-            print(json.dumps("Train loss: "+str(train_loss)))
+            print("Train loss: "+str(train_loss),flush=True)
 
             for callback in self.callbacks:
                 callback.on_epoch_end(train_loss, train_rest)
@@ -334,8 +333,8 @@ class CompoTrainer:
                     callback.on_test_begin()
                 validation_loss, rest = self.eval()
                 scheduler.step()
-                print(json.dumps("Eval loss: "+str(validation_loss)))
-                print(json.dumps(rest))
+                print("Eval loss: "+str(validation_loss),flush=True)
+                print(rest,flush=True)
                 for callback in self.callbacks:
                     callback.on_test_end(validation_loss, rest)
 

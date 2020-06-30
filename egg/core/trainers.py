@@ -292,7 +292,6 @@ class CompoTrainer:
         n_batches = 0
         self.game.train()
         for batch in self.train_data:
-            print(self.optimizer.default["lr"])
             self.optimizer.zero_grad()
             batch = move_to(batch, self.device)
             optimized_loss, rest = self.game(*batch)

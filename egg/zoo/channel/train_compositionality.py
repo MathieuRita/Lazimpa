@@ -434,7 +434,7 @@ def main(params):
 
     game.att_weights=[1]*(game.n_attributes)
 
-    for epoch in range(int(opts.n_epochs)):
+    for epoch in range(int(opts.n_epochs/100)):
 
         print("Epoch: "+str(epoch))
 
@@ -474,7 +474,7 @@ def main(params):
             all_messages.append(x)
         all_messages = np.asarray(all_messages)
 
-        if epoch%50==0:
+        if epoch%1==0:
             torch.save(sender.state_dict(), opts.dir_save+"/sender/sender_weights"+str(epoch)+".pth")
             torch.save(receiver.state_dict(), opts.dir_save+"/receiver/receiver_weights"+str(epoch)+".pth")
 

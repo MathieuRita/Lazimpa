@@ -461,7 +461,7 @@ def main(params):
         #  print(trainer.optimizer.defaults["lr"])
         #curr_accs[epoch%7]=new_acc
 
-        trainer.optimizer.defaults["lr"]=0.0000001+0.0001*np.cos(np.pi*(epoch/20))**2
+        trainer.optimizer.defaults["lr"]=0.0000000001+0.001*np.cos(2*np.pi*(epoch/20))**2
         print(trainer.optimizer.defaults["lr"])
 
 

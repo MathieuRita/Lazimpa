@@ -309,7 +309,7 @@ class CompoTrainer:
     def train(self, n_epochs):
 
         #scheduler = ReduceLROnPlateau(self.optimizer, 'min', patience=5, threshold=10**(-2))
-        scheduler = StepLR(self.optimizer, step_size=25, gamma=2.)
+        scheduler = StepLR(self.optimizer, step_size=25, gamma=0.1)
 
         for callback in self.callbacks:
             callback.on_train_begin(self)
@@ -322,6 +322,7 @@ class CompoTrainer:
                 callback.on_epoch_begin()
 
             train_loss, train_rest = self.train_epoch()
+            scheduler.step()
 
             print("Train loss: "+str(train_loss),flush=True)
 
@@ -332,7 +333,6 @@ class CompoTrainer:
                 for callback in self.callbacks:
                     callback.on_test_begin()
                 validation_loss, rest = self.eval()
-                scheduler.step()
                 print("Eval loss: "+str(validation_loss),flush=True)
                 print(rest,flush=True)
                 for callback in self.callbacks:

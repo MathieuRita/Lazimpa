@@ -643,11 +643,11 @@ class SenderReceiverRnnReinforce(nn.Module):
 
         log_prob = effective_log_prob_s + log_prob_r
 
-        if self.reg:
+        #if self.reg:
 
-          sc=rest["acc"].sum()/rest["acc"].size(0)
+          #sc=rest["acc"].sum()/rest["acc"].size(0)
 
-          self.length_cost= sc**(45) / 10
+          #self.length_cost= sc**(45) / 10
           #if sc>0.99:
               #self.length_cost=(sc-0.99)*100 +0.01
           #else:
@@ -665,13 +665,14 @@ class SenderReceiverRnnReinforce(nn.Module):
         length_loss = message_lengths.float() * self.length_cost
 
         # Penalty redundancy
-        counts_unigram=((message[:,1:]-message[:,:-1])==0).sum(axis=1).sum(axis=0)
-        unigram_loss = self.unigram_penalty*counts_unigram
+        #counts_unigram=((message[:,1:]-message[:,:-1])==0).sum(axis=1).sum(axis=0)
+        #unigram_loss = self.unigram_penalty*counts_unigram
 
         policy_length_loss = ((length_loss.float() - self.mean_baseline['length']) * effective_log_prob_s).mean()
         policy_loss = ((loss.detach() - self.mean_baseline['loss']) * log_prob).mean()
 
-        optimized_loss = policy_length_loss + policy_loss - weighted_entropy + unigram_loss
+        optimized_loss = policy_length_loss + policy_loss - weighted_entropy
+        #+ unigram_loss
 
         # if the receiver is deterministic/differentiable, we apply the actual loss
         optimized_loss += loss.mean()

@@ -150,8 +150,8 @@ def loss_compositionality(sender_input, _message, message_length, _receiver_inpu
     crible_acc=(receiver_output.argmax(dim=2)==sender_input.argmax(2)).detach().float().mean(1)
 
     for j in range(receiver_output.size(1)):
-        K=10*(1/(j+1))
-        loss+=K*F.cross_entropy(receiver_output[:,j,:], sender_input[:,j,:].argmax(dim=1), reduction="none")
+        #K=10*(1/(j+1))
+        loss+=F.cross_entropy(receiver_output[:,j,:], sender_input[:,j,:].argmax(dim=1), reduction="none")
 
     return loss, {'acc': crible_acc}, crible_acc
 

@@ -632,7 +632,7 @@ def dump_sender_receiver_impatient(game: torch.nn.Module,
             for i in range(preds.size(0)):
                 sc+=(preds[i,:]==i).sum()
 
-            print("Impatient score="+str(int(sc)))
+            print("Impatient score="+str(int(sc)),flush=True)
 
             if batch[1] is not None:
                 labels.extend(batch[1])

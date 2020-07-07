@@ -231,7 +231,7 @@ def dump_impatient(game, n_features, device, gs_mode,epoch):
 
         unif_acc += acc
         powerlaw_acc += powerlaw_probs[input_symbol] * acc
-        if epoch%25==0:
+        if epoch%100==0:
             print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
 
     unif_acc /= n_features
@@ -363,10 +363,10 @@ def main(params):
         if epoch%50==0:
             torch.save(sender.state_dict(), opts.dir_save+"/sender/sender_weights"+str(epoch)+".pth")
             torch.save(receiver.state_dict(), opts.dir_save+"/receiver/receiver_weights"+str(epoch)+".pth")
+            print(acc_vec)
 
         np.save(opts.dir_save+'/messages/messages_'+str((epoch))+'.npy', all_messages)
         np.save(opts.dir_save+'/accuracy/accuracy_'+str((epoch))+'.npy', acc_vec)
-        print(acc_vec)
 
     core.close()
 

@@ -282,9 +282,21 @@ class RnnReceiverCompositionality(nn.Module):
     def forward(self, message, input=None, lengths=None):
         encoded = self.encoder(message)
         logits = F.log_softmax(self.hidden_to_output(encoded).reshape(encoded.size(0),self.n_attributes,self.n_values), dim=2)
-        entropy=-torch.exp(logits)*logits
+        #entropy=-torch.exp(logits)*logits
+        entropy=[]
+        slogits= []
+        for i in range(logits.size(1)):
+          distr = Categorical(logits=logits[:,i,:])
+          entropy.append(distr.entropy())
+          x = distr.sample()
+          slogits.append(distr.log_prob(x))
 
-        return logits, logits, entropy
+        entropy = torch.stack(entropy).permute(1, 0)
+        slogits = torch.stack(slogits).permute(1, 0)
+
+        #print(entropy.size())
+
+        return logits, slogits, entropy
 
 class RnnReceiverDeterministic(nn.Module):
     """
@@ -435,22 +447,32 @@ class RnnReceiverImpatientCompositionality(nn.Module):
 
             h_t=encoded[step,:,:]
             step_logits = F.log_softmax(self.hidden_to_output(h_t).reshape(h_t.size(0),self.n_attributes,self.n_values), dim=2)
-            #distr = Categorical(logits=step_logits)
-            entropy.append(-torch.exp(step_logits)*step_logits)
+            distr = Categorical(logits=step_logits)
 
-            #if self.training:
-            #    x = distr.sample()
-            #else:
-            #    x = step_logits.argmax(dim=2)
-            #logits.append(distr.log_prob(x))
             sequence.append(step_logits)
 
+            entropy_step=[]
+            slogits_step=[]
+
+            for i in range(logits.size(1)):
+              distr = Categorical(logits=logits[:,i,:])
+              entropy_step.append(distr.entropy())
+              x = distr.sample()
+              slogits_step.append(distr.log_prob(x))
+
+            entropy_step = torch.stack(entropy_step).permute(1, 0)
+            slogits_step = torch.stack(slogits_step).permute(1, 0)
+
+            entropy.append(entropy_step)
+            slogits.append(slogits_step)
+
         sequence = torch.stack(sequence).permute(1,0,2,3)
-        entropy = torch.stack(entropy).permute(1,0,2,3)
+        entropy = torch.stack(entropy).permute(1,0,2)
+        slogits= torch.stack(slogits).permute(1,0,2)
         #logits = torch.stack(logits).permute(1, 0)
         #entropy = torch.stack(entropy).permute(1, 0)
 
-        return sequence, sequence, entropy
+        return sequence, slogits, entropy
 
 class RnnReceiverImpatient2(nn.Module):
 
@@ -962,15 +984,15 @@ class CompositionalitySenderReceiverRnnReinforce(nn.Module):
         #      sc+=crible_acc[i,message_lengths[i]-1]
 
 
-        log_prob_r=log_prob_r_all_att.mean(2)
-        entropy_r=entropy_r_all_att.mean(2)
+        log_prob_r=log_prob_r_all_att.mean(1)
+        entropy_r=entropy_r_all_att.mean(1)
 
         # the entropy of the outputs of S before and including the eos symbol - as we don't care about what's after
-        effective_entropy_s = torch.zeros_like(entropy_r.mean(1))
+        effective_entropy_s = torch.zeros_like(entropy_r)
 
         # the log prob of the choices made by S before and including the eos symbol - again, we don't
         # care about the rest
-        effective_log_prob_s = torch.zeros_like(log_prob_r.mean(1))
+        effective_log_prob_s = torch.zeros_like(log_prob_r)
 
         for i in range(message.size(1)):
             not_eosed = (i < message_lengths).float()
@@ -981,7 +1003,7 @@ class CompositionalitySenderReceiverRnnReinforce(nn.Module):
         weighted_entropy = effective_entropy_s.mean() * self.sender_entropy_coeff + \
                 entropy_r.mean() * self.receiver_entropy_coeff
 
-        log_prob = effective_log_prob_s + log_prob_r.mean(1)
+        log_prob = effective_log_prob_s + log_prob_r
 
         #if self.reg:
         #    sc/=message_lengths.size(0)

@@ -440,7 +440,7 @@ class RnnReceiverImpatientCompositionality(nn.Module):
         encoded = self.encoder(message)
 
         sequence = []
-        logits = []
+        slogits = []
         entropy = []
 
         for step in range(encoded.size(0)):
@@ -454,8 +454,8 @@ class RnnReceiverImpatientCompositionality(nn.Module):
             entropy_step=[]
             slogits_step=[]
 
-            for i in range(logits.size(1)):
-              distr = Categorical(logits=logits[:,i,:])
+            for i in range(step_logits.size(1)):
+              distr = Categorical(logits=step_logits[:,i,:])
               entropy_step.append(distr.entropy())
               x = distr.sample()
               slogits_step.append(distr.log_prob(x))
@@ -1133,15 +1133,15 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
               sc+=crible_acc[i,message_lengths[i]-1]
 
 
-        log_prob_r=log_prob_r_all_att.mean(2)
-        entropy_r=entropy_r_all_att.mean(2)
+        log_prob_r=log_prob_r_all_att.mean(1).mean(1)
+        entropy_r=entropy_r_all_att.mean(1).mean(1)
 
         # the entropy of the outputs of S before and including the eos symbol - as we don't care about what's after
-        effective_entropy_s = torch.zeros_like(entropy_r.mean(1).mean(1))
+        effective_entropy_s = torch.zeros_like(entropy_r)
 
         # the log prob of the choices made by S before and including the eos symbol - again, we don't
         # care about the rest
-        effective_log_prob_s = torch.zeros_like(log_prob_r.mean(1).mean(1))
+        effective_log_prob_s = torch.zeros_like(log_prob_r)
 
         for i in range(message.size(1)):
             not_eosed = (i < message_lengths).float()
@@ -1152,7 +1152,7 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
         weighted_entropy = effective_entropy_s.mean() * self.sender_entropy_coeff + \
                 entropy_r.mean() * self.receiver_entropy_coeff
 
-        log_prob = effective_log_prob_s + log_prob_r.mean(1).mean(1)
+        log_prob = effective_log_prob_s + log_prob_r
 
         if self.reg:
             sc/=message_lengths.size(0)

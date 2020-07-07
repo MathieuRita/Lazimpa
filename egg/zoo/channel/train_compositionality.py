@@ -454,18 +454,6 @@ def main(params):
         print(acc_vec.mean(0))
         #print(trainer.optimizer.defaults["lr"])
 
-        #new_acc=np.mean(acc_vec)
-        #if epoch%10==0:
-        #  if np.abs(new_acc-np.mean(curr_accs))<0.01:
-        #    trainer.optimizer.defaults["lr"]/=2
-        #  print(trainer.optimizer.defaults["lr"])
-        #curr_accs[epoch%7]=new_acc
-
-        #trainer.optimizer.defaults["lr"]=10**(3-(epoch/10))
-        #0.001+((10**(-12)-10**(-3))/60)*epoch
-        #trainer.optimizer.defaults["lr"]=0.00000000000001+0.001*np.cos(2*np.pi*(epoch/40))**2
-        print(trainer.optimizer.defaults["lr"])
-
 
         # ADDITION TO SAVE MESSAGES
         all_messages=[]

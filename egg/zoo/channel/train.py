@@ -238,7 +238,8 @@ def dump_impatient(game, n_features, device, gs_mode,epoch):
 
     #print(f'Mean accuracy wrt uniform distribution is {unif_acc}')
     #print(f'Mean accuracy wrt powerlaw distribution is {powerlaw_acc}')
-    print(json.dumps({'powerlaw': powerlaw_acc, 'unif': unif_acc}))
+    if epoch%25==0:
+        print(json.dumps({'powerlaw': powerlaw_acc, 'unif': unif_acc}))
 
     return acc_vec, messages
 
@@ -363,7 +364,7 @@ def main(params):
         if epoch%50==0:
             torch.save(sender.state_dict(), opts.dir_save+"/sender/sender_weights"+str(epoch)+".pth")
             torch.save(receiver.state_dict(), opts.dir_save+"/receiver/receiver_weights"+str(epoch)+".pth")
-            print(acc_vec)
+            #print(acc_vec)
 
         np.save(opts.dir_save+'/messages/messages_'+str((epoch))+'.npy', all_messages)
         np.save(opts.dir_save+'/accuracy/accuracy_'+str((epoch))+'.npy', acc_vec)

@@ -175,7 +175,7 @@ def loss_impatient_compositionality(sender_input, _message, message_length, _rec
     len_mask=torch.cumsum(len_mask,dim=1)
     len_mask=torch.ones(len_mask.size()).to("cuda").add_(-len_mask)
 
-    len_mask.mul_((coef2))
+    #len_mask.mul_((coef2)) # A priori avec la normalisation apres, etape useless
     len_mask.mul_((1/len_mask.sum(1)).repeat((_message.size(1),1)).transpose(1,0))
 
     crible_acc=torch.zeros(size=_message.size()).to("cuda")
@@ -223,7 +223,7 @@ def dump(game, n_features, device, gs_mode, epoch):
 
         unif_acc += acc
         powerlaw_acc += powerlaw_probs[input_symbol] * acc
-        if epoch%25==0 or epoch>300:
+        if epoch%50==0:
             print(f'input: {input_symbol.item()} -> message: {",".join([str(x.item()) for x in message])} -> output: {output_symbol.item()}', flush=True)
 
     unif_acc /= n_features
@@ -340,7 +340,7 @@ def dump_impatient_compositionality(game, n_attributes, n_values, device, gs_mod
         if receiver_outputs[i][j]==list(combination[i])[j]:
           unif_acc+=1
           acc_vec[i,j]=1
-      if epoch%50==0:
+      if epoch%100==0:
           print(f'input: {",".join([str(x) for x in combination[i]])} -> message: {",".join([str(x.item()) for x in message])} -> output: {",".join([str(x) for x in receiver_outputs[i]])}', flush=True)
 
     unif_acc /= (n_values**n_attributes) * n_attributes

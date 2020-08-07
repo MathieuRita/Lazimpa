@@ -7,6 +7,7 @@ import json
 import argparse
 import numpy as np
 import itertools
+import torch
 import torch.utils.data
 import torch.nn.functional as F
 from torch.optim.lr_scheduler import ReduceLROnPlateau

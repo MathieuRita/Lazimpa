@@ -147,7 +147,7 @@ class _OneHotIteratorCompositionality:
 
             # Pb de l'implementation ici avec probs_attributes -> a l'echelle du batch
 
-            if np.random.rand()<probs_attributes:
+            if np.random.rand()<self.probs_attributes[i]:
                 batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
             else:
                 batch_data_att.append(0*self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))

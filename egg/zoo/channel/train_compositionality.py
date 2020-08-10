@@ -340,7 +340,7 @@ def dump_impatient_compositionality(game, n_attributes, n_values, device, gs_mod
         if receiver_outputs[i][j]==list(combination[i])[j]:
           unif_acc+=1
           acc_vec[i,j]=1
-      if epoch%100==0:
+      if epoch%5==0:
           print(f'input: {",".join([str(x) for x in combination[i]])} -> message: {",".join([str(x.item()) for x in message])} -> output: {",".join([str(x) for x in receiver_outputs[i]])}', flush=True)
 
     unif_acc /= (n_values**n_attributes) * n_attributes

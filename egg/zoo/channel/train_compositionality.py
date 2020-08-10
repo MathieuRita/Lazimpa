@@ -198,7 +198,7 @@ def loss_impatient_compositionality(sender_input, _message, message_length, _rec
     acc = acc.sum(1)
     loss= loss.sum(1)
 
-    return torch.sqrt(loss), {'acc': acc}, crible_acc
+    return loss, {'acc': acc}, crible_acc
 
 def dump(game, n_features, device, gs_mode, epoch):
     # tiny "dataset"

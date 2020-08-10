@@ -95,6 +95,10 @@ def loss(sender_input, _message, _receiver_input, receiver_output, _labels):
 
 def loss_impatient(sender_input, _message, message_length, _receiver_input, receiver_output, _labels):
 
+    """
+    Compute the loss function for the Impatient Listener.
+    """
+
     to_onehot=torch.eye(_message.size(1)).to("cuda")
     to_onehot=torch.cat((to_onehot,torch.zeros((1,_message.size(1))).to("cuda")),0)
     len_mask=[]
@@ -103,7 +107,10 @@ def loss_impatient(sender_input, _message, message_length, _receiver_input, rece
     len_mask=torch.stack(len_mask,dim=0)
 
     coef=(1/message_length.to(float)).repeat(_message.size(1),1).transpose(1,0)
-    coef2=coef*torch.arange(_message.size(1),0,-1).repeat(_message.size(0),1).to("cuda")
+    coef2=coef
+
+    # Test: change positional wieghts
+    #coef2=coef*torch.arange(_message.size(1),0,-1).repeat(_message.size(0),1).to("cuda")
 
     len_mask=torch.cumsum(len_mask,dim=1)
     len_mask=torch.ones(len_mask.size()).to("cuda").add_(-len_mask)

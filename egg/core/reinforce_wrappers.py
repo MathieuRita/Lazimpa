@@ -1126,7 +1126,12 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
         # reg
         sc=0.
 
-        loss, rest, crible_acc = self.loss(sender_input, message, message_lengths, receiver_input, receiver_output_all_att, labels,self.n_attributes,self.n_values,self.att_weights)
+        # Version de base
+        #loss, rest, crible_acc = self.loss(sender_input, message, message_lengths, receiver_input, receiver_output_all_att, labels,self.n_attributes,self.n_values,self.att_weights)
+
+        # Take into account the fact that an attribute is not sampled
+        loss, rest, crible_acc = self.loss(sender_input+torch.rand(sender_input.size()), message, message_lengths, receiver_input, receiver_output_all_att, labels,self.n_attributes,self.n_values,self.att_weights)
+
 
         if self.reg:
             for i in range(message_lengths.size(0)):

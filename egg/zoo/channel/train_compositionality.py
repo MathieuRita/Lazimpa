@@ -376,6 +376,10 @@ def main(params):
     if opts.probs_attributes=="uniform":
         probs_attributes=[1]*opts.n_attributes
 
+    if opts.probs_attributes=="uniform_indep":
+        probs_attributes=[]
+        probs_attributes=[0.8]*opts.n_attributes
+
     if opts.probs_attributes=="echelon":
         probs_attributes=[]
         for i in range(opts.n_attributes):

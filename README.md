@@ -16,15 +16,21 @@ The code is an extension of EGG toolkit (https://github.com/facebookresearch/EGG
 
 1. First clone the repository:
 `git clone https://github.com/MathieuRita/LE_test.git`
+
 `mv "./LE_test/egg" "./egg"`
 
 2. Create a directory in which all the useful data will be saved (you have to respect the following hierarchy):
 
 `mkdir dir_save`
+
 `mkdir dir_save/sender`
+
 `mkdir dir_save/receiver`
+
 `mkdir dir_save/messages`
+
 `mkdir dir_save/accuracy`
+
 
 3. Train agents:
 

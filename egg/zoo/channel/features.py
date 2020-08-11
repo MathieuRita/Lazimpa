@@ -143,7 +143,7 @@ class _OneHotIteratorCompositionality:
             raise StopIteration()
 
         batch_data_att=[]
-        for i in range(self.n_attributes):
+        #for i in range(self.n_attributes):
 
             # Simple
             #batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
@@ -154,19 +154,28 @@ class _OneHotIteratorCompositionality:
             #else:
             #    batch_data_att.append(0*self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
 
-            # On gère les couples
-            rd=np.random.rand()
-            i=0
+        # On gère les couples
+        rd=np.random.rand(10)
+        onezero=(rd<(1/3))*1
+        zeroone=(rd>(2/3))*1
+        oneone=(rd<(2/3))*1-(rd<(1/3))*1
+        i=0
 
-            if rd<0.2:
-                batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
-                batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
-            if rd>0.2 and rd<0.6:
-                batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
-                batch_data_att.append(0*self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
-            if rd>0.6:
-                batch_data_att.append(0*self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
-                batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
+        tirage1=self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float)
+        tirage2=self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float)
+
+        batch_data_att.append(np.expand_dims(onezero,1)*tirage1+np.expand_dims(oneone,1)*tirage1)
+        batch_data_att.append(np.expand_dims(zeroone,1)*tirage2+np.expand_dims(oneone,1)*tirage2)
+
+        #if rd<0.2:
+        #    batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
+        #    batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
+        #if rd>0.2 and rd<0.6:
+        #    batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
+        #    batch_data_att.append(0*self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
+        #if rd>0.6:
+        #    batch_data_att.append(0*self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
+        #    batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
 
 
 

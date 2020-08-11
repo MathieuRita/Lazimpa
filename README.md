@@ -31,7 +31,8 @@ mkdir dir_save/accuracy
 
 3. Train agents:
 
-```python -m egg.zoo.channel.train   --dir_save=dir_save \
+```
+python -m egg.zoo.channel.train   --dir_save=dir_save \
                                   --vocab_size=40 \
                                   --max_len=30 \
                                   --impatient=True \

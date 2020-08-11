@@ -15,26 +15,23 @@ The code is an extension of EGG toolkit (https://github.com/facebookresearch/EGG
 ### Command lines
 
 1. First clone the repository:
-`` git clone https://github.com/MathieuRita/LE_test.git
-
-mv "./LE_test/egg" "./egg"``
+```git clone https://github.com/MathieuRita/LE_test.git
+mv "./LE_test/egg" "./egg"
+```
 
 2. Create a directory in which all the useful data will be saved (you have to respect the following hierarchy):
 
-```
-mkdir dir_save
+``` mkdir dir_save
 mkdir dir_save/sender
 mkdir dir_save/receiver
 mkdir dir_save/messages
 mkdir dir_save/accuracy
-
 ```
 
 
 3. Train agents:
 
-````
-python -m egg.zoo.channel.train   --dir_save=dir_save \
+```python -m egg.zoo.channel.train   --dir_save=dir_save \
                                   --vocab_size=40 \
                                   --max_len=30 \
                                   --impatient=True \
@@ -58,8 +55,7 @@ python -m egg.zoo.channel.train   --dir_save=dir_save \
                                   --sender_num_layers=1 \
                                   --receiver_num_layers=1 \
                                   --early_stopping_thr=0.99
-                                                                  
-                                                                  ```
+```
 
 4. Test agents:
 

@@ -97,8 +97,20 @@ def loss_impatient(sender_input, _message, message_length, _receiver_input, rece
 
     """
     Compute the loss function for the Impatient Listener.
+    It is equal to the average cross entropy of all the intermediate predictions
+
+    Params:
+    - sender_input: ground truth 1-hot vector | size=(batch_size,n_features)
+    - receiver_output: receiver predictions | size=(batch_size,max_len,n_features)
+    - message_lengh: message length | size=(batch_size)
+
+    Returns:
+    - loss: |  size= ????
+    - {acc:acc}: mean accuracy | size=(batch_size)
+    - crible_acc: accuracy by position | size=(batch_size,max_len)
     """
 
+    # 1. len_mask selects only the symbols before EOS-token
     to_onehot=torch.eye(_message.size(1)).to("cuda")
     to_onehot=torch.cat((to_onehot,torch.zeros((1,_message.size(1))).to("cuda")),0)
     len_mask=[]
@@ -106,18 +118,20 @@ def loss_impatient(sender_input, _message, message_length, _receiver_input, rece
       len_mask.append(to_onehot[message_length[i]])
     len_mask=torch.stack(len_mask,dim=0)
 
-    coef=(1/message_length.to(float)).repeat(_message.size(1),1).transpose(1,0)
-    coef2=coef
+    len_mask=torch.cumsum(len_mask,dim=1)
+    len_mask=torch.ones(len_mask.size()).to("cuda").add_(-len_mask)
+
+    # 2. coef applies weights on each position. By default it is equal
+    coef=(1/message_length.to(float)).repeat(_message.size(1),1).transpose(1,0) # useless ?
+    coef2=coef # useless ?
+    len_mask.mul_((coef2)) # useless ?
+    len_mask.mul_((1/len_mask.sum(1)).repeat((_message.size(1),1)).transpose(1,0))
 
     # Test: change positional wieghts
     #coef2=coef*torch.arange(_message.size(1),0,-1).repeat(_message.size(0),1).to("cuda")
 
-    len_mask=torch.cumsum(len_mask,dim=1)
-    len_mask=torch.ones(len_mask.size()).to("cuda").add_(-len_mask)
 
-    len_mask.mul_((coef2))
-    len_mask.mul_((1/len_mask.sum(1)).repeat((_message.size(1),1)).transpose(1,0))
-
+    # 3. crible_acc gathers accuracy for each input/position, crible_loss gathers losses for each input/position
     crible_acc=torch.zeros(size=_message.size()).to("cuda")
     crible_loss=torch.zeros(size=_message.size()).to("cuda")
 
@@ -125,6 +139,7 @@ def loss_impatient(sender_input, _message, message_length, _receiver_input, rece
       crible_acc[:,i].add_((receiver_output[:,i,:].argmax(dim=1) == sender_input.argmax(dim=1)).detach().float())
       crible_loss[:,i].add_(F.cross_entropy(receiver_output[:,i,:], sender_input.argmax(dim=1), reduction="none"))
 
+    # 4. Apply mask to remove the positions after EOS-token
     acc=crible_acc*len_mask
     loss=crible_loss*len_mask
 
@@ -262,20 +277,20 @@ def main(params):
         probs = np.ones(opts.n_features)
     elif opts.probs == 'powerlaw':
         probs = 1 / np.arange(1, opts.n_features+1, dtype=np.float32)
-    elif opts.probs == "creneau":
-        ones = np.ones(int(opts.n_features/2))
-        tens = 10*np.ones(opts.n_features-int(opts.n_features/2))
-        probs = np.concatenate((tens,ones),axis=0)
-    elif opts.probs == "toy":
-        fives = 5*np.ones(int(opts.n_features/10))
-        ones = np.ones(opts.n_features-int(opts.n_features/10))
-        probs = np.concatenate((fives,ones),axis=0)
-    elif opts.probs == "escalier":
-        ones = np.ones(int(opts.n_features/4))
-        tens = 10*np.ones(int(opts.n_features/4))
-        huns = 100*np.ones(int(opts.n_features/4))
-        thous = 1000*np.ones(opts.n_features-3*int(opts.n_features/4))
-        probs = np.concatenate((thous,huns,tens,ones),axis=0)
+    #elif opts.probs == "creneau":
+    #    ones = np.ones(int(opts.n_features/2))
+    #    tens = 10*np.ones(opts.n_features-int(opts.n_features/2))
+    #    probs = np.concatenate((tens,ones),axis=0)
+    #elif opts.probs == "toy":
+    #    fives = 5*np.ones(int(opts.n_features/10))
+    #    ones = np.ones(opts.n_features-int(opts.n_features/10))
+    #    probs = np.concatenate((fives,ones),axis=0)
+    #elif opts.probs == "escalier":
+    #    ones = np.ones(int(opts.n_features/4))
+    #    tens = 10*np.ones(int(opts.n_features/4))
+    #    huns = 100*np.ones(int(opts.n_features/4))
+    #    thous = 1000*np.ones(opts.n_features-3*int(opts.n_features/4))
+    #    probs = np.concatenate((thous,huns,tens,ones),axis=0)
     else:
         probs = np.array([float(x) for x in opts.probs.split(',')], dtype=np.float32)
 

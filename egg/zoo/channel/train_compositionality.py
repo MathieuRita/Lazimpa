@@ -165,7 +165,7 @@ def loss_impatient_compositionality(sender_input, _message, message_length, _rec
     len_mask=torch.stack(len_mask,dim=0)
 
     coef=(1/message_length.to(float)).repeat(_message.size(1),1).transpose(1,0)
-    coef2=coef*torch.arange(_message.size(1),0,-1).repeat(_message.size(0),1).to("cuda")
+    #coef2=coef*torch.arange(_message.size(1),0,-1).repeat(_message.size(0),1).to("cuda")
     coef2=coef
     # NEW LOSS
     #Mlen=n_attributes*torch.ones(message_length.size()).to("cuda")
@@ -378,7 +378,7 @@ def main(params):
 
     if opts.probs_attributes=="uniform_indep":
         probs_attributes=[]
-        probs_attributes=[0.8]*opts.n_attributes
+        probs_attributes=[0.5]*opts.n_attributes
 
     if opts.probs_attributes=="echelon":
         probs_attributes=[]

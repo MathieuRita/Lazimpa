@@ -65,8 +65,12 @@ class RnnEncoder(nn.Module):
 
 
 class RnnEncoderImpatient(nn.Module):
-    """Feeds a sequence into an RNN (vanilla RNN, GRU, LSTM) cell and returns a vector representation
-    of it, which is found as the last hidden state of the last RNN layer. Assumes that the eos token has the id equal to 0.
+    """
+    RNN implementation that returns all the intermediate input states (used for Impatient Listener).
+    
+    Feeds a sequence into an RNN (vanilla RNN, GRU, LSTM) cell and returns a vector representation
+    of it for each reading position: it returns the hidden states of all the intermediate positions.
+    Assumes that the eos token has the id equal to 0.
     """
 
     def __init__(self, vocab_size: int, embed_dim: int, n_hidden: int, cell: str = 'rnn', num_layers: int = 1) -> None:
@@ -94,7 +98,7 @@ class RnnEncoderImpatient(nn.Module):
         self.embedding = nn.Embedding(vocab_size, embed_dim)
 
     def forward(self, message: torch.Tensor, lengths: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """Feeds a sequence into an RNN cell and returns the last hidden state of the last layer.
+        """Feeds a sequence into an RNN cell and returns the sequence of hidden states.
         Arguments:
             message {torch.Tensor} -- A sequence to be processed, a torch.Tensor of type Long, dimensions [B, T]
         Keyword Arguments:
@@ -109,7 +113,7 @@ class RnnEncoderImpatient(nn.Module):
 
         packed = nn.utils.rnn.pack_padded_sequence(
             emb, lengths, batch_first=True, enforce_sorted=False)
-            
+
         packed_seq_hidden, rnn_hidden = self.cell(packed)
 
         seq_hidden = nn.utils.rnn.pad_packed_sequence(packed_seq_hidden)

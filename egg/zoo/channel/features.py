@@ -156,9 +156,9 @@ class _OneHotIteratorCompositionality:
 
         # On gère les couples
         rd=np.random.rand(self.batch_size)
-        onezero=(rd<(0.25))*1
-        zeroone=(rd>(0.75))*1
-        oneone=(rd<(0.75))*1-(rd<(0.25))*1
+        onezero=(rd<(0.4))*1
+        zeroone=(rd>(0.6))*1
+        oneone=(rd<(0.6))*1-(rd<(0.4))*1
         i=0
 
         tirage1=self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float)

@@ -149,23 +149,23 @@ class _OneHotIteratorCompositionality:
             #batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
 
             # Ici on implemente le fait qu un attribut peut ne pas etre sample
-            #if np.random.rand()<self.probs_attributes[i]:
-            #    batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
-            #else:
-            #    batch_data_att.append(0*self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
+            if np.random.rand()<self.probs_attributes[i]:
+                batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
+            else:
+                batch_data_att.append(0*self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
 
         # On gère les couples
-        rd=np.random.rand(self.batch_size)
-        onezero=(rd<(0.4))*1
-        zeroone=(rd>(0.6))*1
-        oneone=(rd<(0.6))*1-(rd<(0.4))*1
-        i=0
+        #rd=np.random.rand(self.batch_size)
+        #onezero=(rd<(0.4))*1
+        #zeroone=(rd>(0.6))*1
+        #oneone=(rd<(0.6))*1-(rd<(0.4))*1
+        #i=0
 
-        tirage1=self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float)
-        tirage2=self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float)
+        #tirage1=self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float)
+        #tirage2=self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float)
 
-        batch_data_att.append(np.expand_dims(onezero,1)*tirage1+np.expand_dims(oneone,1)*tirage1)
-        batch_data_att.append(np.expand_dims(zeroone,1)*tirage2+np.expand_dims(oneone,1)*tirage2)
+        #batch_data_att.append(np.expand_dims(onezero,1)*tirage1+np.expand_dims(oneone,1)*tirage1)
+        #batch_data_att.append(np.expand_dims(zeroone,1)*tirage2+np.expand_dims(oneone,1)*tirage2)
 
         #if rd<0.2:
         #    batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))

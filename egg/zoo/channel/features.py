@@ -145,13 +145,14 @@ class _OneHotIteratorCompositionality:
         batch_data_att=[]
         for i in range(self.n_attributes):
 
-            batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
+            # Simple
+            #batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
 
             # Ici on implemente le fait qu un attribut peut ne pas etre sample
-            #if np.random.rand()<self.probs_attributes[i]:
-            #    batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
-            #else:
-            #    batch_data_att.append(0*self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
+            if np.random.rand()<self.probs_attributes[i]:
+                batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
+            else:
+                batch_data_att.append(0*self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
 
 
         batch_data=batch_data_att[0]

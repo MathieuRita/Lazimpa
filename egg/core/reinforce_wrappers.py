@@ -788,7 +788,7 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
         self.mean_baseline[name] += (value.detach().mean().item() - self.mean_baseline[name]) / self.n_points[name]
 
 class CompositionalitySenderReceiverRnnReinforce(nn.Module):
-    
+
     """
     Adaptation of SenderReceiverRnnReinforce to inputs with several attributes.
     """
@@ -990,7 +990,7 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
         #loss, rest, crible_acc = self.loss(sender_input, message, message_lengths, receiver_input, receiver_output_all_att, labels,self.n_attributes,self.n_values,self.att_weights)
 
         # Take into account the fact that an attribute is not sampled
-        loss, rest, crible_acc = self.loss(sender_input.add_(torch.rand(size=sender_input.size()).to("cuda")), message, message_lengths, receiver_input, receiver_output_all_att, labels,self.n_attributes,self.n_values,self.att_weights)
+        loss, rest, crible_acc = self.loss(sender_input, message, message_lengths, receiver_input, receiver_output_all_att, labels,self.n_attributes,self.n_values,self.att_weights)
 
 
         if self.reg:

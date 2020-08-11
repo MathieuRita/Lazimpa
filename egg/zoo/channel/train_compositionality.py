@@ -151,7 +151,8 @@ def loss_compositionality(sender_input, _message, message_length, _receiver_inpu
 
     for j in range(receiver_output.size(1)):
         #K=10*(1/(j+1))
-        loss+=F.cross_entropy(receiver_output[:,j,:], sender_input[:,j,:].argmax(dim=1), reduction="none")
+        K=sender_input[:,j,:].max(dim=1).values
+        loss+=K*F.cross_entropy(receiver_output[:,j,:], sender_input[:,j,:].argmax(dim=1), reduction="none")
 
     return loss, {'acc': crible_acc}, crible_acc
 
@@ -190,7 +191,8 @@ def loss_impatient_compositionality(sender_input, _message, message_length, _rec
       #crible_loss[:,i].add_(F.cross_entropy(receiver_output[:,i,:], sender_input.argmax(dim=1), reduction="none"))
       for j in range(ro.size(1)):
         #K=att_weights[j]
-        crible_loss[:,i].add_(F.cross_entropy(ro[:,j,:], si[:,j,:].argmax(dim=1), reduction="none")/n_attributes)
+        K=sender_input[:,j,:].max(dim=1).values
+        crible_loss[:,i].add_(K*F.cross_entropy(ro[:,j,:], si[:,j,:].argmax(dim=1), reduction="none")/n_attributes)
 
     acc=crible_acc*len_mask
     loss=crible_loss*len_mask
@@ -378,7 +380,7 @@ def main(params):
 
     if opts.probs_attributes=="uniform_indep":
         probs_attributes=[]
-        probs_attributes=[0.5]*opts.n_attributes
+        probs_attributes=[0.2]*opts.n_attributes
 
     if opts.probs_attributes=="echelon":
         probs_attributes=[]

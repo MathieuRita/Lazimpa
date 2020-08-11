@@ -155,10 +155,10 @@ class _OneHotIteratorCompositionality:
             #    batch_data_att.append(0*self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))
 
         # On gère les couples
-        rd=np.random.rand(10)
-        onezero=(rd<(1/3))*1
-        zeroone=(rd>(2/3))*1
-        oneone=(rd<(2/3))*1-(rd<(1/3))*1
+        rd=np.random.rand(self.batch_size)
+        onezero=(rd<(0.45))*1
+        zeroone=(rd>(0.55))*1
+        oneone=(rd<(0.55))*1-(rd<(0.45))*1
         i=0
 
         tirage1=self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float)

@@ -845,6 +845,9 @@ class CompositionalitySenderReceiverRnnReinforce(nn.Module):
         receiver_output_all_att, log_prob_r_all_att, entropy_r_all_att = self.receiver(message, receiver_input, message_lengths)
         #dim=[batch_size,n_att,n_val]
 
+        # Noisy channel
+        print(message.size())
+
         # reg
         sc=0.
 
@@ -986,9 +989,6 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
         #print(sender_input[:,11:-1])
         message, log_prob_s, entropy_s = self.sender(torch.floor(sender_input))
         message_lengths = find_lengths(message)
-
-        # Noisy communication channel
-        print(message.size())
 
         # If impatient 1
         receiver_output_all_att, log_prob_r_all_att, entropy_r_all_att = self.receiver(message, receiver_input, message_lengths)

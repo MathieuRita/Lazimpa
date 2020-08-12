@@ -100,4 +100,21 @@ H-params can be divided in 3 classes: experiment H-params, architecture H-params
 
 ## Reproductibility
 
+To reproduce the results obtained in the paper for LazImpa, just run the following command line (you can choose any seed. Please note that `n_epochs` may be set to a larger value for certain seeds):
+
+```
+python -m egg.zoo.channel.train   --dir_save=dir_save --vocab_size=40 --max_len=30 --impatient=True --reg=True --n_features=1000 --print_message=False --random_seed=1 --probs="powerlaw" --n_epoch=2501 --batch_size=512 --length_cost=0. --sender_cell="lstm" --receiver_cell="lstm" --sender_hidden=250 --receiver_hidden=600 --receiver_embedding=100 --sender_embedding=10 --batches_per_epoch=100 --lr=0.001 --sender_entropy_coeff=2. --sender_num_layers=1 --receiver_num_layers=1 --early_stopping_thr=0.99
+```
+
+If you also want to reproduce the baselines shown in the paper, you just have to play with the Hparams `impatient` and `reg` (the other Hparams can be unchainged):
+
+- *LazImpa* : `impatient=True`, `reg=True`
+- *Standard agents*: `impatient=False`, `reg=False`
+- *Standard Listener + Lazy Speaker*: `impatient=False`, `reg=True`
+- *Impatient Listener + Standard Speaker*: `impatient=True`, `reg=True`
+
+To reproduce the natural language curves, please find the right corpus here: [Natural languages corpus](http://corpus.leeds.ac.uk/serge/).
+
 ## How to cite ?
+
+The paper is currently under review.

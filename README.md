@@ -18,6 +18,12 @@ The code is an extension of EGG toolkit (https://github.com/facebookresearch/EGG
 
 Previous experiments showed that Standard agents surprisingly develop non efficient codes. In particular, the language that emerges does not bear core properties of natural languages such as compositionality or length efficiency. In the paper, we study the latter property, Zipfs Law of Abbreviation (ZLA) that states that the most frequent messages are shorter than less frequent ones. We study the influence of humanly plausible constraints on length statistics. We particularly introduce a new communication system *LazImpa* composed of a Lazy Speaker and an Impatient Listener. The first is made increasingly lazy (least effort) while the second tries to guess the intended content as soon as possible. We show that near-optimal codes can emerge from this communication system.
 
+#### Main paper results
+
+![res_1](imgs/result_1.jpg)
+
+![res_2](imgs/result_2.jpg)
+
 ## 💻 Run the code
 
 We show here an example of experiment that can be run on Google Colab (smaller input space than in the paper). We also provide a notebook (**LINK**) that can merely be run in Colab to quickly reproduce our results on a smaller input space. The command line that should be run to reproduce our paper results (larger input space) are reported below in the section [Reproductibility](http://github.com/MathieuRita/LE_test#Reproductibility).
@@ -130,8 +136,6 @@ Here are some insights to analyze the training. The first plot show the evolutio
 
 ![results](imgs/message_dynamic.gif)
 (in blue: LazImpa emergent code ; in orange: Optimal coding (see details in the paper)).
-
-## 📈 Paper results
 
 ## 🌍 Reproductibility
 

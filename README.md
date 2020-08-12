@@ -20,9 +20,17 @@ Previous experiments showed that Standard agents surprisingly develop non effici
 
 #### Main paper results
 
-- *LazImpa* allows the emergence of an efficient code that follows Zipf's Law of Abbrevation. The solutio is
+- **LazImpa** allows the emergence of an efficient code that follows Zipf's Law of Abbrevation. On the contrary, the code that emerges from Standard Agents is not efficient and almost all message length are equal to the maximum length set by the user.
 
-![res_1](imgs/result_1.jpg | width=100)
+- With the settings of the paper, we show that agents are able to reach the performances of natural languages even though they do not manage to converge toward Optimal Coding (we explore causes of sub-optimality in the paper).
+
+Length statistics are shown in the following figure:
+
+![res_1](imgs/result_1.jpg)
+
+- We analyze the effects of the modelling choices and especially **the position of information** within the messages (see the definition of informative symbols in the paper). We show that Standard Agents (LSTMs) tend to place informative symbols at the end of the messages. On the contrary, the introduction of Impatient Listener causes a shift of information at the beginning of the messages. While regularization (Lazy Speaker) is impossible with a Standard Listener, it well shortens message lengths with Impatient Listener. We suggest that the location of information within the message is crucial for length regularization.
+
+The average position of informative symbols are shown in the following figure (red lines mark the average message length). We test different couples of agents:
 
 ![res_2](imgs/result_2.jpg)
 

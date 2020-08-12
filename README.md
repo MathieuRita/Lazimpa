@@ -12,9 +12,9 @@ The code is an extension of EGG toolkit (https://github.com/facebookresearch/EGG
 
 `LazImpa` repository implements a Speaker/Listener game where agents have to cooperatly communicate in order to win the game. The Speaker receives an input (one-hot vector) it has to communicate to the Listener. To do so, it sends a message $m$ to the Listener. The Listener consumes the message and output a candidate. The agents are then succesful if the Listener correctly reconstructes the ground-truth input.
 
-#### The aim of the paper
+#### Aim of the paper
 
-The aim of the paper 
+Previous experiments showed that Standard agents surprisingly develop non efficient codes. In particular, the language that emerges does not bear core properties of natural languages such as compositionality or length efficiency. In the paper, we study the latter property, Zipfs Law of Abbreviation (ZLA) that states that the most frequent messages are shorter than less frequent ones. We study the influence of humanly plausible constraints on length statistics. We particularly introduce a new communication system *LazImpa* composed of a Lazy Speaker and an Impatient Listener. The first is made increasingly lazy (least effort) while the second tries to guess the intended content as soon as possible. We show that near-optimal codes can emerge from this communication system.
 
 ## Run the code
 

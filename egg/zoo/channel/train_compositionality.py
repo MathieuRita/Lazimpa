@@ -304,6 +304,9 @@ def dump_compositionality(game, n_attributes, n_values, device, gs_mode,epoch):
     sender_inputs, messages, receiver_inputs, receiver_outputs, _ = \
         dump_sender_receiver_compositionality(game, dataset, gs=gs_mode, device=device, variable_length=True)
 
+    print(receiver_inputs)
+    print(receiver_outputs)
+
     unif_acc = 0.
     acc_vec=np.zeros(((n_values**n_attributes), n_attributes))
 

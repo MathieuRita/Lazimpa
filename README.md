@@ -6,7 +6,7 @@ This repository gathers the code used for all the experiments of the following p
 
 The code is an extension of EGG toolkit (https://github.com/facebookresearch/EGG) presented in *EGG: a toolkit for research on Emergence of lanGuage in Games*, Eugene Kharitonov, Rahma Chaabouni, Diane Bouchacourt, Marco Baroni. EMNLP 2019.
 
-## Presentation
+## 📋 Presentation
 
 #### The game
 
@@ -18,7 +18,7 @@ The code is an extension of EGG toolkit (https://github.com/facebookresearch/EGG
 
 Previous experiments showed that Standard agents surprisingly develop non efficient codes. In particular, the language that emerges does not bear core properties of natural languages such as compositionality or length efficiency. In the paper, we study the latter property, Zipfs Law of Abbreviation (ZLA) that states that the most frequent messages are shorter than less frequent ones. We study the influence of humanly plausible constraints on length statistics. We particularly introduce a new communication system *LazImpa* composed of a Lazy Speaker and an Impatient Listener. The first is made increasingly lazy (least effort) while the second tries to guess the intended content as soon as possible. We show that near-optimal codes can emerge from this communication system.
 
-## Run the code
+## 💻 Run the code
 
 We show here an example of experiment that can be run on Google Colab (smaller input space than in the paper). We also provide a notebook (**LINK**) that can merely be run in Colab to quickly reproduce our results on a smaller input space. The command line that should be run to reproduce our paper results (larger input space) are reported below in the section [Reproductibility](http://github.com/MathieuRita/LE_test#Reproductibility).
 
@@ -94,7 +94,7 @@ python -m egg.zoo.channel.test --impatient=True \
 
 **TO DO**
 
-#### H-parameters description
+####  H-parameters description
 
 H-params can be divided in 3 classes: experiment H-params, architecture H-params, optimization H-params, backup H-params. Here is a description of the main H-parameters:
 
@@ -129,10 +129,11 @@ H-params can be divided in 3 classes: experiment H-params, architecture H-params
 Here are some insights to analyze the training. The first plot show the evolution of the length distribution of the messages (they are ranked by their frequency), the evolution of the accuracy and the evolution of the mean length:
 
 ![results](imgs/message_dynamic.gif)
+(in blue: LazImpa emergent code ; in orange: Optimal coding (see details in the paper)).
 
-## Paper results
+## 📈 Paper results
 
-## Reproductibility
+## 💻 Reproductibility
 
 To reproduce the results obtained in the paper for LazImpa, just run the following command line (you can choose any seed. Please note that `n_epochs` may be set to a larger value for certain seeds):
 
@@ -149,6 +150,6 @@ If you also want to reproduce the baselines shown in the paper, you just have to
 
 To reproduce the natural language curves, please find the right corpus here: [Natural languages corpus](http://corpus.leeds.ac.uk/serge/).
 
-## How to cite ?
+## ✒️ How to cite ?
 
 The paper is currently under review.

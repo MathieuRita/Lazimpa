@@ -122,9 +122,9 @@ python ???
 
 ####  H-parameters description
 
-H-params can be divided in 3 classes: experiment H-params, architecture H-params, optimization H-params, backup H-params. Here is a description of the main H-parameters:
+H-params can be divided in 3 classes: experiment settings, architecture H-params, optimization H-params, backup H-params. Here is a description of the main H-parameters:
 
-1. Experiment H-params:
+1. Experimental settings:
 - `vocab_size`: size of vocabulary in the communication channel (default=40)
 - `max_len`: maximum length of the message in the communication channel (default=30)
 - `n_features`: dimensionality of the concept space (number of inputs)

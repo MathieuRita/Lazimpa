@@ -220,12 +220,12 @@ class RnnSenderReinforce(nn.Module):
                 input = h_t
 
 
-            #step_logits = F.log_softmax(self.hidden_to_output(h_t), dim=1)
+            step_logits = F.log_softmax(self.hidden_to_output(h_t), dim=1)
             # ATTENTION ENLEVER LAJOUT
-            if step==0:
-                step_logits = F.log_softmax(self.hidden_to_output(h_t), dim=1)-1000*torch.cat((torch.zeros((h_t.size(0),1)),torch.ones((h_t.size(0),int(self.vocab_size/2))),torch.zeros((h_t.size(0),int(self.vocab_size/2)))),dim=1).to("cuda")
-            else:
-                step_logits = F.log_softmax(self.hidden_to_output(h_t), dim=1)-1000*torch.cat((torch.zeros((h_t.size(0),1)),torch.zeros((h_t.size(0),int(self.vocab_size/2))),torch.ones((h_t.size(0),int(self.vocab_size/2)))),dim=1).to("cuda")
+            #if step==0:
+            #    step_logits = F.log_softmax(self.hidden_to_output(h_t), dim=1)-1000*torch.cat((torch.zeros((h_t.size(0),1)),torch.ones((h_t.size(0),int(self.vocab_size/2))),torch.zeros((h_t.size(0),int(self.vocab_size/2)))),dim=1).to("cuda")
+            #else:
+            #    step_logits = F.log_softmax(self.hidden_to_output(h_t), dim=1)-1000*torch.cat((torch.zeros((h_t.size(0),1)),torch.zeros((h_t.size(0),int(self.vocab_size/2))),torch.ones((h_t.size(0),int(self.vocab_size/2)))),dim=1).to("cuda")
             distr = Categorical(logits=step_logits)
             entropy.append(distr.entropy())
 
@@ -233,6 +233,7 @@ class RnnSenderReinforce(nn.Module):
                 x = distr.sample()
             else:
                 x = step_logits.argmax(dim=1)
+            print(x)
             logits.append(distr.log_prob(x))
 
             input = self.embedding(x)

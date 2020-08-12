@@ -12,6 +12,8 @@ The code is an extension of EGG toolkit (https://github.com/facebookresearch/EGG
 
 ## Run the code
 
+We show here an example of experiment that can be run on Google Colab (smaller input space than in the paper). We also provide a notebook (**LINK**) that can merely be run in Colab to quickly reproduce our results on a smaller input space. The command line that are run for our paper results are reported in [GitHub](http://github.com/MathieuRita/LE_test#Reproductibility).
+
 ### Command lines
 
 1. First clone the repository:
@@ -39,7 +41,7 @@ python -m egg.zoo.channel.train   --dir_save=dir_save \
                                   --max_len=30 \
                                   --impatient=True \
                                   --reg=True \
-                                  --n_features=1000 \
+                                  --n_features=100 \
                                   --print_message=False \
                                   --random_seed=7 \
                                   --probs="powerlaw" \
@@ -90,7 +92,7 @@ H-params can be divided in 3 classes: experiment H-params, architecture H-params
 - `n_epochs`: number of training episodes
 - `batches_per_epoch`: number of batches per training episode
 - `batch_size`: size of a batch
-- `lr`: learning rate 
+- `lr`: learning rate
 - `sender_entropy_coeff`: The entropy regularisation coefficient for Sender (trade-off between exploration/exploitation)
 - `length_cost`: penalty applied on message length (if `reg` is set to `True`, this penalty is schedulded as done in the paper)
 

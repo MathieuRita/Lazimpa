@@ -233,7 +233,7 @@ class RnnSenderReinforce(nn.Module):
                 x = distr.sample()
             else:
                 x = step_logits.argmax(dim=1)
-            print(x)
+
             logits.append(distr.log_prob(x))
 
             input = self.embedding(x)
@@ -988,7 +988,7 @@ class CompositionalitySenderImpatientReceiverRnnReinforce(nn.Module):
         message_lengths = find_lengths(message)
 
         # Noisy communication channel
-
+        print(message.size())
 
         # If impatient 1
         receiver_output_all_att, log_prob_r_all_att, entropy_r_all_att = self.receiver(message, receiver_input, message_lengths)

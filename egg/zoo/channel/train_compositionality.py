@@ -287,18 +287,18 @@ def dump_compositionality(game, n_attributes, n_values, device, gs_mode,epoch):
 
 
     # ATTENTION ICI AJOUT JUSTE DES COMBINAISONS POUR DEUX ATTRIBUTES
-    dataset.append(torch.cat((torch.zeros(n_values),torch.zeros(n_values))))
-    combination.append((-1,-1))
+    #dataset.append(torch.cat((torch.zeros(n_values),torch.zeros(n_values))))
+    #combination.append((-1,-1))
 
-    for j in range(n_values):
-      new_input=torch.cat((torch.zeros(n_values),one_hots[j]))
-      dataset.append(new_input)
-      combination.append((-1,j))
+    #for j in range(n_values):
+    #  new_input=torch.cat((torch.zeros(n_values),one_hots[j]))
+    #  dataset.append(new_input)
+    #  combination.append((-1,j))
 
-    for j in range(n_values):
-      new_input=torch.cat((one_hots[j],torch.zeros(n_values)))
-      dataset.append(new_input)
-      combination.append((j,-1))
+    #for j in range(n_values):
+    #  new_input=torch.cat((one_hots[j],torch.zeros(n_values)))
+    #  dataset.append(new_input)
+    #  combination.append((j,-1))
 
     dataset=torch.stack(dataset)
 

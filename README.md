@@ -133,13 +133,17 @@ Here are some insights to analyze the training. The first plot show the evolutio
 
 ## 📈 Paper results
 
-## 💻 Reproductibility
+## 🌍 Reproductibility
 
-To reproduce the results obtained in the paper for LazImpa, just run the following command line (you can choose any seed. Please note that `n_epochs` may be set to a larger value for certain seeds):
+##### LazImpa
+
+To reproduce the results obtained in the paper for LazImpa, just run the following command line. Please note that the running time is quite long (in the paper we average our results on different seeds, feel free to test different values).
 
 ```
 python -m egg.zoo.channel.train   --dir_save=dir_save --vocab_size=40 --max_len=30 --impatient=True --reg=True --n_features=1000 --print_message=False --random_seed=1 --probs="powerlaw" --n_epoch=2501 --batch_size=512 --length_cost=0. --sender_cell="lstm" --receiver_cell="lstm" --sender_hidden=250 --receiver_hidden=600 --receiver_embedding=100 --sender_embedding=10 --batches_per_epoch=100 --lr=0.001 --sender_entropy_coeff=2. --sender_num_layers=1 --receiver_num_layers=1 --early_stopping_thr=0.99
 ```
+
+##### Emergent language baselines
 
 If you also want to reproduce the baselines shown in the paper, you just have to play with the Hparams `impatient` and `reg` (the other Hparams can be unchainged):
 
@@ -148,7 +152,13 @@ If you also want to reproduce the baselines shown in the paper, you just have to
 - *Standard Listener + Lazy Speaker*: `impatient=False`, `reg=True`
 - *Impatient Listener + Standard Speaker*: `impatient=True`, `reg=True`
 
-To reproduce the natural language curves, please find the right corpus here: [Natural languages corpus](http://corpus.leeds.ac.uk/serge/).
+##### Natural Languages
+
+To reproduce the natural language curves, please find the corpus here: [Natural languages corpus](http://corpus.leeds.ac.uk/serge/).
+
+##### Optimal coding
+
+Optimal coding is a theoretical optimal distribution. It is merely constructed by associating the shortest messages to the most frequent inputs (under the constraint that all the messages are different given a vocabulary size), so that Optimal Coding minimizes the sum of message lengths averaged by their frequency.
 
 ## ✒️ How to cite ?
 

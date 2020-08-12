@@ -12,7 +12,7 @@ The code is an extension of EGG toolkit (https://github.com/facebookresearch/EGG
 
 ## Run the code
 
-We show here an example of experiment that can be run on Google Colab (smaller input space than in the paper). We also provide a notebook (**LINK**) that can merely be run in Colab to quickly reproduce our results on a smaller input space. The command line that are run for our paper results are reported in [GitHub](http://github.com/MathieuRita/LE_test#Reproductibility).
+We show here an example of experiment that can be run on Google Colab (smaller input space than in the paper). We also provide a notebook (**LINK**) that can merely be run in Colab to quickly reproduce our results on a smaller input space. The command line that are run for our paper results are reported below in the section [Reproductibility](http://github.com/MathieuRita/LE_test#Reproductibility).
 
 ### Command lines
 

@@ -24,8 +24,6 @@ We show here an example of experiment that can be run on Google Colab (smaller i
 
 #### Command lines
 
-![results](imgs/message_dynamic.gif)
-
 1. First clone the repository:
 ```
 git clone https://github.com/MathieuRita/LE_test.git
@@ -125,6 +123,12 @@ H-params can be divided in 3 classes: experiment H-params, architecture H-params
 - `lr`: learning rate
 - `sender_entropy_coeff`: The entropy regularisation coefficient for Sender (trade-off between exploration/exploitation)
 - `length_cost`: penalty applied on message length (if `reg` is set to `True`, this penalty is schedulded as done in the paper)
+
+### Training insights
+
+Here are some insights to analyze the training. The first plot show the evolution of the length distribution of the messages (they are ranked by their frequency), the evolution of the accuracy and the evolution of the mean length:
+
+![results](imgs/message_dynamic.gif)
 
 ## Paper results
 

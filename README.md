@@ -20,7 +20,7 @@ Previous experiments showed that Standard agents surprisingly develop non effici
 
 ## Run the code
 
-We show here an example of experiment that can be run on Google Colab (smaller input space than in the paper). We also provide a notebook (**LINK**) that can merely be run in Colab to quickly reproduce our results on a smaller input space. The command line that are run for our paper results are reported below in the section [Reproductibility](http://github.com/MathieuRita/LE_test#Reproductibility).
+We show here an example of experiment that can be run on Google Colab (smaller input space than in the paper). We also provide a notebook (**LINK**) that can merely be run in Colab to quickly reproduce our results on a smaller input space. The command line that should be run to reproduce our paper results (larger input space) are reported below in the section [Reproductibility](http://github.com/MathieuRita/LE_test#Reproductibility).
 
 #### Command lines
 
@@ -53,7 +53,7 @@ python -m egg.zoo.channel.train   --dir_save=dir_save \
                                   --print_message=False \
                                   --random_seed=7 \
                                   --probs="powerlaw" \
-                                  --n_epoch=201 \
+                                  --n_epoch=401 \
                                   --batch_size=512 \
                                   --length_cost=0. \
                                   --sender_cell="lstm" \

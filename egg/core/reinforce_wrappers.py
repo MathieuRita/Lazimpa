@@ -763,7 +763,7 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
               sc+=crible_acc[i,message_lengths[i]-1]
             sc/=message_lengths.size(0)
 
-            # Regularization scheduling
+            # Regularization scheduling paper
             #self.length_cost= sc**(45) / 10
 
             # Pour n_features=100
@@ -846,7 +846,7 @@ class CompositionalitySenderReceiverRnnReinforce(nn.Module):
         #dim=[batch_size,n_att,n_val]
 
         # Noisy channel
-        noise_level=0.05
+        noise_level=0.01
         noise_map=torch.from_numpy(1*(np.random.rand(message.size(0),message.size(1))<noise_level)).to("cuda")
         noise=torch.from_numpy(np.random.randint(1,self.sender.vocab_size,size=(message.size(0),message.size(1)))).to("cuda") # random symbols
 

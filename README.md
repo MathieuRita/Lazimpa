@@ -71,25 +71,28 @@ H-params can be divided in 3 classes: experiment H-params, architecture H-params
 1. Experiment H-params:
 - `vocab_size`: size of vocabulary in the communication channel (default=40)
 - `max_len`: maximum length of the message in the communication channel (default=30)
-- `n_features`:
+- `n_features`: dimensionality of the concept space (number of inputs)
 - `probs`: frequency distribution of the inputs (default=`powerlaw`)
 
 2. Architecture H-params:
-- `impatient`: if set to `True`, the Listener is made Impatient
-- `reg`: if set to `True`, the Speaker is made Lazy
-- `sender_cell`:
-- `sender_hidden`:
-- `sender_embedding`:
-- `sender_num_layers`:
-- `receiver_cell`:
-- `receiver_hidden`:
-- `receiver_embedding`:
-- `receiver_num_layers`:
+- `impatient`: if set to `True`, the Receiver is made Impatient
+- `reg`: if set to `True`, the Sender is made Lazy
+- `sender_cell`: type of Sender recurrent cell (in the whole paper: `lstm`)
+- `sender_hidden`: Size of the hidden layer of Sender
+- `sender_embedding`: Dimensionality of the embedding hidden layer for Sender
+- `sender_num_layers`: Number hidden layers of Sender
+- `receiver_cell`: type of Sender recurrent cell (in the whole paper: `lstm`)
+- `receiver_hidden`: Size of the hidden layer of Receiver
+- `receiver_embedding`: Dimensionality of the embedding hidden layer for Receiver
+- `receiver_num_layers`: Number hidden layers of Receiver
 
 3. Optimization H-params:
-- `n_epochs`:
-- `lr`:
-- `sender_entropy_coeff`
+- `n_epochs`: number of training episodes
+- `batches_per_epoch`: number of batches per training episode
+- `batch_size`: size of a batch
+- `lr`: learning rate 
+- `sender_entropy_coeff`: The entropy regularisation coefficient for Sender (trade-off between exploration/exploitation)
+- `length_cost`: penalty applied on message length (if `reg` is set to `True`, this penalty is schedulded as done in the paper)
 
 ## Paper results
 

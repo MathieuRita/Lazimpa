@@ -24,6 +24,8 @@ We show here an example of experiment that can be run on Google Colab (smaller i
 
 #### Command lines
 
+![results](imgs/message_dynamic.gif)
+
 1. First clone the repository:
 ```
 git clone https://github.com/MathieuRita/LE_test.git

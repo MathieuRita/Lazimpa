@@ -10,7 +10,7 @@ The code is an extension of EGG toolkit (https://github.com/facebookresearch/EGG
 
 #### The game
 
-[img_game](imgs/image_game.jpg)
+![img_game](imgs/image_game.jpg)
 
 `LazImpa` repository implements a Speaker/Listener game where agents have to cooperatly communicate in order to win the game. The Speaker receives an input (one-hot vector) it has to communicate to the Listener. To do so, it sends a message to the Listener. The Listener consumes the message and output a candidate. The agents are then succesful if the Listener correctly reconstructes the ground-truth input.
 

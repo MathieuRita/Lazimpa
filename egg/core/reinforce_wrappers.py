@@ -846,7 +846,11 @@ class CompositionalitySenderReceiverRnnReinforce(nn.Module):
         #dim=[batch_size,n_att,n_val]
 
         # Noisy channel
-        print(message.size())
+        noise_level=0.05
+        noise_map=(np.random.rand(message.size(0),message.size(1))<noise_level)
+        noise=np.random.randint(1,self.sender.vocab_size,size=(message.size(0),message.size(1))) # random symbols
+
+        message_noise=message*(1-noise_map) + noise_map* noise
 
         # reg
         sc=0.

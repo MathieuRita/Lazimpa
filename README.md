@@ -20,7 +20,7 @@ Previous experiments showed that Standard agents surprisingly develop non effici
 
 We show here an example of experiment that can be run on Google Colab (smaller input space than in the paper). We also provide a notebook (**LINK**) that can merely be run in Colab to quickly reproduce our results on a smaller input space. The command line that are run for our paper results are reported below in the section [Reproductibility](http://github.com/MathieuRita/LE_test#Reproductibility).
 
-### Command lines
+#### Command lines
 
 1. First clone the repository:
 ```
@@ -70,9 +70,29 @@ python -m egg.zoo.channel.train   --dir_save=dir_save \
 
 4. Test agents:
 
+Once agents are trained, you can reuse the agents weights saved in `dir_save/sender` and `dir_save/receiver` to test the agents:
+
+```
+python -m egg.zoo.channel.test --impatient=True \
+                               --save_dir="analysis/" \ #*TO DO necessary ??*
+                               --receiver_weights="/dir_sav/receiver/receiver_weights200.pth" \
+                               --sender_weights="/dir_save/sender/sender_weights200.pth" \
+                               --vocab_size=40 \
+                               --max_len=30 \
+                               --n_features=100 \
+                               --sender_cell="lstm" \
+                               --receiver_cell="lstm" \
+                               --sender_hidden=250 \
+                               --receiver_hidden=600 \
+                               --receiver_embedding=100 \
+                               --sender_embedding=10 \
+                               --sender_num_layers=1 \
+                               --receiver_num_layers=1
+```
+
 **TO DO**
 
-### H-parameters description
+#### H-parameters description
 
 H-params can be divided in 3 classes: experiment H-params, architecture H-params, optimization H-params, backup H-params. Here is a description of the main H-parameters:
 

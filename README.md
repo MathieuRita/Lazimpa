@@ -16,11 +16,13 @@ The code is an extension of EGG toolkit (https://github.com/facebookresearch/EGG
 
 #### Aim of the paper
 
-Previous experiments showed that Standard agents surprisingly develop non efficient codes. In particular, the language that emerges does not bear core properties of natural languages such as compositionality or length efficiency. In the paper, we study the latter property, Zipfs Law of Abbreviation (ZLA) that states that the most frequent messages are shorter than less frequent ones. We study the influence of humanly plausible constraints on length statistics. We particularly introduce a new communication system *LazImpa* composed of a Lazy Speaker and an Impatient Listener. The first is made increasingly lazy (least effort) while the second tries to guess the intended content as soon as possible. We show that near-optimal codes can emerge from this communication system.
+Previous experiments showed that Standard agents surprisingly develop non efficient codes. In particular, the language that emerges does not bear core properties of natural languages such as compositionality or length efficiency. In the paper, we study the latter property, Zipf's Law of Abbreviation (ZLA) that states that the most frequent messages are shorter than less frequent ones. We study the influence of humanly plausible constraints on length statistics. We particularly introduce a new communication system *LazImpa* composed of a Lazy Speaker and an Impatient Listener. The first is made increasingly lazy (least effort) while the second tries to guess the intended content as soon as possible. We show that near-optimal codes can emerge from this communication system.
 
 #### Main paper results
 
-![res_1](imgs/result_1.jpg)
+- *LazImpa* allows the emergence of an efficient code that follows Zipf's Law of Abbrevation. The solutio is
+
+![res_1](imgs/result_1.jpg | width=100)
 
 ![res_2](imgs/result_2.jpg)
 
@@ -135,6 +137,7 @@ H-params can be divided in 3 classes: experiment H-params, architecture H-params
 Here are some insights to analyze the training. The first plot show the evolution of the length distribution of the messages (they are ranked by their frequency), the evolution of the accuracy and the evolution of the mean length:
 
 ![results](imgs/message_dynamic.gif)
+
 (in blue: LazImpa emergent code ; in orange: Optimal coding (see details in the paper)).
 
 ## 🌍 Reproductibility

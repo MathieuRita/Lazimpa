@@ -143,7 +143,7 @@ class _OneHotIteratorCompositionality:
             raise StopIteration()
 
         batch_data_att=[]
-        #for i in range(self.n_attributes):
+        for i in range(self.n_attributes):
 
             # Simple
             #batch_data_att.append(self.random_state.multinomial(1, self.probs[i], size=self.batch_size).astype(float))

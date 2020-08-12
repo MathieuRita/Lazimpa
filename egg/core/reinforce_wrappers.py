@@ -841,21 +841,21 @@ class CompositionalitySenderReceiverRnnReinforce(nn.Module):
         message, log_prob_s, entropy_s = self.sender(sender_input)
         message_lengths = find_lengths(message)
 
-        # Receiver normal
-        receiver_output_all_att, log_prob_r_all_att, entropy_r_all_att = self.receiver(message, receiver_input, message_lengths)
-        #dim=[batch_size,n_att,n_val]
-
         # Noisy channel
-        noise_level=0.001
+        noise_level=0.05
         noise_map=torch.from_numpy(1*(np.random.rand(message.size(0),message.size(1))<noise_level)).to("cuda")
         noise=torch.from_numpy(np.random.randint(1,self.sender.vocab_size,size=(message.size(0),message.size(1)))).to("cuda") # random symbols
 
         message_noise=message*(1-noise_map) + noise_map* noise
 
+        # Receiver normal
+        receiver_output_all_att, log_prob_r_all_att, entropy_r_all_att = self.receiver(message_noise, receiver_input, message_lengths)
+        #dim=[batch_size,n_att,n_val]
+
         # reg
         sc=0.
 
-        loss, rest, crible_acc = self.loss(sender_input, message_noise, message_lengths, receiver_input, receiver_output_all_att, labels,self.n_attributes,self.n_values)
+        loss, rest, crible_acc = self.loss(sender_input, message, message_lengths, receiver_input, receiver_output_all_att, labels,self.n_attributes,self.n_values)
 
         #if self.reg:
         #     for i in range(message_lengths.size(0)):

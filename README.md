@@ -36,7 +36,7 @@ The average position of informative symbols are shown in the following figure (r
 
 ## 💻 Run the code
 
-We show here an example of experiment that can be run on Google Colab (smaller input space than in the paper). We also provide a notebook (**LINK**) that can merely be run in Colab to quickly reproduce our results on a smaller input space. The command line that should be run to reproduce our paper results (larger input space) are reported below in the section [Reproductibility](http://github.com/MathieuRita/LE_test#Reproductibility).
+We show here an example of experiment that can be run on Google Colab (smaller input space than in the paper). We also provide a notebook (**LINK**) that can directly be run in Colab to quickly reproduce our results on a smaller input space. The command line that should be run to reproduce our paper results (larger input space) are reported below in the section [Reproductibility](http://github.com/MathieuRita/LE_test#Reproductibility).
 
 #### Command lines
 
@@ -93,8 +93,8 @@ Once agents are trained, you can reuse the agents weights saved in `dir_save/sen
 ```
 python -m egg.zoo.channel.test --impatient=True \
                                --save_dir="analysis/" \ #*TO DO necessary ??*
-                               --receiver_weights="/dir_sav/receiver/receiver_weights200.pth" \
-                               --sender_weights="/dir_save/sender/sender_weights200.pth" \
+                               --receiver_weights="/dir_sav/receiver/receiver_weights400.pth" \
+                               --sender_weights="/dir_save/sender/sender_weights400.pth" \
                                --vocab_size=40 \
                                --max_len=30 \
                                --n_features=100 \
@@ -106,6 +106,16 @@ python -m egg.zoo.channel.test --impatient=True \
                                --sender_embedding=10 \
                                --sender_num_layers=1 \
                                --receiver_num_layers=1
+```
+
+**TO DO**
+
+5. Evaluate the position of informative symbols within the messages
+
+The definition of informative symbols and protocol to find them is defined in the paper. To reproduce the test, please run:
+
+```
+python ???
 ```
 
 **TO DO**
@@ -140,13 +150,19 @@ H-params can be divided in 3 classes: experiment H-params, architecture H-params
 - `sender_entropy_coeff`: The entropy regularisation coefficient for Sender (trade-off between exploration/exploitation)
 - `length_cost`: penalty applied on message length (if `reg` is set to `True`, this penalty is schedulded as done in the paper)
 
-### Training insights
+### Insights
+
+##### Training
 
 Here are some insights to analyze the training. The first plot show the evolution of the length distribution of the messages (they are ranked by their frequency), the evolution of the accuracy and the evolution of the mean length:
 
 ![results](imgs/message_dynamic.gif)
 
 (in blue: LazImpa emergent code ; in orange: Optimal coding (see details in the paper)).
+
+##### Positional encoding
+
+**TO DO**
 
 ## 🌍 Reproductibility
 

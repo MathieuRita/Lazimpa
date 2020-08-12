@@ -223,9 +223,9 @@ class RnnSenderReinforce(nn.Module):
             #step_logits = F.log_softmax(self.hidden_to_output(h_t), dim=1)
             # ATTENTION ENLEVER LAJOUT
             if step==0:
-                step_logits = F.log_softmax(self.hidden_to_output(h_t), dim=1)-1000*torch.cat((torch.ones((h_t.size(0),self.vocab_size/2)),torch.zeros((h_t.size(0),self.vocab_size/2)))).to("cuda")
+                step_logits = F.log_softmax(self.hidden_to_output(h_t), dim=1)-1000*torch.cat((torch.ones((h_t.size(0),int(self.vocab_size/2))),torch.zeros((h_t.size(0),int(self.vocab_size/2))))).to("cuda")
             else:
-                step_logits = F.log_softmax(self.hidden_to_output(h_t), dim=1)-1000*torch.cat((torch.zeros((h_t.size(0),self.vocab_size/2)),torch.ones((h_t.size(0),self.vocab_size/2)))).to("cuda")
+                step_logits = F.log_softmax(self.hidden_to_output(h_t), dim=1)-1000*torch.cat((torch.zeros((h_t.size(0),int(self.vocab_size/2))),torch.ones((h_t.size(0),int(self.vocab_size/2))))).to("cuda")
             distr = Categorical(logits=step_logits)
             entropy.append(distr.entropy())
 

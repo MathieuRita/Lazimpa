@@ -846,7 +846,7 @@ class CompositionalitySenderReceiverRnnReinforce(nn.Module):
         #dim=[batch_size,n_att,n_val]
 
         # Noisy channel
-        noise_level=0.01
+        noise_level=0.1
         noise_map=torch.from_numpy(1*(np.random.rand(message.size(0),message.size(1))<noise_level)).to("cuda")
         noise=torch.from_numpy(np.random.randint(1,self.sender.vocab_size,size=(message.size(0),message.size(1)))).to("cuda") # random symbols
 

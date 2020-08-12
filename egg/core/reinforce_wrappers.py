@@ -757,7 +757,10 @@ class SenderImpatientReceiverRnnReinforce(nn.Module):
             sc/=message_lengths.size(0)
 
             # Regularization scheduling
-            self.length_cost= sc**(45) / 10
+            #self.length_cost= sc**(45) / 10
+
+            # Pour n_features=100
+            self.length_cost= sc**(45) / 5
 
         length_loss = message_lengths.float() * self.length_cost
 

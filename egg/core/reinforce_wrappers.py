@@ -623,9 +623,12 @@ class SenderReceiverRnnReinforce(nn.Module):
 
         log_prob = effective_log_prob_s + log_prob_r
 
-        #if self.reg:
+        if self.reg:
 
-          #sc=rest["acc"].sum()/rest["acc"].size(0)
+          sc=rest["acc"].sum()/rest["acc"].size(0)
+
+          # Pour n_features=100
+          self.length_cost= sc**(45) / 5
 
           #self.length_cost= sc**(45) / 10
           #if sc>0.99:

@@ -28,7 +28,7 @@ Length statistics are shown in the following figure:
 
 ![res_1](imgs/result_1.jpg)
 
-- We analyze the effects of the modelling choices and especially **the position of information** within the messages (see the definition of informative symbols in the paper). We show that Standard Agents (LSTMs) tend to place informative symbols at the end of the messages. On the contrary, the introduction of Impatient Listener causes a shift of information at the beginning of the messages. While regularization (Lazy Speaker) is impossible with a Standard Listener, it well shortens message lengths with Impatient Listener. We suggest that the location of information within the message is crucial for length regularization.
+- We analyze the effects of the modelling choices and especially **the position of information** within the messages (see the definition of informative symbols in the paper). We show that Standard Agents (LSTMs) tend to place informative symbols at the end of the messages. On the contrary, the introduction of Impatient Listener causes a shift of information at the beginning of the messages. While regularization (Lazy Speaker) is impossible with a Standard Listener, messages are well shortened with Impatient Listener. We suggest that the location of information within the message is crucial for length regularization.
 
 The average position of informative symbols are shown in the following figure (red lines mark the average message length). We test different couples of agents:
 
@@ -91,21 +91,7 @@ python -m egg.zoo.channel.train   --dir_save=dir_save \
 Once agents are trained, you can reuse the agents weights saved in `dir_save/sender` and `dir_save/receiver` to test the agents:
 
 ```
-python -m egg.zoo.channel.test --impatient=True \
-                               --save_dir="analysis/" \ #*TO DO necessary ??*
-                               --receiver_weights="/dir_sav/receiver/receiver_weights400.pth" \
-                               --sender_weights="/dir_save/sender/sender_weights400.pth" \
-                               --vocab_size=40 \
-                               --max_len=30 \
-                               --n_features=100 \
-                               --sender_cell="lstm" \
-                               --receiver_cell="lstm" \
-                               --sender_hidden=250 \
-                               --receiver_hidden=600 \
-                               --receiver_embedding=100 \
-                               --sender_embedding=10 \
-                               --sender_num_layers=1 \
-                               --receiver_num_layers=1
+python -m egg.zoo.channel.test --impatient=True --save_dir="analysis/" \ #*TO DO necessary ??* --receiver_weights="/dir_sav/receiver/receiver_weights400.pth" --sender_weights="/dir_save/sender/sender_weights400.pth" \ --vocab_size=40  --max_len=30 --n_features=100 --sender_cell="lstm" --receiver_cell="lstm" --sender_hidden=250 --receiver_hidden=600 --receiver_embedding=100 --sender_embedding=10 --sender_num_layers=1 --receiver_num_layers=1
 ```
 
 **TO DO**

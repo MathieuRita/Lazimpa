@@ -144,7 +144,7 @@ Here are some insights to analyze the training. The first plot show the evolutio
 
 ![results](imgs/message_dynamic.gif)
 
-![legende](imgs/legende_git.png)
+                        ![legende](imgs/legende_git.png)
 
 ##### Positional encoding
 

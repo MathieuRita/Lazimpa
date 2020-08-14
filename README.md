@@ -40,13 +40,11 @@ We show here an example of experiment that can be run on Google Colab (smaller i
 
 #### Command lines
 
-1. First clone the repository:
+1. First clone the repository and create a directory in which all the useful data will be saved (you have to respect the following hierarchy):
 ```
 git clone https://github.com/MathieuRita/LE_test.git
 mv "./LE_test/egg" "./egg"
 ```
-
-2. Create a directory in which all the useful data will be saved (you have to respect the following hierarchy):
 
 ```
 mkdir dir_save
@@ -56,8 +54,7 @@ mkdir dir_save/messages
 mkdir dir_save/accuracy
 ```
 
-
-3. Train agents:
+2. Train agents:
 
 ```
 python -m egg.zoo.channel.train   --dir_save=dir_save \
@@ -86,25 +83,29 @@ python -m egg.zoo.channel.train   --dir_save=dir_save \
                                   --early_stopping_thr=0.99
 ```
 
-4. Test agents:
+3. Analyze the results:
 
-Once agents are trained, you can reuse the agents weights saved in `dir_save/sender` and `dir_save/receiver` to test the agents:
-
-```
-python -m egg.zoo.channel.test --impatient=True --save_dir="analysis/" \ #*TO DO necessary ??* --receiver_weights="/dir_sav/receiver/receiver_weights400.pth" --sender_weights="/dir_save/sender/sender_weights400.pth" \ --vocab_size=40  --max_len=30 --n_features=100 --sender_cell="lstm" --receiver_cell="lstm" --sender_hidden=250 --receiver_hidden=600 --receiver_embedding=100 --sender_embedding=10 --sender_num_layers=1 --receiver_num_layers=1
-```
-
-**TO DO**
-
-5. Evaluate the position of informative symbols within the messages
-
-The definition of informative symbols and protocol to find them is defined in the paper. To reproduce the test, please run:
+Create a directory in which useful analytical data will be saved:
 
 ```
-python ???
+mkdir analysis
 ```
 
-**TO DO**
+Once agents are trained, you can reuse the agents weights saved in `dir_save/sender` and `dir_save/receiver` to test the agents (forward pass of all the different inputs) :
+
+```
+python -m egg.zoo.channel.test --impatient=True --save_dir="analysis/" \ --receiver_weights="/dir_sav/receiver/receiver_weights500.pth" --sender_weights="/dir_save/sender/sender_weights500.pth" \ --vocab_size=40  --max_len=30 --n_features=100 --sender_cell="lstm" --receiver_cell="lstm" --sender_hidden=250 --receiver_hidden=600 --receiver_embedding=100 --sender_embedding=10 --sender_num_layers=1 --receiver_num_layers=1
+```
+
+When running the code, a file `messages_analysis.npy` will be saved in `analysis` desplaying the messages used by Agents. If `--impatient=True`, an additional file `prediction.npy` will be saved showing all the intermediate predictions of Impatient Listener
+
+You can also perform the *information test* presented in the paper by running the following line:
+
+```
+python -m egg.zoo.channel.position_analysis --save_dir="analysis/" --impatient=True --sender_weights="dir_save/sender/sender_weights500.pth" --receiver_weights="dir_save/receiver/receiver_weights500.pth" --vocab_size=40 --n_features=100 --max_len=30 --sender_cell="lstm" --receiver_cell="lstm" --sender_hidden=250 --receiver_hidden=600 --receiver_embedding=100 --sender_embedding=10 --sender_num_layers=1 --receiver_num_layers=1
+```
+
+A file `position_sieve.npy` will be saved showing which symbols are informative.
 
 ####  H-parameters description
 
@@ -136,20 +137,28 @@ H-params can be divided in 3 classes: experiment settings, architecture H-params
 - `sender_entropy_coeff`: The entropy regularisation coefficient for Sender (trade-off between exploration/exploitation)
 - `length_cost`: penalty applied on message length (if `reg` is set to `True`, this penalty is schedulded as done in the paper)
 
-### Insights
+## 🔬 Comparison with other models and reference distributions
 
-##### Training
+Based on the previous section, a small comparison between LazImpa and other models can be made (code in the notebook (**LINK**)). We consider the different models: Standard Speaker + Standard Listener ; Standard Speaker + Impatient Listener ; Lazy Speaker + Standard Listener, Optimal Coding, Natural Languages (Arabic, English, Russian, Spanish). See details of this comparison in the paper.
 
-Here are some insights to analyze the training. The first plot show the evolution of the length distribution of the messages (they are ranked by their frequency), the evolution of the accuracy and the evolution of the mean length:
+##### Length performances
+
+The first plot show the evolution of the length distribution of the messages (they are ranked by their frequency), the evolution of the accuracy and the evolution of the mean length.
 
 ![results](imgs/message_dynamic.gif)
 ![legende](imgs/legende_git2.png)
 
+- LazImpa is the only efficient and ZLA-obeying artificial model. We see that both Impatient Listener and Lazy Speaker do not lead alone to the emergence of an efficient code and that both.
+- The code that emerges from LazImpa reaches natural languages effiiency but is slightly sub-optimal.
+
 ##### Positional encoding
+
+The next plot shows the position of informative symbols within the messages (green: informative symbols ; yellow: uninformative symbols ; purple: no symbol). See the definition of informative symbols and the test protocol in the paper.
 
 ![pos_enco](imgs/positional_encoding.png)
 
-(green: informative symbols ; yellow: uninformative symbols ; purple: no symbol)
+- With the introduction of Impatient Listener, all the informative symbols are set at the beginning of the messages. With Standard Listener, most of the information tends to be set at the end of the messages.
+- The position of information within the messages may explain why regularization works with Impatient Listener but does not work with Standard Agents
 
 ## 🌍 Reproductibility
 

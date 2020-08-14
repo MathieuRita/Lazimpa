@@ -144,7 +144,7 @@ Here are some insights to analyze the training. The first plot show the evolutio
 
 ![results](imgs/message_dynamic.gif)
 
-(in blue: LazImpa emergent code ; in orange: Optimal coding (see details in the paper)).
+![legende](imgs/legende_git.png)
 
 ##### Positional encoding
 

@@ -57,30 +57,7 @@ mkdir dir_save/accuracy
 2. Train agents:
 
 ```
-python -m egg.zoo.channel.train   --dir_save=dir_save \
-                                  --vocab_size=40 \
-                                  --max_len=30 \
-                                  --impatient=True \
-                                  --reg=True \
-                                  --n_features=100 \
-                                  --print_message=False \
-                                  --random_seed=7 \
-                                  --probs="powerlaw" \
-                                  --n_epoch=401 \
-                                  --batch_size=512 \
-                                  --length_cost=0. \
-                                  --sender_cell="lstm" \
-                                  --receiver_cell="lstm" \
-                                  --sender_hidden=250 \
-                                  --receiver_hidden=600 \
-                                  --receiver_embedding=100 \
-                                  --sender_embedding=10 \
-                                  --batches_per_epoch=100 \
-                                  --lr=0.001 \
-                                  --sender_entropy_coeff=2. \
-                                  --sender_num_layers=1 \
-                                  --receiver_num_layers=1 \
-                                  --early_stopping_thr=0.99
+python -m egg.zoo.channel.train   --dir_save=dir_save --vocab_size=40 --max_len=30 --impatient=True --reg=True --n_features=100 --print_message=False --random_seed=7 --probs="powerlaw" --n_epoch=401 --batch_size=512 --length_cost=0. --sender_cell="lstm"  --receiver_cell="lstm" --sender_hidden=250 --receiver_hidden=600 --receiver_embedding=100 --sender_embedding=10 --batches_per_epoch=100 --lr=0.001 --sender_entropy_coeff=2. --sender_num_layers=1 --receiver_num_layers=1 --early_stopping_thr=0.99
 ```
 
 3. Analyze the results:

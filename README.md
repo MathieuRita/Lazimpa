@@ -147,7 +147,9 @@ Here are some insights to analyze the training. The first plot show the evolutio
 
 ##### Positional encoding
 
-**TO DO**
+![pos_enco](imgs/positional_encoding.png)
+
+(green: informative symbols ; yellow: uninformative symbols ; purple: no symbol)
 
 ## 🌍 Reproductibility
 

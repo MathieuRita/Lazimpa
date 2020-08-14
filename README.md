@@ -143,7 +143,6 @@ H-params can be divided in 3 classes: experiment settings, architecture H-params
 Here are some insights to analyze the training. The first plot show the evolution of the length distribution of the messages (they are ranked by their frequency), the evolution of the accuracy and the evolution of the mean length:
 
 ![results](imgs/message_dynamic.gif)
-
 ![legende](imgs/legende_git2.png)
 
 ##### Positional encoding

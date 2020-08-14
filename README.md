@@ -40,7 +40,9 @@ We show here an example of experiment that can be run on Google Colab (smaller i
 
 #### Command lines
 
-1. First clone the repository and create a directory in which all the useful data will be saved (you have to respect the following hierarchy):
+**1. Clone the repository**
+
+First clone the repository and create a directory in which all the useful data will be saved (you have to respect the following hierarchy):
 ```
 git clone https://github.com/MathieuRita/LE_test.git
 mv "./LE_test/egg" "./egg"
@@ -54,13 +56,13 @@ mkdir dir_save/messages
 mkdir dir_save/accuracy
 ```
 
-2. Train agents:
+**2. Train agents:**
 
 ```
 python -m egg.zoo.channel.train   --dir_save=dir_save --vocab_size=40 --max_len=30 --impatient=True --reg=True --n_features=100 --print_message=False --random_seed=7 --probs="powerlaw" --n_epoch=401 --batch_size=512 --length_cost=0. --sender_cell="lstm"  --receiver_cell="lstm" --sender_hidden=250 --receiver_hidden=600 --receiver_embedding=100 --sender_embedding=10 --batches_per_epoch=100 --lr=0.001 --sender_entropy_coeff=2. --sender_num_layers=1 --receiver_num_layers=1 --early_stopping_thr=0.99
 ```
 
-3. Analyze the results:
+**3. Analyze the results:**
 
 Create a directory in which useful analytical data will be saved:
 
@@ -125,7 +127,7 @@ The first plot show the evolution of the length distribution of the messages (th
 ![results](imgs/message_dynamic.gif)
 ![legende](imgs/legende_git2.png)
 
-- LazImpa is the only efficient and ZLA-obeying artificial model. We see that both Impatient Listener and Lazy Speaker do not lead alone to the emergence of an efficient code and that both.
+- LazImpa is the only efficient and ZLA-obeying artificial model. We see that both Impatient Listener and Lazy Speaker do not lead alone to the emergence of an efficient code.
 - The code that emerges from LazImpa reaches natural languages effiiency but is slightly sub-optimal.
 
 ##### Positional encoding

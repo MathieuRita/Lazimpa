@@ -36,7 +36,7 @@ The average position of informative symbols are shown in the following figure (r
 
 ## 💻 Run the code
 
-We show here an example of experiment that can be run on Google Colab (smaller input space than in the paper). We also provide a [notebook](https://github.com/MathieuRita/LE_test/LazImpa_notebook.ipynb) that can directly be run in Colab to quickly reproduce our results on a smaller input space. The command line that should be run to reproduce our paper results (larger input space) are reported below in the section [Reproductibility](http://github.com/MathieuRita/LE_test#Reproductibility).
+We show here an example of experiment that can be run on Google Colab (smaller input space than in the paper). We also provide a [notebook](https://github.com/MathieuRita/LE_test/LazImpa_notebook.ipynb) that can directly be run in Colab to quickly reproduce our results on a smaller input space. In `example`, we also put an agents weights of an experiment in order for you to see the final communication that arises at the end of a training (run Section III-1 of the notebook with those weights). The command line that should be run to reproduce our paper results (larger input space) are reported below in the section [Reproductibility](http://github.com/MathieuRita/LE_test#Reproductibility).
 
 #### Command lines
 

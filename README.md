@@ -49,11 +49,7 @@ mv "./LE_test/egg" "./egg"
 ```
 
 ```
-mkdir dir_save
-mkdir dir_save/sender
-mkdir dir_save/receiver
-mkdir dir_save/messages
-mkdir dir_save/accuracy
+mkdir -p dir_save/{accuracy,messagse,sender,receiver}
 ```
 
 **2. Train agents:**

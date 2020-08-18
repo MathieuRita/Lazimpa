@@ -36,7 +36,7 @@ The average position of informative symbols are shown in the following figure (r
 
 ## 💻 Run the code
 
-We show here an example of experiment that can be run on Google Colab (smaller input space than in the paper). We also provide a notebook (**LINK**) that can directly be run in Colab to quickly reproduce our results on a smaller input space. The command line that should be run to reproduce our paper results (larger input space) are reported below in the section [Reproductibility](http://github.com/MathieuRita/LE_test#Reproductibility).
+We show here an example of experiment that can be run on Google Colab (smaller input space than in the paper). We also provide a [notebook](https://github.com/MathieuRita/LE_test/LazImpa_notebook.ipynb) that can directly be run in Colab to quickly reproduce our results on a smaller input space. The command line that should be run to reproduce our paper results (larger input space) are reported below in the section [Reproductibility](http://github.com/MathieuRita/LE_test#Reproductibility).
 
 #### Command lines
 
@@ -69,7 +69,7 @@ mkdir analysis
 Once agents are trained, you can reuse the agents weights saved in `dir_save/sender` and `dir_save/receiver` to test the agents (forward pass of all the different inputs). We put in `example` an example of agents weights when trained with the latter protocol :
 
 ```
-python -m egg.zoo.channel.test --impatient=True --save_dir="analysis/" \ --receiver_weights="/dir_sav/receiver/receiver_weights500.pth" --sender_weights="/dir_save/sender/sender_weights500.pth" \ --vocab_size=40  --max_len=30 --n_features=100 --sender_cell="lstm" --receiver_cell="lstm" --sender_hidden=250 --receiver_hidden=600 --receiver_embedding=100 --sender_embedding=10 --sender_num_layers=1 --receiver_num_layers=1
+python -m egg.zoo.channel.test --impatient=True --save_dir="analysis/" --receiver_weights="/dir_sav/receiver/receiver_weights500.pth" --sender_weights="/dir_save/sender/sender_weights500.pth" --vocab_size=40  --max_len=30 --n_features=100 --sender_cell="lstm" --receiver_cell="lstm" --sender_hidden=250 --receiver_hidden=600 --receiver_embedding=100 --sender_embedding=10 --sender_num_layers=1 --receiver_num_layers=1
 ```
 
 When running the code, a file `messages_analysis.npy` will be saved in `analysis` desplaying the messages used by Agents. If `--impatient=True`, an additional file `prediction.npy` will be saved showing all the intermediate predictions of Impatient Listener
@@ -114,7 +114,7 @@ H-params can be divided in 3 classes: experiment settings, architecture H-params
 
 ## 🔬 Comparison with other models and reference distributions
 
-Based on the previous section, a small comparison between LazImpa and other models can be made (code in the notebook (**LINK**)). We consider the different models: Standard Speaker + Standard Listener ; Standard Speaker + Impatient Listener ; Lazy Speaker + Standard Listener, Optimal Coding, Natural Languages (Arabic, English, Russian, Spanish). See details of this comparison in the paper.
+Based on the previous section, a small comparison between LazImpa and other models can be made (code in the [notebook](https://github.com/MathieuRita/LE_test/LazImpa_notebook.ipynb) ). We consider the different models: Standard Speaker + Standard Listener ; Standard Speaker + Impatient Listener ; Lazy Speaker + Standard Listener, Optimal Coding, Natural Languages (Arabic, English, Russian, Spanish). See details of this comparison in the paper.
 
 ##### Length performances
 

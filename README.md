@@ -66,7 +66,7 @@ Create a directory in which useful analytical data will be saved:
 mkdir analysis
 ```
 
-Once agents are trained, you can reuse the agents weights saved in `dir_save/sender` and `dir_save/receiver` to test the agents (forward pass of all the different inputs) :
+Once agents are trained, you can reuse the agents weights saved in `dir_save/sender` and `dir_save/receiver` to test the agents (forward pass of all the different inputs). We put in `example` an example of agents weights when trained with the latter protocol :
 
 ```
 python -m egg.zoo.channel.test --impatient=True --save_dir="analysis/" \ --receiver_weights="/dir_sav/receiver/receiver_weights500.pth" --sender_weights="/dir_save/sender/sender_weights500.pth" \ --vocab_size=40  --max_len=30 --n_features=100 --sender_cell="lstm" --receiver_cell="lstm" --sender_hidden=250 --receiver_hidden=600 --receiver_embedding=100 --sender_embedding=10 --sender_num_layers=1 --receiver_num_layers=1

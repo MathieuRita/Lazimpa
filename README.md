@@ -2,7 +2,7 @@
 
 This repository gathers the code used for all the experiments of the following paper:
 
-- *“LazImpa”: Lazy and Impatient neural agents learn to communicate efficiently* Mathieu Rita, Rahma Chaabouni, Emmanuel Dupoux. (CoNLL 2020)
+- [*“LazImpa”: Lazy and Impatient neural agents learn to communicate efficiently* Mathieu Rita, Rahma Chaabouni, Emmanuel Dupoux. (CoNLL 2020)](https://arxiv.org/abs/2010.01878)
 
 The code is an extension of EGG toolkit (https://github.com/facebookresearch/EGG) presented in *EGG: a toolkit for research on Emergence of lanGuage in Games*, Eugene Kharitonov, Rahma Chaabouni, Diane Bouchacourt, Marco Baroni. EMNLP 2019.
 
@@ -164,4 +164,13 @@ Optimal coding is a theoretical optimal distribution. It is merely constructed b
 
 ## ✒️ How to cite ?
 
-The paper has just been accepted to CoNLL 2020. Link will be available soon.
+``
+@misc{rita2020lazimpa,
+title={"LazImpa": Lazy and Impatient neural agents learn to communicate efficiently},
+author={Mathieu Rita and Rahma Chaabouni and Emmanuel Dupoux},
+year={2020},
+eprint={2010.01878},
+archivePrefix={arXiv},
+primaryClass={cs.CL}
+}
+```

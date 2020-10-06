@@ -164,7 +164,7 @@ Optimal coding is a theoretical optimal distribution. It is merely constructed b
 
 ## ✒️ How to cite ?
 
-``
+```
 @misc{rita2020lazimpa,
 title={"LazImpa": Lazy and Impatient neural agents learn to communicate efficiently},
 author={Mathieu Rita and Rahma Chaabouni and Emmanuel Dupoux},

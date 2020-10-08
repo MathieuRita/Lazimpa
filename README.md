@@ -49,7 +49,7 @@ mv "./Lazimpa/egg" "./egg"
 ```
 
 ```
-mkdir -p dir_save/{accuracy,messagse,sender,receiver}
+mkdir -p dir_save/{accuracy,messages,sender,receiver}
 ```
 
 **2. Train agents:**

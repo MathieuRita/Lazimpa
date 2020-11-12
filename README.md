@@ -2,7 +2,7 @@
 
 This repository gathers the code used for all the experiments of the following paper:
 
-- [*“LazImpa”: Lazy and Impatient neural agents learn to communicate efficiently* Mathieu Rita, Rahma Chaabouni, Emmanuel Dupoux. (CoNLL 2020)](https://arxiv.org/abs/2010.01878)
+- [*“LazImpa”: Lazy and Impatient neural agents learn to communicate efficiently* Mathieu Rita, Rahma Chaabouni, Emmanuel Dupoux. (CoNLL 2020)](https://www.aclweb.org/anthology/2020.conll-1.26/) [(Arxiv)](https://arxiv.org/abs/2010.01878)
 
 The code is an extension of EGG toolkit (https://github.com/facebookresearch/EGG) presented in *EGG: a toolkit for research on Emergence of lanGuage in Games*, Eugene Kharitonov, Rahma Chaabouni, Diane Bouchacourt, Marco Baroni. EMNLP 2019.
 
@@ -165,12 +165,18 @@ Optimal coding is a theoretical optimal distribution. It is merely constructed b
 ## ✒️ How to cite ?
 
 ```
-@misc{rita2020lazimpa,
-title={"LazImpa": Lazy and Impatient neural agents learn to communicate efficiently},
-author={Mathieu Rita and Rahma Chaabouni and Emmanuel Dupoux},
-year={2020},
-eprint={2010.01878},
-archivePrefix={arXiv},
-primaryClass={cs.CL}
+@inproceedings{rita-etal-2020-lazimpa,
+title = "{``}{L}az{I}mpa{''}: Lazy and Impatient neural agents learn to communicate efficiently",
+author = "Rita, Mathieu  and
+Chaabouni, Rahma  and
+Dupoux, Emmanuel",
+booktitle = "Proceedings of the 24th Conference on Computational Natural Language Learning",
+month = nov,
+year = "2020",
+address = "Online",
+publisher = "Association for Computational Linguistics",
+url = "https://www.aclweb.org/anthology/2020.conll-1.26",
+pages = "335--343",
+abstract = "Previous work has shown that artificial neural agents naturally develop surprisingly non-efficient codes. This is illustrated by the fact that in a referential game involving a speaker and a listener neural networks optimizing accurate transmission over a discrete channel, the emergent messages fail to achieve an optimal length. Furthermore, frequent messages tend to be longer than infrequent ones, a pattern contrary to the Zipf Law of Abbreviation (ZLA) observed in all natural languages. Here, we show that near-optimal and ZLA-compatible messages can emerge, but only if both the speaker and the listener are modified. We hence introduce a new communication system, {``}LazImpa{''}, where the speaker is made increasingly lazy, i.e., avoids long messages, and the listener impatient, i.e., seeks to guess the intended content as soon as possible.",
 }
 ```

@@ -4,6 +4,8 @@ This repository gathers the code used for all the experiments of the following p
 
 - [*“LazImpa”: Lazy and Impatient neural agents learn to communicate efficiently* Mathieu Rita, Rahma Chaabouni, Emmanuel Dupoux. (CoNLL 2020)](https://www.aclweb.org/anthology/2020.conll-1.26/) [(Arxiv)](https://arxiv.org/abs/2010.01878)
 
+You can see the presentation of the paper by clicking on this link: [🎥 Paper presentation](https://slideslive.com/38939488)
+
 The code is an extension of EGG toolkit (https://github.com/facebookresearch/EGG) presented in *EGG: a toolkit for research on Emergence of lanGuage in Games*, Eugene Kharitonov, Rahma Chaabouni, Diane Bouchacourt, Marco Baroni. EMNLP 2019.
 
 ## 📋 Presentation
